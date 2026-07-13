@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 3: O que são AI Agents e por que utilizá-los — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 3 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">3.</span> O que são AI Agents e por que utilizá-los</h1>
+  <p class="subtitle">Entendendo subagentes, orquestração e por que dividir o trabalho entre "assistentes especializados" resolve problemas que um único agente não resolve bem.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Definir o que é um "agente de IA" de forma precisa, além do senso comum.</li>
+      <li>Entender o conceito de subagentes (subagents) e por que eles isolam contexto.</li>
+      <li>Conhecer as evoluções recentes: Dynamic Workflows e spawning hierárquico de agentes.</li>
+      <li>Saber quando vale a pena usar múltiplos agentes em vez de um só.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>No Capítulo 2 vimos que o Claude Code opera em um loop de tarefas: lê, age, observa, decide o próximo passo. Isso já é, tecnicamente, um <strong>agente de IA</strong>: um sistema que recebe um objetivo, tem acesso a ferramentas para agir sobre o mundo (no caso, o seu repositório), e itera de forma autônoma até cumprir esse objetivo, tomando decisões no caminho sem que cada passo precise ser especificado por um humano.</p>
+
+  <p>A diferença de um agente para um simples "modelo que responde perguntas" está em três características:</p>
+  <ul>
+    <li><strong>Autonomia</strong>: o agente decide os próximos passos, não apenas responde uma pergunta isolada.</li>
+    <li><strong>Uso de ferramentas</strong>: o agente pode agir sobre o ambiente (ler arquivos, rodar comandos), não só gerar texto.</li>
+    <li><strong>Iteração</strong>: o agente observa o resultado das próprias ações e se corrige, em vez de dar uma resposta única e final.</li>
+  </ul>
+
+  <p>Mas por que, então, falar em "agentes" no plural? Porque uma tarefa complexa de desenvolvimento raramente é resolvida bem por um único agente cuidando de tudo ao mesmo tempo, no mesmo contexto. Imagine pedir para uma pessoa só, simultaneamente, pesquisar uma biblioteca nova, escrever código, revisar esse código e escrever testes — tudo misturado na mesma cabeça, no mesmo momento. O risco é confundir informação de uma etapa com outra, ou "poluir" o raciocínio com detalhes que não interessam para a tarefa atual.</p>
+
+  <p>É aí que entram os <strong>subagentes</strong> (subagents): assistentes especializados, definidos em arquivos Markdown dentro da pasta <code>.claude/agents/</code> do projeto. Cada subagente tem:</p>
+
+  <table>
+    <tr><th>Característica</th><th>O que significa</th></tr>
+    <tr><td>System prompt próprio</td><td>Instruções específicas de como aquele subagente deve se comportar (ex.: "você é um revisor de código rigoroso, foque em segurança e performance").</td></tr>
+    <tr><td>Ferramentas permitidas</td><td>Pode ter acesso restrito — um subagente de pesquisa, por exemplo, pode não precisar (nem dever) editar arquivos.</td></tr>
+    <tr><td>Modelo próprio</td><td>Pode usar um modelo diferente do agente principal, dependendo da complexidade da tarefa.</td></tr>
+    <tr><td>Contexto isolado</td><td>O subagente trabalha na própria "mesa de trabalho", sem misturar histórico com o restante da conversa principal.</td></tr>
+  </table>
+
+  <p>O benefício direto disso é o que se chama de <strong>isolamento de contexto</strong>: o agente principal (chamado às vezes de "agente líder") pode delegar uma tarefa de pesquisa extensa a um subagente, receber de volta só o resumo relevante, e continuar seu trabalho sem carregar todo o "ruído" da pesquisa na própria memória de trabalho. Isso mantém o raciocínio principal mais limpo e focado.</p>
+
+  <div class="mermaid">
+flowchart TD
+    A[Agente líder recebe o objetivo] --> B{Precisa de tarefa especializada?}
+    B -- Pesquisa --> C[Subagente de pesquisa]
+    B -- Revisão de código --> D[Subagente revisor]
+    B -- Testes --> E[Subagente de testes]
+    C --> F[Retorna resumo ao agente líder]
+    D --> F
+    E --> F
+    F --> G[Agente líder integra os resultados e decide os próximos passos]
+  </div>
+
+  <p>Em 2026, essa ideia evoluiu para o que a Anthropic chama de <strong>Dynamic Workflows</strong>: o agente líder pode planejar e disparar dezenas ou até centenas de subagentes em paralelo, dentro da mesma sessão, distribuindo partes independentes de uma tarefa grande entre eles. Além disso, existe o <strong>spawning hierárquico</strong>: um subagente pode, por sua vez, criar seus próprios subagentes filhos, formando uma hierarquia — atualmente com limite de até três níveis de profundidade. Isso é útil, por exemplo, quando um subagente de "revisão de arquitetura" precisa disparar vários subagentes menores para revisar módulos diferentes do sistema em paralelo.</p>
+
+  <h2>Exemplos práticos</h2>
+  <p>Um subagente é definido em um arquivo Markdown simples. Exemplo de um subagente revisor de código, salvo em <code>.claude/agents/revisor-codigo.md</code>:</p>
+  <pre><code>---
+name: revisor-codigo
+description: Revisa código em busca de bugs, problemas de segurança e más práticas.
+tools: Read, Grep, Glob
+model: sonnet
+---
+
+Você é um revisor de código sênior. Ao analisar um trecho de código:
+1. Aponte bugs reais, não estilos de escrita.
+2. Sinalize riscos de segurança (injeção, dados sensíveis expostos).
+3. Sugira melhorias objetivas, com exemplo de correção.
+Nunca edite arquivos diretamente — apenas reporte.</code></pre>
+
+  <p>Com esse arquivo criado, você pode pedir ao agente principal:</p>
+  <pre><code>&gt; Use o subagente revisor-codigo para revisar as mudanças
+  que acabamos de fazer em src/api/pagamentos.ts</code></pre>
+
+  <p>O agente principal delega a tarefa, o subagente revisa com seu próprio contexto e ferramentas limitadas (só leitura — note que ele não tem permissão de <code>Edit</code>), e retorna um relatório. O agente principal decide o que fazer com esse relatório, sem ter "poluído" seu próprio raciocínio com todo o processo de revisão linha a linha.</p>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Identifique tarefas do seu fluxo que são repetitivas ou exigem um "modo de pensar" diferente (pesquisa, revisão, testes, documentação).</li>
+    <li>Crie um subagente especializado para cada uma, com ferramentas e instruções restritas ao necessário.</li>
+    <li>Deixe o agente principal orquestrar: ele decide quando delegar para qual subagente.</li>
+    <li>Para tarefas grandes e paralelizáveis (ex.: revisar 10 módulos independentes), aproveite os Dynamic Workflows para disparar vários subagentes ao mesmo tempo.</li>
+    <li>Revise os resumos retornados antes de aprovar mudanças críticas.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Você
+    participant Líder as Agente líder
+    participant Sub1 as Subagente pesquisa
+    participant Sub2 as Subagente testes
+
+    Você->>Líder: "Avalie e implemente a biblioteca X"
+    Líder->>Sub1: Pesquisar documentação e alternativas
+    Sub1-->>Líder: Resumo da pesquisa
+    Líder->>Líder: Implementa a integração
+    Líder->>Sub2: Escrever testes da nova integração
+    Sub2-->>Líder: Testes criados e resultado da execução
+    Líder->>Você: Resumo final da tarefa
+  </div>
+
+  <h2>Dicas e boas práticas</h2>
+  <div class="tip"><strong>Dica:</strong> dê a cada subagente o menor conjunto de ferramentas necessário para a tarefa dele (princípio do menor privilégio). Um subagente de pesquisa não precisa de permissão para editar arquivos.</div>
+  <div class="tip"><strong>Dica:</strong> nomeie e descreva subagentes de forma clara e específica — isso ajuda o agente líder a decidir corretamente quando delegar para cada um.</div>
+  <div class="tip"><strong>Dica:</strong> use subagentes para tarefas que, se feitas pelo agente principal, "sujariam" o contexto principal com muito detalhe irrelevante — pesquisas longas, leitura de muitos arquivos, exploração ampla do código.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> criar um subagente "genérico" que faz de tudo, anulando o benefício de isolamento e especialização. Prefira vários subagentes pequenos e focados a um grande e vago.</div>
+  <div class="warn"><strong>Erro comum:</strong> dar permissões amplas demais a um subagente "só por garantia" (ex.: acesso a shell quando ele só precisa ler arquivos). Isso aumenta o risco sem necessidade.</div>
+  <div class="warn"><strong>Erro comum:</strong> paralelizar tarefas que na verdade dependem umas das outras (ex.: revisar código antes dele existir). Dynamic Workflows ajudam com tarefas independentes, não substituem planejamento de dependências.</div>
+
+  <h2>Exercício prático</h2>
+  <div class="exercise"><strong>Mão na massa:</strong> crie um arquivo <code>.claude/agents/documentador.md</code> definindo um subagente cuja única função é ler um arquivo de código e gerar um resumo em português do que ele faz, sem sugerir mudanças. Peça ao Claude Code para usar esse subagente em um arquivo real do seu projeto e compare o resultado com o que o agente principal geraria sozinho, sem delegação.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>Um agente de IA é um sistema autônomo que usa ferramentas para agir e itera até cumprir um objetivo. Subagentes são assistentes especializados, definidos em Markdown, com system prompt, ferramentas e contexto próprios — usados para isolar tarefas específicas do raciocínio principal. Em 2026, Dynamic Workflows permitem disparar muitos subagentes em paralelo, e o spawning hierárquico permite que subagentes criem seus próprios subagentes filhos, até três níveis de profundidade. Usar múltiplos agentes especializados, em vez de um único agente genérico, melhora foco, segurança e qualidade do resultado.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-02-o-que-e-claude-code.html"><span class="lbl">Anterior</span>Cap. 2 — O que é o Claude Code</a>
+    <a href="cap-04-prompts-tools-mcp-skills-hooks.html" class="next"><span class="lbl">Próximo</span>Cap. 4 — Prompts, Tools, MCPs, Skills e Hooks</a>
+  </div>
+</div>
+</body>
+</html>

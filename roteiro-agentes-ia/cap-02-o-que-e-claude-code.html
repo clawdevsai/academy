@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 2: O que é o Claude Code e como ele funciona — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 2 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">2.</span> O que é o Claude Code e como ele funciona</h1>
+  <p class="subtitle">Conhecendo a ferramenta de linha de comando da Anthropic para desenvolvimento agentic.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Entender o que é o Claude Code e em que ele difere de um assistente de chat comum.</li>
+      <li>Compreender o "loop de tarefas" (task loop) que faz o agente ler, agir e verificar seu próprio trabalho.</li>
+      <li>Conhecer as capacidades básicas: leitura e edição de arquivos, execução de comandos de shell, testes e git.</li>
+      <li>Saber instalar e rodar o Claude Code num projeto real pela primeira vez.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>O <strong>Claude Code</strong> é uma ferramenta de linha de comando (CLI, do inglês <em>command-line interface</em> — um programa que você usa digitando comandos no terminal, em vez de clicar em botões) criada pela Anthropic para desenvolvimento <strong>agentic</strong>. Isso significa que, diferente de um chat onde você copia e cola código, o Claude Code roda dentro (ou ao lado) do seu projeto e tem permissão para agir diretamente sobre ele: ler arquivos do repositório, editá-los, criar novos arquivos, rodar comandos de terminal, executar testes e interagir com o git.</p>
+
+  <p>A diferença central em relação a um chat comum é que o Claude Code opera em um <strong>loop de tarefas</strong>: ele não apenas responde uma vez e para. Ele lê o que precisa, toma uma ação, observa o resultado dessa ação (por exemplo, o output de um teste que rodou), decide o próximo passo com base nisso, e repete esse ciclo até considerar a tarefa concluída ou até precisar da sua confirmação para continuar.</p>
+
+  <div class="mermaid">
+flowchart TD
+    A[Você dá uma instrução] --> B[Claude Code lê arquivos relevantes do projeto]
+    B --> C[Planeja os passos necessários]
+    C --> D[Executa uma ação: edita arquivo, roda comando, etc.]
+    D --> E{Resultado esperado?}
+    E -- Não --> C
+    E -- Sim --> F{Tarefa completa?}
+    F -- Não --> C
+    F -- Sim --> G[Mostra resumo do que foi feito]
+  </div>
+
+  <p>Esse loop é o que torna o Claude Code "agentic" e não apenas "conversacional". Ele pode, por exemplo, escrever uma função, rodar os testes automaticamente, ver que um teste falhou, ler a mensagem de erro, corrigir o código e rodar os testes de novo — tudo isso sem que você precise intervir a cada passo.</p>
+
+  <p>Para isso funcionar, o Claude Code precisa de acesso a algumas capacidades básicas, chamadas de <strong>tools</strong> (ferramentas) — vamos aprofundar esse conceito no Capítulo 4, mas por ora basta saber que existem ferramentas nativas como:</p>
+
+  <table>
+    <tr><th>Ferramenta</th><th>O que faz</th></tr>
+    <tr><td>Leitura de arquivos</td><td>Abre e lê o conteúdo de arquivos do projeto para entender o código existente.</td></tr>
+    <tr><td>Edição de arquivos</td><td>Faz alterações precisas em arquivos existentes ou cria novos.</td></tr>
+    <tr><td>Execução de shell</td><td>Roda comandos de terminal: instalar dependências, rodar scripts, compilar.</td></tr>
+    <tr><td>Testes</td><td>Executa a suíte de testes do projeto e interpreta os resultados.</td></tr>
+    <tr><td>Git</td><td>Cria commits, branches, vê diffs e histórico de mudanças.</td></tr>
+    <tr><td>Busca no repositório</td><td>Procura por trechos de código, funções ou padrões em todo o projeto.</td></tr>
+  </table>
+
+  <p>Outro ponto importante: o Claude Code é <strong>autônomo, mas não descontrolado</strong>. Ele pede confirmação antes de ações potencialmente arriscadas (como rodar um comando que apaga arquivos) e você pode configurar o nível de autonomia — desde "pergunte antes de cada ação" até "execute a tarefa inteira e só me avise no final". Essa configuração de permissões é essencial para usar a ferramenta com segurança, especialmente em projetos de produção.</p>
+
+  <h2>Exemplos práticos</h2>
+  <p>Instalar o Claude Code e rodar o primeiro comando dentro de um projeto:</p>
+  <pre><code># instala o Claude Code globalmente (requer Node.js instalado)
+npm install -g @anthropic-ai/claude-code
+
+# entra na pasta do seu projeto
+cd meu-projeto
+
+# inicia o Claude Code
+claude</code></pre>
+
+  <p>Depois de iniciado, você conversa com ele em linguagem natural, no próprio terminal:</p>
+  <pre><code>&gt; Leia o arquivo package.json e me diga quais dependências
+  desatualizadas o projeto tem hoje.</code></pre>
+
+  <p>Ou peça uma tarefa mais completa, que exige várias ações em sequência:</p>
+  <pre><code>&gt; Crie um endpoint POST /usuarios que valide nome e e-mail,
+  salve no banco usando o padrão que já existe em src/repositories,
+  e escreva um teste para o caso de e-mail inválido.</code></pre>
+
+  <p>Nesse segundo exemplo, o Claude Code provavelmente vai: (1) explorar a pasta <code>src/repositories</code> para entender o padrão usado no projeto, (2) criar o endpoint seguindo esse padrão, (3) escrever o teste, e (4) rodar a suíte de testes para confirmar que tudo passa — tudo isso de forma autônoma, mostrando o progresso no terminal.</p>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Abra o terminal dentro da pasta do projeto (não fora dela) — o Claude Code usa o diretório atual como ponto de partida para entender o repositório.</li>
+    <li>Comece com um pedido claro e delimitado, especialmente nas primeiras vezes.</li>
+    <li>Acompanhe o que ele está fazendo: qual arquivo está lendo, qual comando está rodando.</li>
+    <li>Quando ele pedir confirmação para uma ação sensível, leia antes de aprovar.</li>
+    <li>Ao final, revise o diff (as mudanças) antes de fazer commit.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Você (terminal)
+    participant CC as Claude Code
+    participant Repo as Repositório
+
+    Dev->>CC: claude
+    Dev->>CC: "Crie o endpoint X seguindo o padrão do projeto"
+    CC->>Repo: Lê arquivos de referência
+    CC->>Repo: Edita/cria arquivos
+    CC->>Repo: Roda testes
+    Repo-->>CC: Resultado dos testes
+    CC->>Dev: Resumo do que foi feito
+    Dev->>CC: Aprova ou pede ajuste
+  </div>
+
+  <h2>Dicas e boas práticas</h2>
+  <div class="tip"><strong>Dica:</strong> use um arquivo <code>CLAUDE.md</code> na raiz do projeto para descrever convenções, comandos de build/test e preferências do time. O Claude Code lê esse arquivo automaticamente e passa a seguir essas regras em todas as tarefas.</div>
+  <div class="tip"><strong>Dica:</strong> em projetos críticos, comece com o modo de permissões mais conservador (confirmação a cada ação) e vá relaxando conforme ganha confiança na ferramenta.</div>
+  <div class="tip"><strong>Dica:</strong> use controle de versão (git) sempre. Isso te dá uma rede de segurança: se o resultado não for o esperado, é fácil reverter.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> rodar o Claude Code fora da pasta do projeto ou numa pasta errada, fazendo com que ele não encontre o contexto certo. Sempre confirme em qual diretório você está antes de iniciar.</div>
+  <div class="warn"><strong>Erro comum:</strong> dar autonomia total (aprovar tudo sem revisar) logo no início, antes de entender como a ferramenta se comporta no seu projeto específico. Ganhe confiança gradualmente.</div>
+  <div class="warn"><strong>Erro comum:</strong> pedir tarefas gigantes e vagas de uma vez ("refatore o sistema inteiro"). Isso deixa a IA sem critério claro de sucesso e aumenta a chance de erro. Prefira tarefas menores e mais bem definidas, como vimos no Capítulo 1.</div>
+
+  <h2>Exercício prático</h2>
+  <div class="exercise"><strong>Mão na massa:</strong> instale o Claude Code em uma pasta de projeto simples (pode ser um projeto de estudo, mesmo pequeno). Peça para ele explicar a estrutura de pastas do projeto em português, e depois peça uma pequena mudança (ex.: adicionar um comentário explicativo em uma função, ou criar um arquivo README básico). Observe no terminal quais ferramentas ele usou (leitura, escrita, etc.) durante a execução.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>O Claude Code é uma CLI da Anthropic para desenvolvimento agentic: ele lê, edita e testa código dentro do seu projeto de forma autônoma, operando em um loop de tarefas até concluir o objetivo pedido. Diferente de um chat, ele age diretamente sobre o repositório usando ferramentas como leitura/edição de arquivos, shell, testes e git. A autonomia é configurável, e cabe a você calibrar o nível de supervisão conforme a confiança que ganha na ferramenta e a criticidade do projeto.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-01-introducao-dev-ia.html"><span class="lbl">Anterior</span>Cap. 1 — Introdução</a>
+    <a href="cap-03-o-que-sao-ai-agents.html" class="next"><span class="lbl">Próximo</span>Cap. 3 — O que são AI Agents</a>
+  </div>
+</div>
+</body>
+</html>

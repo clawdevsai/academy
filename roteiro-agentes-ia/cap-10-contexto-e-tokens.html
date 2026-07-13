@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 10: Mantendo contexto entre tarefas e reduzindo desperdício de tokens — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 10 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">10.</span> Mantendo contexto entre tarefas e reduzindo desperdício de tokens</h1>
+  <p class="subtitle">A janela de contexto é o recurso mais caro e mais escasso de um agente — aprenda a geri-la como um orçamento.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Entender por que contexto não é "memória infinita" e o que acontece quando ele se esgota.</li>
+      <li>Usar subagentes para isolar trabalho "sujo" (logs, buscas grandes, exploração) do contexto principal.</li>
+      <li>Substituir repetição de contexto por arquivos de referência persistentes (CLAUDE.md, memória).</li>
+      <li>Saber quando dividir uma tarefa grande em etapas menores e quando resetar o contexto.</li>
+      <li>Aplicar técnicas práticas de compactação e resumo para conversas longas.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    Todo modelo de linguagem opera dentro de uma <strong>janela de contexto</strong>: um limite fixo de tokens que inclui
+    tudo que já foi dito na conversa, o conteúdo de arquivos lidos, resultados de ferramentas, instruções do sistema e a
+    resposta que está sendo gerada. Diferente de uma memória de computador tradicional, essa janela não é "apagada e
+    reescrita" de forma barata — cada token que entra nela custa processamento, custa dinheiro (em APIs pagas por token)
+    e, o mais importante para você como praticante, <strong>compete por atenção</strong> com o resto da conversa.
+  </p>
+  <p>
+    Um agente com contexto poluído — cheio de logs de erro extensos, arquivos inteiros colados sem necessidade, ou
+    histórico de tentativas fracassadas — não fica apenas mais lento e mais caro. Ele fica <strong>pior</strong>: a
+    informação relevante para a tarefa atual se dilui em meio a ruído, e o modelo passa a "esquecer" instruções dadas
+    no início da conversa (o efeito é conhecido informalmente como "lost in the middle", onde informação no meio de
+    contextos longos recebe menos atenção do que informação no início ou no fim).
+  </p>
+  <p>
+    A boa notícia é que o Claude Code foi desenhado com esse problema em mente. As mesmas ferramentas que você já
+    conhece dos capítulos anteriores — subagentes, arquivos de memória, Spec-Driven Development — são, na prática,
+    técnicas de <strong>gestão de contexto</strong>. Neste capítulo vamos olhar para elas especificamente sob essa
+    lente: não "como fazer o agente trabalhar", mas "como manter a janela de contexto enxuta e relevante ao longo de
+    uma sessão longa ou de um projeto inteiro".
+  </p>
+
+  <table>
+    <tr><th>Estratégia</th><th>O que resolve</th><th>Quando usar</th></tr>
+    <tr><td>Subagentes isolados</td><td>Evita que exploração/buscas grandes poluam o contexto principal</td><td>Pesquisa de código, leitura de logs extensos, investigação aberta</td></tr>
+    <tr><td>Arquivos de referência (CLAUDE.md)</td><td>Evita repetir as mesmas instruções em todo prompt</td><td>Convenções do projeto, arquitetura, regras fixas</td></tr>
+    <tr><td>Divisão em etapas menores</td><td>Evita que uma tarefa monolítica esgote a janela antes de terminar</td><td>Tarefas com múltiplas fases (planejar → codificar → testar)</td></tr>
+    <tr><td>Reset de contexto</td><td>Evita "vazamento" de contexto irrelevante entre tarefas não relacionadas</td><td>Início de uma nova feature/bug não relacionado ao anterior</td></tr>
+    <tr><td>Trechos em vez de arquivos inteiros</td><td>Evita gastar tokens com código que não será tocado</td><td>Arquivos grandes onde só uma função/seção importa</td></tr>
+    <tr><td>Compactação/resumo</td><td>Preserva decisões importantes descartando o "como chegamos lá"</td><td>Conversas longas que ainda vão continuar</td></tr>
+  </table>
+
+  <div class="mermaid">
+graph TD
+    A[Contexto principal do agente] -->|delega busca grande| B[Subagente: explorar código]
+    A -->|delega leitura de logs| C[Subagente: analisar logs de erro]
+    B -->|devolve só o resumo| A
+    C -->|devolve só o resumo| A
+    A -->|le| D[CLAUDE.md do projeto]
+    A -->|não repete| D
+    style A fill:#1c2030,stroke:#e07b39,color:#fff
+    style B fill:#161925,stroke:#5b8def,color:#fff
+    style C fill:#161925,stroke:#5b8def,color:#fff
+    style D fill:#132a20,stroke:#4caf7d,color:#fff
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>
+    Imagine que você precisa investigar por que um endpoint de API está retornando erro 500 intermitente em produção.
+    Os logs têm milhares de linhas. Trazer esse arquivo inteiro para o contexto principal seria desperdício — a maior
+    parte das linhas é ruído. O jeito certo é delegar a um subagente:
+  </p>
+  <pre><code>Você: Tenho um arquivo de log de 40MB em /var/log/api/error.log.
+Preciso saber por que o endpoint POST /orders está retornando 500
+de forma intermitente nas últimas 24h. Use um subagente para
+vasculhar o log e me traga só um resumo com: padrão do erro,
+horários, e stack trace relevante (se houver repetição).</code></pre>
+  <p>
+    O subagente lê o arquivo inteiro, filtra, cruza informações — e tudo isso acontece na janela de contexto <em>dele</em>,
+    não na sua. O que volta para a conversa principal é um resumo de algumas linhas. Essa é a diferença entre gastar
+    40MB de tokens e gastar algumas centenas.
+  </p>
+  <p>
+    Outro exemplo comum: em vez de colar um arquivo de 800 linhas para pedir uma alteração em uma função específica,
+    peça ao agente para localizar e ler apenas o trecho relevante:
+  </p>
+  <pre><code>Ruim:  "Aqui está o arquivo inteiro [cola 800 linhas], corrija a função calcularFrete"
+Melhor: "No arquivo src/services/frete.js, revise a função calcularFrete.
+         Leia o arquivo você mesmo e aplique a correção X."</code></pre>
+  <p>
+    O agente tem ferramentas de leitura de arquivo — deixe-o buscar exatamente o que precisa, em vez de você
+    pré-carregar tudo "por garantia".
+  </p>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li><strong>No início do projeto</strong>, escreva um <code>CLAUDE.md</code> com convenções, arquitetura, comandos de build/teste. Isso substitui repetir esse contexto em cada prompt.</li>
+    <li><strong>Antes de uma tarefa grande</strong>, pergunte-se: "isso precisa de exploração ampla (logs, busca em muitos arquivos)?" Se sim, delegue essa parte a um subagente.</li>
+    <li><strong>Divida tarefas grandes</strong> em fases com checkpoints — planejar, implementar, revisar, testar — em vez de pedir tudo em um único prompt monstro.</li>
+    <li><strong>Ao trocar de assunto</strong> (nova feature não relacionada), inicie uma nova conversa/sessão em vez de continuar acumulando contexto antigo.</li>
+    <li><strong>Em conversas longas que precisam continuar</strong>, use os recursos de compactação/resumo disponíveis (por exemplo, pedir explicitamente um resumo do progresso antes de seguir, ou usar o comando de compactação do Claude Code quando disponível).</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Desenvolvedor
+    participant Main as Agente principal
+    participant Sub as Subagente
+    Dev->>Main: Investigar bug em produção
+    Main->>Sub: Vasculhar logs de 40MB
+    Sub-->>Main: Resumo: erro de timeout às 14h-15h
+    Main-->>Dev: Diagnóstico + próximo passo
+    Dev->>Main: Corrigir causa raiz
+    Main-->>Dev: Patch aplicado (contexto ainda enxuto)
+  </div>
+
+  <h2>Dicas e boas práticas</h2>
+  <div class="tip"><strong>Dica:</strong> Trate o CLAUDE.md como a "memória de longo prazo" do projeto. Qualquer informação que você se pega repetindo em vários prompts é candidata a virar uma linha nesse arquivo.</div>
+  <div class="tip"><strong>Dica:</strong> Prefira "leia o arquivo X e faça Y" a colar o conteúdo manualmente. O agente sabe usar suas próprias ferramentas de leitura de forma mais econômica do que você acha.</div>
+  <div class="tip"><strong>Dica:</strong> Se uma sessão está ficando longa e você percebe respostas mais lentas ou genéricas, é sinal de que o contexto está saturado — é hora de resumir ou começar de novo.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> Colar arquivos inteiros "só para garantir que o agente veja tudo". Isso quase sempre é desperdício — o agente tem ferramentas para buscar o que precisa sob demanda.</div>
+  <div class="warn"><strong>Erro comum:</strong> Manter a mesma conversa aberta por dias, acumulando contexto de tarefas completamente diferentes. Isso degrada a qualidade das respostas e aumenta custo sem benefício.</div>
+  <div class="warn"><strong>Erro comum:</strong> Não usar subagentes para exploração e deixar o agente principal "ler tudo" diretamente — poluindo o contexto que deveria ficar reservado para a decisão e a implementação.</div>
+
+  <h2>Exercício prático</h2>
+  <div class="exercise"><strong>Mão na massa:</strong> Escolha um projeto real seu com pelo menos um arquivo de log ou um diretório com muitos arquivos de código. Peça ao Claude Code para investigar algo usando explicitamente um subagente (ex.: "use um subagente para mapear todos os lugares onde a função X é chamada e me traga só a lista de arquivos e linhas"). Compare o tamanho da resposta final com o volume de dados que foi processado — essa é a economia de contexto na prática.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>
+      Contexto é um recurso finito e caro, não uma memória infinita. Subagentes permitem isolar trabalho volumoso
+      (logs, buscas amplas) do contexto principal, devolvendo apenas o resumo relevante. Arquivos de referência como
+      o CLAUDE.md eliminam a necessidade de repetir instruções a cada prompt. Tarefas grandes devem ser divididas em
+      etapas, e conversas não relacionadas devem começar do zero em vez de acumular ruído. Gerenciar contexto bem é,
+      na prática, gerenciar a qualidade e o custo de tudo que o agente produz.
+    </p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-09-revisao-qa-seguranca-devops.html"><span class="lbl">Anterior</span>Cap. 9 — QA, Segurança e DevOps</a>
+    <a href="cap-11-boas-praticas.html" class="next"><span class="lbl">Próximo</span>Cap. 11 — Boas práticas</a>
+  </div>
+</div>
+</body>
+</html>

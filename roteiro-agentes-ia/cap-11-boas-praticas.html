@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 11: Boas práticas para projetos reais — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 11 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">11.</span> Boas práticas para projetos reais</h1>
+  <p class="subtitle">Do laboratório para produção: como integrar agentes de IA em um fluxo de engenharia de software sério.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Manter um CLAUDE.md vivo, atualizado e útil ao longo do tempo.</li>
+      <li>Versionar prompts, configs de agentes e specs junto com o código-fonte.</li>
+      <li>Revisar diffs gerados por IA com o mesmo rigor de um Pull Request humano.</li>
+      <li>Usar testes automatizados como rede de segurança para mudanças feitas por agentes.</li>
+      <li>Escalar de "um agente, uma tarefa" para orquestração multi-agente de forma gradual e segura.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    Até aqui você aprendeu as peças técnicas: subagentes, agentes customizados, Spec-Driven Development, agentes de
+    QA/segurança/DevOps. A pergunta deste capítulo é diferente: <strong>como isso tudo se comporta dentro de um
+    projeto real, com histórico, com outros desenvolvedores, com prazos e com produção rodando?</strong> A resposta
+    não é sobre técnica de prompt — é sobre disciplina de engenharia aplicada ao uso de IA.
+  </p>
+  <p>
+    A analogia mais útil é tratar o agente como um <strong>desenvolvedor júnior muito rápido, mas sem julgamento de
+    longo prazo</strong>. Ele escreve código plausível em segundos, mas não tem instinto sobre as decisões arquiteturais
+    tomadas seis meses atrás, não sabe por que aquele hack "temporário" ainda está lá, e não vai necessariamente notar
+    que uma mudança pequena quebra um contrato implícito em outro módulo. Boas práticas de projeto real existem
+    justamente para compensar essa lacuna de julgamento — com processo, e não com confiança cega.
+  </p>
+
+  <table>
+    <tr><th>Prática</th><th>Problema que evita</th></tr>
+    <tr><td>CLAUDE.md atualizado</td><td>Agente reinventa convenções ou ignora decisões já tomadas</td></tr>
+    <tr><td>Prompts/configs versionados</td><td>Perda de conhecimento sobre "como pedimos isso da última vez"</td></tr>
+    <tr><td>Revisão de diff como PR humano</td><td>Bugs sutis e regressões silenciosas entrando em produção</td></tr>
+    <tr><td>Testes automatizados</td><td>Regressões não detectadas até o usuário final encontrar</td></tr>
+    <tr><td>Começar pequeno (1 agente, 1 tarefa)</td><td>Falhas em cascata difíceis de depurar em orquestrações complexas</td></tr>
+    <tr><td>Documentar decisões arquiteturais</td><td>Agente (e humanos novos) repetindo erros já descartados</td></tr>
+  </table>
+
+  <div class="mermaid">
+graph LR
+    A[CLAUDE.md atualizado] --> B[Agente com contexto correto]
+    B --> C[Código gerado]
+    C --> D[Revisão de diff como PR]
+    D --> E[Testes automatizados]
+    E -->|passa| F[Merge]
+    E -->|falha| C
+    D -->|reprovado| C
+    style A fill:#132a20,stroke:#4caf7d,color:#fff
+    style F fill:#1c2030,stroke:#e07b39,color:#fff
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>
+    Um CLAUDE.md de projeto real não é um "prompt engenhoso" — é um documento de engenharia, versionado no repositório,
+    revisado como qualquer outro arquivo:
+  </p>
+  <pre><code># CLAUDE.md
+
+## Stack
+- Backend: Node.js 20 + Express + Prisma + PostgreSQL
+- Frontend: React + Vite + TailwindCSS
+- Testes: Vitest (unitário), Playwright (E2E)
+
+## Convenções
+- Toda rota de API precisa de validação com Zod antes do handler.
+- Erros de negócio usam a classe AppError (não lançar Error genérico).
+- Nunca commitar migrations sem rodar `npm run test:db` antes.
+
+## Comandos úteis
+- `npm run dev` — sobe o ambiente local
+- `npm run test` — roda toda a suíte
+- `npm run lint:fix` — corrige lint automaticamente
+
+## Decisões arquiteturais
+- Optamos por autenticação via JWT + refresh token em cookie httpOnly
+  (ADR-003, ver docs/adr/003-auth.md) em vez de sessão no servidor,
+  por causa do requisito de múltiplos clientes (web + mobile).
+</code></pre>
+  <p>
+    Note o último bloco: "Decisões arquiteturais". Isso é o que evita que um agente (ou um novo desenvolvedor humano)
+    proponha "vamos trocar para sessão no servidor" sem saber que essa opção já foi avaliada e descartada por um
+    motivo concreto.
+  </p>
+  <p>
+    Sobre versionar prompts e configs: se você tem agentes customizados (capítulo 6) com instruções específicas do
+    domínio, esses arquivos de definição de agente pertencem ao repositório, não à sua máquina local:
+  </p>
+  <pre><code>projeto/
+  .claude/
+    agents/
+      revisor-seguranca.md
+      qa-automatizado.md
+    CLAUDE.md
+  src/
+  tests/</code></pre>
+  <p>
+    Assim, qualquer pessoa do time — ou o próprio agente em uma sessão futura — usa exatamente a mesma configuração,
+    e mudanças nesses arquivos passam por revisão de código como qualquer outra mudança de comportamento do sistema.
+  </p>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Antes de pedir a primeira tarefa a um agente em um projeto novo, escreva (ou peça ao agente para gerar e você revisar) um CLAUDE.md inicial.</li>
+    <li>Comece com uma tarefa isolada e um único agente. Só introduza orquestração multi-agente quando o fluxo simples já estiver confiável.</li>
+    <li>Toda mudança gerada por agente passa por revisão de diff — leia como leria um PR de um colega novo no time.</li>
+    <li>Rode a suíte de testes antes de aceitar qualquer mudança; se não existe suíte, esse é o primeiro investimento a fazer.</li>
+    <li>Quando uma decisão importante for tomada (arquitetura, biblioteca, padrão), registre-a em um ADR curto e referencie no CLAUDE.md.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Desenvolvedor
+    participant Agent as Agente
+    participant Repo as Repositório
+    Dev->>Agent: Tarefa com contexto do CLAUDE.md
+    Agent->>Repo: Gera diff
+    Dev->>Repo: Revisa diff como PR
+    Dev->>Repo: Roda testes automatizados
+    alt Testes passam e revisão aprova
+        Dev->>Repo: Merge
+    else Falha em algum ponto
+        Dev->>Agent: Pede ajuste com feedback específico
+    end
+  </div>
+
+  <h2>Dicas e boas práticas</h2>
+  <div class="tip"><strong>Dica:</strong> Trate atualizações do CLAUDE.md como parte do "definition of done" de qualquer tarefa que introduza uma convenção nova ou decisão arquitetural.</div>
+  <div class="tip"><strong>Dica:</strong> Peça ao próprio agente para sugerir atualizações ao CLAUDE.md depois de uma tarefa complexa — muitas vezes ele identifica lacunas de contexto que você não percebeu.</div>
+  <div class="tip"><strong>Dica:</strong> Escale a orquestração multi-agente igual escala microsserviços: só quando a complexidade real justificar, não porque parece mais sofisticado.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> Ter um CLAUDE.md que foi escrito uma vez no início do projeto e nunca mais atualizado — vira documentação mentirosa, pior do que não ter nada.</div>
+  <div class="warn"><strong>Erro comum:</strong> Revisar diffs de IA "por cima", com menos rigor do que se revisaria um PR humano, sob a premissa errada de que "a IA não erra tanto assim".</div>
+  <div class="warn"><strong>Erro comum:</strong> Pular direto para orquestração multi-agente complexa em um projeto que ainda nem tem testes automatizados — a complexidade de coordenação sem rede de segurança é uma receita para bugs difíceis de rastrear.</div>
+
+  <h2>Exercício prático</h2>
+  <div class="exercise"><strong>Mão na massa:</strong> Pegue um projeto real (ou o projeto do capítulo 13 mais adiante) e escreva um CLAUDE.md do zero com pelo menos quatro seções: Stack, Convenções, Comandos úteis e Decisões arquiteturais. Depois, peça a um agente para executar uma tarefa pequena usando apenas esse arquivo como contexto — sem você repetir nada no prompt — e avalie se o resultado seguiu as convenções descritas.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>
+      Projetos reais exigem disciplina de engenharia, não apenas técnica de prompt. Um CLAUDE.md vivo e atualizado,
+      prompts e configs versionados junto com o código, revisão rigorosa de diffs gerados por IA, testes automatizados
+      como rede de segurança e uma escalada gradual de complexidade (de um agente para múltiplos) são os pilares que
+      tornam o uso de agentes sustentável em produção, e não apenas impressionante em uma demo.
+    </p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-10-contexto-e-tokens.html"><span class="lbl">Anterior</span>Cap. 10 — Contexto e tokens</a>
+    <a href="cap-12-erros-comuns.html" class="next"><span class="lbl">Próximo</span>Cap. 12 — Erros comuns</a>
+  </div>
+</div>
+</body>
+</html>

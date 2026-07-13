@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 12: Erros mais comuns de iniciantes e como evitá-los — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 12 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">12.</span> Erros mais comuns de iniciantes e como evitá-los</h1>
+  <p class="subtitle">Os mesmos oito tropeços aparecem em quase todo time que começa a usar agentes de IA — reconheça-os antes de cometê-los.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Reconhecer os padrões de erro mais frequentes entre desenvolvedores iniciando com agentes.</li>
+      <li>Entender por que "confiar cegamente" e "prompt vago" são, na raiz, o mesmo problema.</li>
+      <li>Saber quando um único agente genérico deixa de ser suficiente.</li>
+      <li>Recalibrar a percepção sobre Spec-Driven Development como algo que escala com o risco, não como burocracia fixa.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    A maioria dos erros de iniciante em agentes de IA não é técnica — é de <strong>calibração de confiança e de
+    esforço</strong>. As pessoas erram para os dois lados: confiam demais no output sem revisar, ou investem tempo
+    de planejamento (specs, checkpoints) desproporcional ao risco real da tarefa. O objetivo deste capítulo é dar
+    a você um mapa desses erros para que reconheça o padrão rapidamente, em vez de descobrir cada um "na marra".
+  </p>
+
+  <table>
+    <tr><th>Erro</th><th>Sintoma</th><th>Correção</th></tr>
+    <tr><td>Confiança cega no output</td><td>Merge sem ler o diff</td><td>Revisar como PR humano (cap. 11)</td></tr>
+    <tr><td>Prompts vagos</td><td>"Melhora esse código" sem critério</td><td>Especificar objetivo, restrições e critério de aceite</td></tr>
+    <tr><td>Contexto insuficiente</td><td>Agente reinventa convenções já existentes</td><td>CLAUDE.md atualizado (cap. 11)</td></tr>
+    <tr><td>Um agente genérico para tudo</td><td>Qualidade inconsistente entre tarefas diferentes</td><td>Especializar agentes por domínio (cap. 5-6)</td></tr>
+    <tr><td>Sem checkpoints em tarefas grandes</td><td>Agente "foge" da tarefa original ou acumula erro</td><td>Dividir em etapas com revisão intermediária</td></tr>
+    <tr><td>Sem controle de versão</td><td>Mudança ruim sem como reverter</td><td>Git como rede de segurança obrigatória</td></tr>
+    <tr><td>Ignorar guardrails de segurança</td><td>Hooks/permissões desligados "para ir mais rápido"</td><td>Manter guardrails ativos sempre</td></tr>
+    <tr><td>SDD visto como burocracia</td><td>Pula spec até em mudanças arriscadas</td><td>Escalar processo com o tamanho/risco da tarefa</td></tr>
+  </table>
+
+  <div class="mermaid">
+graph TD
+    A[Prompt vago] --> B[Output plausível mas errado]
+    B --> C{Revisado?}
+    C -->|Não - confiança cega| D[Bug em produção]
+    C -->|Sim - revisão como PR| E[Erro capturado antes do merge]
+    style D fill:#2b1a17,stroke:#e0605c,color:#fff
+    style E fill:#132a20,stroke:#4caf7d,color:#fff
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p><strong>Prompt vago vs. prompt específico.</strong> Compare:</p>
+  <pre><code>Vago:      "Melhora a performance dessa API"
+Específico: "O endpoint GET /reports está levando mais de 3s com
+             10 mil registros. Suspeito de N+1 query no Prisma.
+             Investigue com um profiler, identifique a causa raiz
+             e proponha uma correção que mantenha os testes
+             existentes passando. Meta: menos de 500ms."</code></pre>
+  <p>
+    O segundo prompt dá objetivo mensurável, hipótese, restrição (não quebrar testes) e critério de aceite. Isso não
+    é "escrever mais" por escrever — é eliminar ambiguidade que o agente teria que adivinhar, e adivinhação é onde
+    erros nascem.
+  </p>
+  <p><strong>Um agente genérico para tudo.</strong> Um erro sutil é usar o mesmo agente sem nenhuma especialização
+  para escrever código, revisar segurança e rodar testes. Cada uma dessas tarefas se beneficia de um "modo de pensar"
+  diferente — o revisor de segurança deve ser cético e procurar falhas, o implementador deve ser produtivo e seguir o
+  plano. Misturar os dois papéis no mesmo prompt tende a produzir um meio-termo mediano nas duas frentes.</p>
+  <p><strong>Spec-Driven Development como burocracia.</strong> É comum o iniciante aplicar SDD (specs, plan.md) em
+  tudo, cansar, e depois abandonar completamente, voltando a pedir mudanças grandes direto no código sem spec nenhuma.
+  O equilíbrio certo é <em>escalar</em> o processo:</p>
+  <table>
+    <tr><th>Tamanho/risco da tarefa</th><th>Processo recomendado</th></tr>
+    <tr><td>Correção pontual, baixo risco (typo, ajuste de estilo)</td><td>Prompt direto, sem spec formal</td></tr>
+    <tr><td>Feature média (novo endpoint, novo componente)</td><td>Spec curta + plano de implementação</td></tr>
+    <tr><td>Mudança grande ou de alto risco (autenticação, pagamento, migração de dados)</td><td>SDD completo: spec.md, plan.md, revisão antes de codificar</td></tr>
+  </table>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Antes de escrever um prompt, pergunte-se: "um desenvolvedor júnior entenderia exatamente o que eu quero com essa frase?" Se não, adicione especificidade.</li>
+    <li>Garanta que existe um commit limpo no git antes de deixar o agente alterar algo — sempre.</li>
+    <li>Para tarefas com mais de ~3 passos lógicos, defina checkpoints explícitos onde você revisa antes de continuar.</li>
+    <li>Avalie o risco da tarefa e escolha o nível de processo (direto / spec curta / SDD completo) proporcional a esse risco.</li>
+    <li>Nunca desative hooks de segurança "temporariamente" para ganhar velocidade — isso é exatamente quando incidentes acontecem.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Desenvolvedor
+    participant Agent as Agente
+    Dev->>Dev: Avalia risco da tarefa
+    alt Baixo risco
+        Dev->>Agent: Prompt direto e específico
+        Agent-->>Dev: Resultado
+    else Alto risco
+        Dev->>Agent: Pede spec.md
+        Agent-->>Dev: spec.md para revisão
+        Dev->>Agent: Aprova + pede plan.md
+        Agent-->>Dev: Implementação em checkpoints
+    end
+    Dev->>Dev: Revisa diff + roda testes antes do merge
+  </div>
+
+  <h2>Dicas e boas práticas</h2>
+  <div class="tip"><strong>Dica:</strong> Se você não consegue explicar em uma frase o critério de "pronto" da tarefa, o agente também não vai conseguir adivinhar.</div>
+  <div class="tip"><strong>Dica:</strong> Git commit antes de qualquer tarefa arriscada é sua rede de segurança mais barata — reverter é sempre mais rápido que consertar na mão.</div>
+  <div class="tip"><strong>Dica:</strong> Trate a decisão "preciso de spec ou não?" como parte do planejamento, não como uma regra fixa aplicada a tudo igualmente.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> Aceitar um PR gerado por agente só porque "os testes passaram" — testes cobrem o que foi pensado antecipadamente, não necessariamente o caso que a mudança introduziu.</div>
+  <div class="warn"><strong>Erro comum:</strong> Desligar hooks de guardrail de segurança porque estão "atrapalhando o fluxo" durante uma sessão de trabalho intensa — esse é justamente o momento de maior risco.</div>
+  <div class="warn"><strong>Erro comum:</strong> Achar que, por já ter concluído o curso, todo projeto pequeno "não precisa" de nenhum processo — o processo certo é o mínimo necessário para o risco da tarefa, não zero por padrão.</div>
+
+  <h2>Exercício prático</h2>
+  <div class="exercise"><strong>Mão na massa:</strong> Pegue os últimos três prompts que você deu a um agente de IA (neste curso ou em uso real). Reescreva cada um adicionando objetivo mensurável, restrições e critério de aceite explícito. Compare mentalmente (ou na prática, se possível) se o resultado teria sido mais previsível com a versão reescrita.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>
+      Os erros mais comuns de iniciantes giram em torno de calibração: confiar demais sem revisar, dar prompts vagos,
+      não fornecer contexto suficiente, usar um agente genérico para papéis que deveriam ser especializados, pular
+      checkpoints em tarefas arriscadas, não usar git como rede de segurança, desligar guardrails de segurança sob
+      pressão, e tratar Spec-Driven Development como tudo-ou-nada em vez de escalá-lo com o risco da tarefa. Reconhecer
+      esses padrões é o primeiro passo para não repeti-los.
+    </p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-11-boas-praticas.html"><span class="lbl">Anterior</span>Cap. 11 — Boas práticas</a>
+    <a href="cap-13-projeto-completo.html" class="next"><span class="lbl">Próximo</span>Cap. 13 — Projeto completo</a>
+  </div>
+</div>
+</body>
+</html>

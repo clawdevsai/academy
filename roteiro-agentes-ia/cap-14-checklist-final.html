@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 14: Checklist final de boas práticas — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+  .checklist{list-style:none;padding-left:0;}
+  .checklist li{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin:8px 0;display:flex;align-items:flex-start;gap:10px;}
+  .checklist li::before{content:"☐";color:var(--accent);font-size:1.1rem;line-height:1.4;flex-shrink:0;}
+  .catcard{background:var(--bg-card2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:22px 0;}
+  .catcard h3{margin-top:0;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:8px;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 14 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">14.</span> Checklist final de boas práticas</h1>
+  <p class="subtitle">Uma referência rápida e standalone para consultar antes — e durante — qualquer projeto real com agentes de IA.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Ter uma referência única, organizada por categoria, para consultar rapidamente em projetos reais.</li>
+      <li>Revisar de forma consolidada os pontos-chave de todo o curso.</li>
+      <li>Usar o checklist como gate de qualidade antes de iniciar ou concluir uma tarefa com agentes.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    Este capítulo não introduz conceitos novos — ele consolida tudo o que foi visto nos 13 capítulos anteriores em um
+    formato de consulta rápida. A ideia é que você volte a esta página sempre que estiver iniciando um projeto novo,
+    revisando um PR gerado por IA, ou decidindo se pode confiar em um agente para uma tarefa mais arriscada. Os itens
+    estão organizados em seis categorias que cobrem o ciclo de vida completo de um projeto com agentes de IA.
+  </p>
+
+  <div class="mermaid">
+graph LR
+    A[Planejamento] --> B[Configuração de agentes]
+    B --> C[Segurança]
+    C --> D[Qualidade]
+    D --> E[Contexto / Tokens]
+    E --> F[Deploy / DevOps]
+    F -.->|feedback contínuo| A
+    style A fill:#1c2030,stroke:#e07b39,color:#fff
+    style F fill:#1c2030,stroke:#e07b39,color:#fff
+  </div>
+
+  <h2>Checklist consolidado</h2>
+
+  <div class="catcard">
+    <h3>1. Planejamento</h3>
+    <ul class="checklist">
+      <li>O objetivo da tarefa está descrito com critério de aceite mensurável, não apenas "melhora isso"?</li>
+      <li>Para tarefas médias/grandes, existe uma spec.md aprovada antes de qualquer código ser escrito?</li>
+      <li>O nível de processo (direto / spec curta / SDD completo) é proporcional ao risco real da tarefa?</li>
+      <li>Decisões arquiteturais relevantes foram documentadas (ADR ou seção equivalente no CLAUDE.md)?</li>
+      <li>Tarefas grandes foram divididas em etapas com checkpoints de revisão intermediários?</li>
+    </ul>
+  </div>
+
+  <div class="catcard">
+    <h3>2. Configuração de agentes</h3>
+    <ul class="checklist">
+      <li>Existe um CLAUDE.md atualizado com stack, convenções e comandos do projeto?</li>
+      <li>Agentes customizados/especializados estão versionados junto com o código (não só na máquina local)?</li>
+      <li>Cada agente tem um papel único e bem definido (implementador, revisor, QA, segurança) em vez de um agente genérico fazendo tudo?</li>
+      <li>Você começou com um agente/uma tarefa antes de escalar para orquestração multi-agente?</li>
+      <li>Prompts recorrentes e eficazes foram salvos/documentados para reuso, em vez de reescritos do zero toda vez?</li>
+    </ul>
+  </div>
+
+  <div class="catcard">
+    <h3>3. Segurança</h3>
+    <ul class="checklist">
+      <li>Hooks e guardrails de segurança estão ativos — e nunca desligados "temporariamente" sob pressão de prazo?</li>
+      <li>Áreas sensíveis (autenticação, pagamento, dados pessoais) passaram por um agente de segurança dedicado?</li>
+      <li>Segredos e credenciais nunca são colados diretamente em prompts ou commitados no repositório?</li>
+      <li>Existe verificação explícita de ownership/autorização em toda rota que manipula dados de usuário?</li>
+      <li>O agente tem permissões mínimas necessárias (princípio do menor privilégio) para executar a tarefa?</li>
+    </ul>
+  </div>
+
+  <div class="catcard">
+    <h3>4. Qualidade</h3>
+    <ul class="checklist">
+      <li>Todo diff gerado por IA é revisado com o mesmo rigor de um PR de um colega humano?</li>
+      <li>Existe suíte de testes automatizados cobrindo os critérios de aceite da spec?</li>
+      <li>Casos negativos (erro, acesso não autorizado, dados inválidos) estão cobertos, não só o caminho feliz?</li>
+      <li>Um agente de QA roda a suíte completa antes de considerar a tarefa concluída?</li>
+      <li>Você resiste à tentação de aceitar output só porque "os testes passaram", sabendo que testes cobrem apenas o que foi antecipado?</li>
+    </ul>
+  </div>
+
+  <div class="catcard">
+    <h3>5. Contexto / Tokens</h3>
+    <ul class="checklist">
+      <li>Buscas amplas, leitura de logs extensos ou exploração de código foram delegadas a subagentes isolados?</li>
+      <li>Informação repetida em múltiplos prompts foi movida para o CLAUDE.md em vez de copiada toda vez?</li>
+      <li>Você evita colar arquivos inteiros quando um trecho específico resolveria?</li>
+      <li>Conversas longas e não relacionadas foram encerradas/resumidas em vez de acumular contexto irrelevante?</li>
+      <li>Tarefas grandes foram divididas para não esgotar a janela de contexto no meio da execução?</li>
+    </ul>
+  </div>
+
+  <div class="catcard">
+    <h3>6. Deploy / DevOps</h3>
+    <ul class="checklist">
+      <li>Existe um commit limpo no git antes de qualquer tarefa arriscada — sua rede de segurança mínima?</li>
+      <li>A decisão final de merge e deploy é sempre humana, nunca automática pelo agente?</li>
+      <li>Pipelines de CI rodam a mesma suíte de testes usada localmente pelo agente de QA?</li>
+      <li>Um agente de DevOps/infra foi consultado para mudanças de configuração de produção, e não apenas de código de aplicação?</li>
+      <li>Existe plano de rollback claro caso a mudança gerada por agente cause um incidente em produção?</li>
+    </ul>
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>
+    Use este checklist como um "gate" em dois momentos específicos do seu fluxo de trabalho: antes de iniciar uma
+    tarefa (categorias 1 e 2 — planejamento e configuração) e antes de fazer merge (categorias 3, 4, 5 e 6 —
+    segurança, qualidade, contexto e deploy). Por exemplo, ao revisar um PR gerado por um agente implementador,
+    percorra rapidamente os itens de "Segurança" e "Qualidade" como uma auditoria de dois minutos antes de aprovar.
+  </p>
+  <pre><code>Antes de iniciar:
+  [x] Objetivo com critério de aceite claro
+  [x] CLAUDE.md atualizado
+  [x] Nível de processo escolhido (spec curta, neste caso)
+
+Antes do merge:
+  [x] Diff revisado como PR humano
+  [x] Suíte de testes verde, incluindo casos negativos
+  [x] Nenhum guardrail de segurança desligado
+  [x] Commit limpo anterior existe (rollback possível)</code></pre>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Abra este capítulo (ou salve-o localmente) como referência rápida no início de cada projeto novo.</li>
+    <li>Percorra as categorias 1 e 2 antes de dar o primeiro prompt real ao agente.</li>
+    <li>Percorra as categorias 3 a 6 antes de qualquer merge para a branch principal.</li>
+    <li>Revise o checklist periodicamente — à medida que o projeto cresce, itens que pareciam opcionais (ex.: agente de segurança dedicado) tendem a se tornar obrigatórios.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Desenvolvedor
+    participant CL as Checklist
+    participant Agent as Agente(s)
+    Dev->>CL: Consulta categorias 1-2 (planejamento/config)
+    CL-->>Dev: Gate de início
+    Dev->>Agent: Executa tarefa
+    Agent-->>Dev: Diff + testes
+    Dev->>CL: Consulta categorias 3-6 (segurança/qualidade/contexto/deploy)
+    CL-->>Dev: Gate de merge
+    Dev->>Dev: Merge e deploy
+  </div>
+
+  <h2>Dicas e boas práticas</h2>
+  <div class="tip"><strong>Dica:</strong> Adapte este checklist ao seu contexto — remova itens irrelevantes para projetos pequenos, mas nunca remova os itens de segurança (categoria 3) só para economizar tempo.</div>
+  <div class="tip"><strong>Dica:</strong> Transforme os itens mais críticos deste checklist em verificações automatizadas (lint de segredo, hook de pré-commit, gate de CI) sempre que possível — checklist manual é bom, checklist automatizado é melhor.</div>
+  <div class="tip"><strong>Dica:</strong> Revise este checklist com o time periodicamente — ele deve evoluir junto com as lições aprendidas do projeto, assim como o CLAUDE.md.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> Usar o checklist uma única vez no início do projeto e nunca mais revisitá-lo conforme a complexidade e o risco crescem.</div>
+  <div class="warn"><strong>Erro comum:</strong> Tratar os itens de segurança como opcionais em "projetos pequenos" — o tamanho do projeto não reduz o dano potencial de uma falha de autenticação ou vazamento de dados.</div>
+
+  <h2>Exercício prático</h2>
+  <div class="exercise"><strong>Mão na massa:</strong> Aplique este checklist completo no próximo PR real gerado por um agente de IA no seu trabalho ou em um projeto pessoal. Marque item por item, honestamente, e identifique quais categorias você mais costuma pular — esse é o ponto exato onde vale investir mais disciplina daqui para frente.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>
+      Este checklist final consolida seis categorias — Planejamento, Configuração de agentes, Segurança, Qualidade,
+      Contexto/Tokens e Deploy/DevOps — como referência rápida para qualquer projeto real com agentes de IA. Use-o
+      como gate antes de iniciar uma tarefa e antes de fazer merge. Ele não substitui o entendimento profundo
+      construído ao longo dos 14 capítulos deste curso, mas serve como lembrete prático e recorrente das disciplinas
+      que separam um uso amador de um uso profissional e sustentável de agentes de IA no desenvolvimento de software.
+    </p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-13-projeto-completo.html"><span class="lbl">Anterior</span>Cap. 13 — Projeto completo</a>
+    <a href="index.html" class="next"><span class="lbl">Próximo</span>Voltar ao sumário</a>
+  </div>
+</div>
+</body>
+</html>

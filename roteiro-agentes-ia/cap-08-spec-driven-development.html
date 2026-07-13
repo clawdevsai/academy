@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 8: Spec-Driven Development com Claude Code — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 8 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">8.</span> Spec-Driven Development com Claude Code</h1>
+  <p class="subtitle">Especificar e planejar antes de codificar: revisão humana concentrada em poucos pontos de alto valor.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Entender o que é Spec-Driven Development (SDD) e o problema que ele resolve.</li>
+      <li>Conhecer os três a quatro documentos do fluxo: Specify, Plan, Tasks/Implement.</li>
+      <li>Saber onde entram os checkpoints de revisão humana e por que eles importam.</li>
+      <li>Conhecer ferramentas do ecossistema: GitHub Spec Kit, BMAD-METHOD, Superpowers.</li>
+      <li>Comparar SDD com "vibe coding" e prompting ad-hoc, e saber quando cada abordagem vale a pena.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    Nos capítulos 5 a 7 você viu como estruturar workflow, dividir agentes e criar subagentes. Spec-Driven Development
+    (SDD, ou "desenvolvimento guiado por especificação") é um passo além: em vez de revisar o trabalho do agente
+    dezenas de vezes durante a implementação, você concentra a revisão humana em <strong>poucos documentos</strong>
+    escritos <em>antes</em> de qualquer código ser gerado.
+  </p>
+  <p>
+    A lógica é econômica: quanto mais cedo você pega um erro de entendimento, mais barato é corrigi-lo. Corrigir uma
+    frase ambígua numa especificação custa segundos. Corrigir a mesma ambiguidade depois que ela virou 400 linhas de
+    código, testes e integração custa horas. SDD empurra a atenção humana para o início do processo, onde ela é mais
+    barata.
+  </p>
+  <p>O fluxo, na prática, tem de três a quatro etapas:</p>
+  <ul>
+    <li><strong>Specify</strong> — uma especificação curta do que a mudança deve fazer, do ponto de vista de comportamento
+      observável (não de implementação). Costuma incluir uma fase de perguntas de esclarecimento, em que o próprio
+      agente pergunta o que está ambíguo antes de prosseguir.</li>
+    <li><strong>Plan</strong> — transforma a especificação em um plano técnico: define "o que significa estar pronto"
+      (critério de aceite), mapeia os arquivos afetados, descreve a jornada de uso e quebra o trabalho em uma lista
+      numerada de tarefas.</li>
+    <li><strong>Tasks / Implement</strong> — o Claude Code implementa tarefa por tarefa a partir da lista, com revisão
+      humana entre etapas (não apenas no final).</li>
+  </ul>
+  <p>
+    Esse modelo é formalizado por ferramentas específicas do ecossistema: <strong>GitHub Spec Kit</strong> (framework
+    oficial do GitHub para SDD, com comandos como <code>/specify</code>, <code>/plan</code> e <code>/tasks</code>),
+    <strong>BMAD-METHOD</strong> (metodologia orientada a agentes com papéis definidos ao longo do ciclo de
+    especificação) e <strong>Superpowers</strong> (conjunto de skills que reforça esse fluxo dentro do Claude Code).
+    Você não precisa adotar uma ferramenta específica para praticar SDD — os três documentos podem ser simples arquivos
+    Markdown versionados junto do código.
+  </p>
+
+  <table>
+    <tr><th>Abordagem</th><th>Onde a revisão humana acontece</th><th>Melhor para</th></tr>
+    <tr><td>Vibe coding (prompt único, sem revisão)</td><td>Só no final, se acontecer</td><td>Protótipos descartáveis, exploração rápida</td></tr>
+    <tr><td>Prompting ad-hoc com acompanhamento</td><td>Espalhada, a cada resposta do agente</td><td>Tarefas pequenas e bem entendidas</td></tr>
+    <tr><td>Spec-Driven Development</td><td>Concentrada em 2-3 documentos antes da implementação</td><td>Features médias/grandes, mudanças com múltiplos stakeholders, times</td></tr>
+  </table>
+
+  <div class="mermaid">
+flowchart LR
+    A[Specify] -->|humano revisa| B{Aprovado?}
+    B -- não --> A
+    B -- sim --> C[Plan]
+    C -->|humano revisa| D{Aprovado?}
+    D -- não --> C
+    D -- sim --> E[Tasks / Implement]
+    E --> F[Revisão entre tarefas]
+    F --> G[Feature concluída]
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>Esqueleto de um documento de especificação, <code>specs/checkout-parcelado/spec.md</code>:</p>
+  <pre><code># Spec: Checkout parcelado
+
+## Objetivo
+Permitir que o cliente parcele o pagamento em até 12x no checkout,
+respeitando o valor mínimo de parcela de R$ 20.
+
+## Comportamento esperado
+- O campo de parcelas só aparece quando o valor total ultrapassa R$ 40.
+- O número máximo de parcelas é calculado dinamicamente pelo valor mínimo.
+- Juros: sem juros até 6x; 1,99% a.m. de 7x a 12x.
+
+## Fora de escopo
+- Parcelamento no boleto (fica para outra iteração).
+
+## Perguntas em aberto
+- O limite de 12x vale para todos os métodos de pagamento ou só cartão?
+</code></pre>
+
+  <p>Esqueleto do plano gerado a partir da spec aprovada, <code>specs/checkout-parcelado/plan.md</code>:</p>
+  <pre><code># Plano: Checkout parcelado
+
+## Definição de pronto
+- Testes cobrindo cálculo de parcelas e regra de valor mínimo
+- UI atualizada com seletor de parcelas
+- Sem regressão no fluxo de pagamento à vista
+
+## Arquivos afetados
+- src/checkout/PaymentForm.tsx
+- src/checkout/calculateInstallments.ts (novo)
+- src/checkout/PaymentForm.test.tsx
+
+## Tarefas
+1. Criar função calculateInstallments com testes unitários
+2. Integrar seletor de parcelas na UI condicionalmente
+3. Atualizar testes de integração do checkout
+4. Validar manualmente os cenários de 1x, 6x e 12x
+</code></pre>
+
+  <p>Com o GitHub Spec Kit instalado, o fluxo vira comandos dentro do Claude Code:</p>
+  <pre><code>/specify Quero permitir parcelamento no checkout em até 12x
+/plan
+/tasks
+</code></pre>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Escreva ou peça ao Claude Code para gerar a <strong>spec</strong> a partir da sua descrição inicial da necessidade.</li>
+    <li>Responda às perguntas de esclarecimento que o agente levantar — não pule essa fase, é onde ambiguidades aparecem.</li>
+    <li>Revise a spec como humano: ela descreve comportamento, não implementação? Está completa?</li>
+    <li>Peça o <strong>plano</strong> a partir da spec aprovada. Revise arquivos afetados e a lista de tarefas.</li>
+    <li>Autorize a implementação tarefa por tarefa — revise entre tarefas, especialmente nas primeiras, que definem padrões para as seguintes.</li>
+    <li>Ao final, valide contra a definição de pronto registrada no plano, não apenas "parece que funciona".</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Você
+    participant CC as Claude Code
+    Dev->>CC: Descreve a necessidade
+    CC->>Dev: Perguntas de esclarecimento
+    Dev->>CC: Respostas
+    CC->>Dev: spec.md
+    Dev->>CC: Aprova spec
+    CC->>Dev: plan.md (arquivos, tarefas, "pronto")
+    Dev->>CC: Aprova plano
+    loop cada tarefa
+        CC->>Dev: Implementa tarefa N
+        Dev->>CC: Revisa e aprova
+    end
+    CC->>Dev: Feature concluída
+  </div>
+
+  <div class="tip"><strong>Dica:</strong> guarde spec e plano como arquivos versionados junto do código (não só na conversa) — eles viram documentação viva da decisão tomada.</div>
+  <div class="tip"><strong>Dica:</strong> use SDD para features médias e grandes; para um ajuste de uma linha, o overhead de escrever spec e plano não compensa.</div>
+  <div class="tip"><strong>Dica:</strong> combine SDD com os agentes especializados do capítulo 7 — por exemplo, um agente "arquiteto" pode ser o responsável por gerar o plano a partir da spec.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> escrever a spec já pensando em implementação ("usar Redis para cache") em vez de comportamento ("a resposta deve ser servida em menos de 200ms mesmo sob carga"). Isso trava decisões técnicas cedo demais, antes do plano avaliar as opções.</div>
+  <div class="warn"><strong>Erro comum:</strong> aprovar a spec sem responder às perguntas de esclarecimento, só para "andar mais rápido". A ambiguidade não desaparece — ela só reaparece mais tarde, dentro do código já escrito.</div>
+  <div class="warn"><strong>Erro comum:</strong> revisar apenas no final da implementação, tratando as "tarefas" do plano como uma lista para o agente rodar sem parar. Isso recria o mesmo problema que o SDD tenta resolver — revisão tardia e cara.</div>
+
+  <div class="exercise"><strong>Mão na massa:</strong> escolha uma feature média do seu backlog. Peça ao Claude Code para gerar uma spec com uma fase de perguntas de esclarecimento; responda às perguntas; aprove a spec; peça o plano; revise arquivos afetados e tarefas; só então autorize a implementação tarefa por tarefa. Ao final, compare quantas vezes você precisou intervir comparado a fazer a mesma feature em um prompt único.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>Spec-Driven Development concentra a revisão humana em documentos escritos antes da implementação — Specify, Plan
+    e Tasks/Implement — em vez de espalhá-la (ou eliminá-la) durante a codificação. A spec descreve comportamento
+    esperado e passa por uma fase de esclarecimento; o plano traduz isso em arquivos afetados, definição de pronto e
+    tarefas numeradas; a implementação segue tarefa por tarefa com revisão entre etapas. Ferramentas como GitHub Spec Kit,
+    BMAD-METHOD e Superpowers formalizam esse fluxo, mas a prática pode começar com simples arquivos Markdown versionados.
+    O próximo capítulo aplica tudo isso — agentes especializados e processo estruturado — aos papéis de revisão, QA,
+    segurança e DevOps.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-07-agentes-personalizados.html"><span class="lbl">Anterior</span>Cap. 7 — Agentes personalizados</a>
+    <a href="cap-09-revisao-qa-seguranca-devops.html" class="next"><span class="lbl">Próximo</span>Cap. 9 — Revisão, QA, segurança e DevOps</a>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 9: Revisão de código, QA, segurança, DevOps e arquitetura com agentes especializados — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 9 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">9.</span> Revisão de código, QA, segurança, DevOps e arquitetura com agentes especializados</h1>
+  <p class="subtitle">Montando um pipeline de qualidade completo, com agentes, hooks e MCP trabalhando juntos.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Mapear os papéis clássicos de um pipeline de qualidade: arquitetura, implementação, revisão, QA, segurança, DevOps.</li>
+      <li>Usar hooks como guardrails automáticos dentro desse pipeline (não apenas como conveniência).</li>
+      <li>Conectar agentes a ferramentas reais via MCP: GitHub, Jira/Linear, bancos de dados, ambientes de CI.</li>
+      <li>Montar um fluxo de PR (pull request) revisado por múltiplos agentes especializados em paralelo.</li>
+      <li>Saber onde a responsabilidade humana continua sendo insubstituível nesse pipeline.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    Este capítulo fecha o bloco intermediário juntando tudo: workflow estruturado (capítulo 5), múltiplos agentes
+    especializados (capítulo 6), a mecânica de criar cada um (capítulo 7) e o rigor de especificar antes de implementar
+    (capítulo 8). Agora aplicamos isso a um cenário muito comum em times profissionais: um pipeline de qualidade em
+    torno de um PR (pull request), com papéis específicos e reforço automático de regras via hooks.
+  </p>
+  <p>
+    Um pipeline maduro normalmente separa seis papéis. Cada um deles pode ser um subagente com tools e prompt restritos
+    ao seu escopo, exatamente como você aprendeu no capítulo 7:
+  </p>
+  <table>
+    <tr><th>Papel</th><th>Responsabilidade</th><th>Tools/MCP típicos</th></tr>
+    <tr><td>Arquitetura</td><td>Avalia impacto estrutural da mudança, aponta acoplamentos e riscos de design</td><td>Read, Grep, Glob</td></tr>
+    <tr><td>Implementação</td><td>Escreve o código a partir de um plano aprovado</td><td>Read, Write, Edit, Bash</td></tr>
+    <tr><td>Revisão de código</td><td>Aponta bugs, más práticas, código duplicado</td><td>Read, Grep, Glob (sem Write)</td></tr>
+    <tr><td>QA / testes</td><td>Escreve e roda testes, valida cenários de borda</td><td>Read, Write, Bash</td></tr>
+    <tr><td>Segurança</td><td>Audita vulnerabilidades, segredos expostos, dependências inseguras</td><td>Read, Grep, Bash (scanners)</td></tr>
+    <tr><td>DevOps / infra</td><td>CI/CD, configuração de deploy, observabilidade</td><td>Bash, MCP de CI/infra</td></tr>
+  </table>
+  <p>
+    A separação importa porque cada papel tem um <em>viés natural</em> diferente. Quem implementa tende a validar o
+    próprio raciocínio; por isso o agente de revisão e o de QA devem ser entidades separadas, com contexto isolado,
+    para atuarem como um segundo olhar de fato — o mesmo princípio de "grader separado" visto no capítulo 6.
+  </p>
+  <p>
+    <strong>Hooks</strong> entram aqui como guardrails automáticos, não apenas como atalhos de produtividade. Um hook
+    <code>PreToolUse</code> pode bloquear um comando <code>Bash</code> perigoso (como <code>rm -rf</code> ou
+    <code>git push --force</code> na main) antes mesmo que qualquer agente — implementador, DevOps ou outro — consiga
+    executá-lo. Da mesma forma, um hook pode rodar uma checagem de segredos expostos (chaves de API, tokens) antes de
+    qualquer <code>commit</code> ou <code>push</code>, funcionando como uma rede de segurança que independe da
+    disciplina do agente naquele momento.
+  </p>
+  <p>
+    O <strong>MCP</strong> conecta esses agentes a sistemas reais de DevOps e QA: um agente pode abrir e comentar em
+    Pull Requests no GitHub, criar ou atualizar issues no Jira ou Linear, consultar um banco de dados de staging para
+    validar uma migração, ou disparar um pipeline de CI e ler o resultado. Isso tira o pipeline do "só dentro do
+    editor" e o coloca dentro do ciclo real de entrega do time.
+  </p>
+
+  <div class="mermaid">
+flowchart TD
+    PR[Pull Request aberto] --> H{Hooks: guardrails}
+    H -->|bloqueia segredo/comando perigoso| X[PR rejeitado automaticamente]
+    H -->|passou| A[Agente arquitetura]
+    H --> B[Agente revisão de código]
+    H --> C[Agente QA]
+    H --> D[Agente segurança]
+    A --> M[Consolidação]
+    B --> M
+    C --> M
+    D --> M
+    M --> E{Aprovado por todos?}
+    E -- não --> F[Comentários no PR via MCP GitHub]
+    E -- sim --> G[Agente DevOps prepara deploy]
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>Hook simples de guardrail em <code>.claude/settings.json</code>, bloqueando comandos destrutivos antes da execução:</p>
+  <pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/bloquear-comandos-perigosos.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+  <p>O script pode simplesmente recusar padrões conhecidos de risco:</p>
+  <pre><code>#!/bin/bash
+# scripts/bloquear-comandos-perigosos.sh
+if echo "$CLAUDE_TOOL_INPUT" | grep -qE "rm -rf|push --force|DROP TABLE"; then
+  echo "Comando bloqueado por política de segurança." >&2
+  exit 1
+fi
+</code></pre>
+
+  <p>Agente de segurança dedicado, <code>.claude/agents/seguranca.md</code>:</p>
+  <pre><code>---
+name: seguranca
+description: >
+  Use este agente antes de qualquer merge para auditar segredos expostos,
+  dependências vulneráveis e padrões inseguros (ex: SQL sem parametrização,
+  eval de input do usuário).
+tools: Read, Grep, Bash
+---
+
+Você é um engenheiro de segurança aplicativa (AppSec).
+
+Ao revisar um diff ou repositório:
+1. Procure por segredos hardcoded (chaves, tokens, senhas).
+2. Rode e interprete o scanner de dependências (`npm audit` ou equivalente).
+3. Aponte padrões inseguros: SQL sem parametrização, deserialização insegura,
+   uso de `eval`/`exec` com entrada de usuário.
+4. Classifique cada achado por severidade (crítico, alto, médio, baixo).
+5. Nunca corrija o código diretamente — apenas reporte, com sugestão de fix.
+</code></pre>
+
+  <p>Agente de DevOps conectado a um MCP de CI, delegando deploy só após aprovação:</p>
+  <pre><code>---
+name: devops
+description: >
+  Use este agente para preparar pipelines de CI/CD, configurar deploy e
+  investigar falhas de build. Só deve disparar deploy em produção mediante
+  confirmação explícita do humano.
+tools: Bash, Read
+---
+
+Você cuida da esteira de CI/CD do projeto.
+
+- Ao investigar falha de build, leia os logs e aponte a causa raiz antes de
+  sugerir qualquer mudança.
+- Nunca dispare deploy em produção sem confirmação explícita na conversa.
+- Prefira sempre rodar em ambiente de staging primeiro.
+</code></pre>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Configure hooks de guardrail antes de qualquer coisa — eles protegem mesmo quando um agente comete erro de julgamento.</li>
+    <li>Ao abrir um PR (via MCP do GitHub ou manualmente), dispare em paralelo os agentes de revisão, QA e segurança.</li>
+    <li>Consolide os achados dos três agentes em um único resumo — evite que o humano precise ler três relatórios separados.</li>
+    <li>Só acione o agente de DevOps para preparar o deploy depois que revisão, QA e segurança aprovarem.</li>
+    <li>Mantenha a decisão final de merge e de deploy em produção sempre com um humano.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Você
+    participant GH as GitHub (via MCP)
+    participant Rev as Agente revisão
+    participant QA as Agente QA
+    participant Sec as Agente segurança
+    participant Ops as Agente DevOps
+    Dev->>GH: Abre PR
+    GH->>Rev: Diff disponível
+    GH->>QA: Diff disponível
+    GH->>Sec: Diff disponível
+    Rev-->>Dev: Comentários de revisão
+    QA-->>Dev: Resultado dos testes
+    Sec-->>Dev: Achados de segurança
+    Dev->>Dev: Avalia consolidado
+    Dev->>Ops: Autoriza preparar deploy
+    Ops-->>Dev: Pipeline pronto para produção
+</div>
+
+  <div class="tip"><strong>Dica:</strong> trate hooks como a última linha de defesa, não a primeira — eles não substituem bons prompts e tools restritas, apenas garantem que erros não escapem mesmo quando tudo o mais falhar.</div>
+  <div class="tip"><strong>Dica:</strong> ao conectar agentes a MCP de GitHub/Jira, restrinja permissões de escrita (comentar é diferente de fechar issues ou aprovar PRs) até confiar plenamente no comportamento do agente.</div>
+  <div class="tip"><strong>Dica:</strong> use as skills <code>review</code> e <code>security-review</code> do Claude Code como ponto de partida pronto para revisão de PR e auditoria de segurança, antes de escrever agentes totalmente customizados do zero.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> deixar o agente de DevOps disparar deploy em produção automaticamente assim que os outros agentes aprovarem. Deploy em produção deve sempre ter um gate humano explícito, independentemente de quantos agentes já validaram o código.</div>
+  <div class="warn"><strong>Erro comum:</strong> confiar só nos hooks e achar que dispensa os agentes de revisão e segurança. Hooks pegam padrões conhecidos e simples (comandos perigosos, segredos óbvios); não substituem uma análise de lógica de negócio ou de vulnerabilidades mais sutis.</div>
+  <div class="warn"><strong>Erro comum:</strong> dar ao mesmo agente permissão de implementar e de aprovar a própria revisão de segurança/QA. Isso reintroduz o viés que a separação de papéis existe para evitar.</div>
+
+  <div class="exercise"><strong>Mão na massa:</strong> em um repositório real (ou de teste), configure um hook <code>PreToolUse</code> que bloqueie <code>git push --force</code>. Depois crie os agentes <code>revisor-codigo</code>, <code>qa-tester</code> e <code>seguranca</code> (você já viu exemplos nos capítulos 7 e 9). Abra um PR de teste com um problema proposital (ex: uma chave de API hardcoded) e peça para os três agentes revisarem em paralelo. Confira se o agente de segurança pega o problema e se o hook bloquearia o push mesmo que ele passasse despercebido.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>Um pipeline de qualidade profissional separa arquitetura, implementação, revisão, QA, segurança e DevOps em
+    agentes especializados, cada um com tools restritas ao seu papel. Hooks funcionam como guardrails automáticos —
+    a última linha de defesa contra comandos perigosos ou segredos expostos, independente do julgamento do agente
+    naquele momento. MCP conecta esses agentes a sistemas reais (GitHub, Jira/Linear, CI, bancos de dados), permitindo
+    que o pipeline opere dentro do ciclo real de entrega do time. Mesmo com todo esse automatismo, decisões de merge
+    e deploy em produção continuam exigindo um gate humano explícito. Isso encerra o bloco intermediário do curso —
+    o próximo capítulo aprofunda como o contexto e os tokens funcionam por trás de tudo isso.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-08-spec-driven-development.html"><span class="lbl">Anterior</span>Cap. 8 — Spec-Driven Development</a>
+    <a href="cap-10-contexto-e-tokens.html" class="next"><span class="lbl">Próximo</span>Cap. 10 — Contexto e tokens</a>
+  </div>
+</div>
+</body>
+</html>

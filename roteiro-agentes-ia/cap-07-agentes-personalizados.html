@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 7: Como criar e organizar agentes personalizados — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 7 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">7.</span> Como criar e organizar agentes personalizados</h1>
+  <p class="subtitle">A mecânica: arquivo, frontmatter, prompt, tools, testagem — passo a passo de criar um subagente.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Saber onde e como criar um arquivo de subagente em Markdown.</li>
+      <li>Entender cada campo do frontmatter: <code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>.</li>
+      <li>Escrever um system prompt eficaz para um agente especializado.</li>
+      <li>Diferenciar agentes de projeto (<code>.claude/agents/</code>) de agentes de usuário (<code>~/.claude/agents/</code>).</li>
+      <li>Testar e iterar sobre um agente customizado antes de confiar nele em produção.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    O capítulo anterior tratou de <em>quando</em> e <em>por que</em> dividir trabalho entre agentes. Este capítulo é sobre
+    a <em>mecânica</em>: como o Claude Code efetivamente sabe que um subagente existe e quando usá-lo.
+  </p>
+  <p>
+    Um subagente é, na prática, um arquivo <code>.md</code> dentro de uma pasta <code>agents</code>. Ele tem duas partes:
+    um bloco de <strong>frontmatter</strong> (metadados em YAML, entre <code>---</code>) e o <strong>corpo</strong>, que é o
+    system prompt do agente — as instruções que definem como ele se comporta.
+  </p>
+
+  <table>
+    <tr><th>Campo</th><th>Obrigatório</th><th>Função</th></tr>
+    <tr><td><code>name</code></td><td>Sim</td><td>Identificador único do agente, usado para invocação explícita.</td></tr>
+    <tr><td><code>description</code></td><td>Sim</td><td>Descrição em linguagem natural de quando usar este agente. É o que o Claude Code lê para decidir se delega a tarefa a ele automaticamente.</td></tr>
+    <tr><td><code>tools</code></td><td>Não</td><td>Lista de tools que o agente pode usar. Se omitido, herda todas as tools disponíveis — quase sempre vale restringir.</td></tr>
+    <tr><td><code>model</code></td><td>Não</td><td>Qual modelo usar (ex: um modelo menor/mais rápido para tarefas simples e repetitivas, um mais forte para raciocínio complexo).</td></tr>
+  </table>
+
+  <p>
+    A <code>description</code> é o campo mais importante e o mais subestimado. É com base nela que o agente principal
+    decide, sozinho, se delega uma tarefa ao subagente — sem você precisar chamar o nome dele explicitamente. Uma
+    descrição vaga ("agente para ajudar com código") faz o Claude Code nunca escolher esse agente, ou escolhê-lo na
+    hora errada. Uma descrição específica ("use este agente sempre que precisar revisar um diff em busca de bugs de
+    segurança antes de um merge") aciona o agente certo, na hora certa.
+  </p>
+  <p>
+    Existem dois escopos de armazenamento: <code>.claude/agents/</code> dentro do repositório (agente de projeto,
+    versionado e compartilhado com o time) e <code>~/.claude/agents/</code> na pasta do usuário (agente pessoal,
+    disponível em todos os seus projetos, não compartilhado). Use o escopo de projeto para papéis ligados às
+    convenções específicas daquele repositório, e o escopo de usuário para hábitos pessoais que você quer levar
+    para qualquer projeto que abrir.
+  </p>
+
+  <div class="mermaid">
+flowchart TD
+    U[Usuário descreve tarefa] --> C{Claude Code avalia}
+    C -->|combina com description de algum agente| D[Delega ao subagente]
+    C -->|nenhum match claro| E[Resolve na conversa principal]
+    D --> F["Subagente executa com suas tools e seu system prompt"]
+    F --> G[Devolve resultado resumido ao agente principal]
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>Exemplo completo de um agente de revisão de código, salvo em <code>.claude/agents/revisor-codigo.md</code>:</p>
+  <pre><code>---
+name: revisor-codigo
+description: >
+  Use este agente sempre que houver um diff de código pronto para revisão,
+  antes de qualquer commit ou abertura de PR. Ele NÃO deve escrever ou
+  corrigir código — apenas apontar problemas.
+tools: Read, Grep, Glob
+model: claude-sonnet-4.5
+---
+
+Você é um revisor de código sênior, cético e detalhista.
+
+Ao receber um diff ou um conjunto de arquivos alterados:
+1. Verifique lógica incorreta, edge cases não tratados e nomes pouco claros.
+2. Verifique se há testes cobrindo a mudança; se não houver, aponte isso.
+3. Verifique padrões do projeto definidos em CLAUDE.md.
+4. Não sugira reescrever tudo — priorize os 3-5 problemas mais importantes.
+5. Sempre termine com um veredito claro: "aprovado", "aprovado com ressalvas"
+   ou "não aprovado", e o motivo.
+
+Nunca edite arquivos. Seu papel é apenas revisar e reportar.
+</code></pre>
+
+  <p>Outro exemplo, um agente de QA restrito a rodar testes (sem acesso a edição de código de produção):</p>
+  <pre><code>---
+name: qa-tester
+description: >
+  Use este agente para escrever e executar testes automatizados depois que
+  uma feature for implementada. Também usado para validar se um bug foi
+  corrigido de fato.
+tools: Read, Write, Bash, Grep
+---
+
+Você é um engenheiro de QA. Seu foco é cobertura de testes e casos de borda.
+
+Ao ser acionado:
+1. Leia o código relevante para entender o comportamento esperado.
+2. Escreva ou atualize testes automatizados (unitários e, quando fizer
+   sentido, de integração).
+3. Rode a suíte de testes via `npm run test` e reporte falhas com clareza.
+4. Nunca altere código de produção — se encontrar um bug, reporte-o em vez
+   de corrigi-lo.
+</code></pre>
+
+  <p>Para testar um agente novo, você pode invocá-lo explicitamente pelo nome:</p>
+  <pre><code>Use o agente revisor-codigo para revisar as mudanças que acabei de fazer
+em src/services/payment.ts
+</code></pre>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Identifique um papel recorrente e bem delimitado no seu processo (ex: "sempre reviso segurança antes de mergear").</li>
+    <li>Crie o arquivo em <code>.claude/agents/nome-do-agente.md</code> com frontmatter completo.</li>
+    <li>Escreva a <code>description</code> pensando em "quando o agente principal deveria escolher isso sozinho".</li>
+    <li>Restrinja <code>tools</code> ao mínimo necessário para o papel (um revisor não precisa de <code>Write</code>, por exemplo).</li>
+    <li>Teste invocando o agente explicitamente algumas vezes antes de confiar na delegação automática.</li>
+    <li>Depois de validado, teste em um cenário real sem citar o nome do agente — veja se o Claude Code o escolhe sozinho.</li>
+    <li>Refine a <code>description</code> se a delegação automática não estiver acontecendo como esperado.</li>
+  </ol>
+
+  <div class="tip"><strong>Dica:</strong> escreva a <code>description</code> na terceira pessoa e comece com "Use este agente quando..." — isso ajuda o modelo principal a fazer o matching corretamente.</div>
+  <div class="tip"><strong>Dica:</strong> restringir <code>tools</code> não é só sobre segurança — também mantém o agente focado. Um agente com acesso a tudo tende a "sair do papel" com mais frequência.</div>
+  <div class="tip"><strong>Dica:</strong> para tarefas simples e repetitivas (ex: formatar mensagens de commit), vale configurar um <code>model</code> menor/mais barato; reserve o modelo mais forte para agentes que precisam raciocinar sobre arquitetura.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> escrever uma <code>description</code> genérica demais ("ajuda com o código"). O agente principal nunca vai conseguir decidir quando delegar, e o subagente customizado vira letra morta.</div>
+  <div class="warn"><strong>Erro comum:</strong> dar todas as tools por padrão "para não dar erro depois". Isso aumenta a superfície de risco (um agente de revisão que pode editar arquivos, por exemplo) e reduz o foco do agente no seu papel.</div>
+  <div class="warn"><strong>Erro comum:</strong> criar um agente e nunca testá-lo isoladamente. Sem testar a invocação explícita primeiro, fica difícil saber se um resultado ruim veio do prompt do agente ou de uma delegação mal feita.</div>
+
+  <div class="exercise"><strong>Mão na massa:</strong> crie um agente <code>.claude/agents/documentador.md</code> cuja única responsabilidade é gerar ou atualizar comentários e documentação de funções (sem tocar em lógica). Defina <code>tools: Read, Edit</code> e escreva uma <code>description</code> específica. Teste invocando-o explicitamente e depois, em uma tarefa nova, veja se o Claude Code o aciona sozinho ao perceber que falta documentação.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>Um subagente é um arquivo Markdown com frontmatter (<code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>)
+    e um system prompt no corpo. A <code>description</code> é o campo que determina se a delegação automática funciona bem —
+    ela deve ser específica sobre quando usar o agente. Agentes de projeto vivem em <code>.claude/agents/</code> e são
+    compartilhados com o time; agentes de usuário vivem em <code>~/.claude/agents/</code> e seguem você entre projetos.
+    Restringir tools ao mínimo necessário mantém o agente seguro e focado. O próximo capítulo mostra como formalizar
+    ainda mais o processo de trabalho com Spec-Driven Development.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-06-multiplos-agentes.html"><span class="lbl">Anterior</span>Cap. 6 — Múltiplos agentes especializados</a>
+    <a href="cap-08-spec-driven-development.html" class="next"><span class="lbl">Próximo</span>Cap. 8 — Spec-Driven Development</a>
+  </div>
+</div>
+</body>
+</html>

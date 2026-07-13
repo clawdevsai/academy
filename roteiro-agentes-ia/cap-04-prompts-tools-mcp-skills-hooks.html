@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 4: Prompts, Comandos, Agentes, Tools, MCPs, Skills e Hooks — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 4 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">4.</span> Prompts, Comandos, Agentes, Tools, MCPs, Skills e Hooks — as diferenças</h1>
+  <p class="subtitle">Organizando o vocabulário: qual peça faz o quê no ecossistema do Claude Code, e como elas se encaixam.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Distinguir com clareza sete termos que costumam ser confundidos: prompts, comandos, agentes, tools, MCPs, skills e hooks.</li>
+      <li>Entender a relação de granularidade entre esses conceitos — do mais específico (tool) ao mais orquestrador (agente).</li>
+      <li>Saber quando usar um comando de barra (slash command) em vez de escrever um prompt do zero.</li>
+      <li>Compreender como hooks funcionam como guardrails automáticos de segurança.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>Até aqui você já viu prompts, agentes e subagentes. Este capítulo fecha o vocabulário essencial, porque nos próximos capítulos do curso esses termos vão aparecer sem explicação repetida. A confusão mais comum de quem está começando é achar que tudo isso é "a mesma coisa com nomes diferentes" — não é. Cada termo descreve uma camada diferente de como o Claude Code funciona.</p>
+
+  <p>Pense numa analogia com uma cozinha profissional:</p>
+  <ul>
+    <li>O <strong>prompt</strong> é o pedido do cliente ("quero um risoto de limão siciliano").</li>
+    <li>As <strong>tools</strong> são os utensílios individuais que o cozinheiro usa (faca, fogão, liquidificador) — a ação mais básica e granular possível.</li>
+    <li>Uma <strong>skill</strong> é uma receita documentada que o cozinheiro segue para não errar um prato específico.</li>
+    <li>Um <strong>comando</strong> (slash command) é um atalho no cardápio — pedir "o de sempre" em vez de descrever o prato inteiro toda vez.</li>
+    <li>Um <strong>agente</strong> é o próprio cozinheiro (ou um subagente, um ajudante especializado): decide quais utensílios usar, em que ordem, seguindo ou não uma receita.</li>
+    <li>Um <strong>MCP</strong> é a ponte com fornecedores externos — o telefone que liga para o mercado, o distribuidor de peixe, o serviço de entrega.</li>
+    <li>Um <strong>hook</strong> é a regra de segurança da cozinha que roda sozinha, sem depender do cozinheiro lembrar — por exemplo, "sempre lave as mãos antes de tocar em carne crua", verificado automaticamente.</li>
+  </ul>
+
+  <p>Agora, com definições técnicas mais precisas:</p>
+
+  <table>
+    <tr><th>Conceito</th><th>Definição</th><th>Granularidade</th></tr>
+    <tr><td>Prompt</td><td>Instrução em linguagem natural dada pelo usuário ao agente.</td><td>Entrada do usuário</td></tr>
+    <tr><td>Tool</td><td>Uma capacidade individual e granular que o agente pode invocar (ex.: Read, Write, Bash, WebSearch).</td><td>Mais granular</td></tr>
+    <tr><td>Comando (slash command)</td><td>Atalho que dispara um prompt ou skill pré-definida, invocado digitando <code>/nome-do-comando</code>.</td><td>Atalho reutilizável</td></tr>
+    <tr><td>Skill</td><td>Pacote de instruções reutilizável (arquivo <code>SKILL.md</code>) que ensina o agente a realizar uma tarefa específica passo a passo.</td><td>Procedimento documentado</td></tr>
+    <tr><td>Agente / Subagente</td><td>Orquestrador autônomo que recebe um objetivo, decide quais tools/skills usar e em que ordem, e itera até completar a tarefa.</td><td>Orquestração</td></tr>
+    <tr><td>MCP (Model Context Protocol)</td><td>Protocolo aberto que conecta o agente a ferramentas e serviços externos (GitHub, Slack, bancos de dados, navegadores).</td><td>Integração externa</td></tr>
+    <tr><td>Hook</td><td>Script que roda automaticamente em pontos do ciclo de vida do agente (ex.: antes de usar uma tool), podendo até bloquear a ação.</td><td>Guardrail automático</td></tr>
+  </table>
+
+  <p>Um detalhe importante: em 2026, comandos de barra customizados (slash commands) foram unificados com Skills. Ou seja, quando você cria uma skill, ela automaticamente vira invocável via <code>/nome-da-skill</code> — não são mais dois sistemas separados como eram no passado.</p>
+
+  <p>Outro ponto que costuma confundir: quando você conecta um servidor <strong>MCP</strong> (por exemplo, um MCP do GitHub), os prompts que esse servidor expõe também aparecem como comandos de barra, no formato <code>/mcp__nome-do-servidor__nome-do-prompt</code>. Ou seja, MCP e comandos se cruzam, mas a origem é diferente: um vem de um serviço externo conectado via protocolo, o outro é definido localmente no seu projeto.</p>
+
+  <div class="mermaid">
+flowchart TD
+    P[Prompt do usuário] --> AG[Agente / Subagente]
+    AG -->|decide usar| T[Tools nativas: Read, Write, Bash...]
+    AG -->|segue| SK[Skills: procedimentos documentados]
+    AG -->|invoca via /nome| CMD[Comandos de barra]
+    AG -->|conecta a| MCP[Servidores MCP externos]
+    MCP -->|expõe prompts como| CMD
+    H[Hooks] -.->|intercepta e valida| T
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p><strong>Tool</strong> em ação (nível mais granular, geralmente invisível para você — o agente decide sozinho usá-la):</p>
+  <pre><code>[Claude decide internamente]
+Tool: Read
+Input: { "file_path": "src/api/pagamentos.ts" }</code></pre>
+
+  <p><strong>Skill / comando</strong> — um arquivo <code>SKILL.md</code> que vira o comando <code>/gerar-changelog</code>:</p>
+  <pre><code>---
+name: gerar-changelog
+description: Gera um changelog em português a partir dos commits desde a última tag.
+---
+
+1. Rode `git log` desde a última tag até HEAD.
+2. Agrupe os commits por tipo (feat, fix, chore).
+3. Escreva um changelog em português, em Markdown,
+   seguindo o padrão Keep a Changelog.</code></pre>
+  <p>Uso no terminal:</p>
+  <pre><code>&gt; /gerar-changelog</code></pre>
+
+  <p><strong>MCP</strong> — conectando um servidor externo (ex.: GitHub) e usando um dos prompts que ele expõe:</p>
+  <pre><code># depois de conectar o servidor MCP do GitHub
+&gt; /mcp__github__criar_pull_request</code></pre>
+
+  <p><strong>Hook</strong> — um guardrail que bloqueia comandos perigosos de shell, configurado em <code>.claude/settings.json</code>, rodando antes de qualquer uso da tool Bash:</p>
+  <pre><code>#!/bin/bash
+# hook PreToolUse — lê o input da tool via stdin
+INPUT=$(cat)
+COMANDO=$(echo "$INPUT" | jq -r '.tool_input.command')
+
+if echo "$COMANDO" | grep -qE 'rm -rf|DROP TABLE'; then
+  echo "Comando bloqueado por política de segurança." >&2
+  exit 2   # código 2 bloqueia a ação
+fi
+exit 0</code></pre>
+  <p>Esse hook roda automaticamente, sem depender do agente "lembrar" de ser cuidadoso — é uma camada de segurança determinística, fora do controle do modelo de linguagem.</p>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Comece só com prompts diretos — é o jeito mais simples de aprender a "conversar" com o agente (Capítulos 1 e 2).</li>
+    <li>Quando perceber que repete o mesmo tipo de pedido, transforme-o em uma skill/comando de barra.</li>
+    <li>Quando uma tarefa exigir "modo de pensar" isolado, crie um subagente especializado (Capítulo 3).</li>
+    <li>Quando precisar de dados ou ações fora do seu repositório (ex.: abrir uma issue no GitHub), conecte um MCP.</li>
+    <li>Quando precisar de uma regra de segurança que nunca pode falhar (ex.: nunca commitar segredos), use um hook — não confie só em instrução de prompt para isso.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Você
+    participant Agente
+    participant Hook
+    participant Tool as Tool (Bash)
+    participant MCP as Servidor MCP
+
+    Você->>Agente: /gerar-changelog
+    Agente->>Tool: Executa git log
+    Hook-->>Tool: Valida antes de executar (PreToolUse)
+    Tool-->>Agente: Resultado do comando
+    Agente->>MCP: Cria issue com o changelog (opcional)
+    Agente->>Você: Changelog pronto
+  </div>
+
+  <h2>Dicas e boas práticas</h2>
+  <div class="tip"><strong>Dica:</strong> não tente decorar as diferenças de uma vez — use a analogia da cozinha (prompt = pedido, tool = utensílio, skill = receita, agente = cozinheiro, MCP = fornecedor externo, hook = regra de segurança automática) sempre que precisar se situar.</div>
+  <div class="tip"><strong>Dica:</strong> prefira resolver com skills/comandos antes de criar um subagente novo — subagentes têm mais overhead de configuração e só compensam quando há real necessidade de isolar contexto ou restringir ferramentas.</div>
+  <div class="tip"><strong>Dica:</strong> regras de segurança inegociáveis (nunca apagar produção, nunca commitar chave de API) devem virar hooks, não apenas instruções em texto — hooks são determinísticos, prompts são probabilísticos.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> confundir skill com agente. Uma skill é um procedimento que um agente segue; ela não decide nada sozinha, não tem autonomia própria — quem decide usá-la (ou não) é o agente.</div>
+  <div class="warn"><strong>Erro comum:</strong> achar que MCP é só "mais uma tool". Um MCP pode expor várias tools, prompts e recursos de uma vez — é uma camada de integração, não uma ferramenta única.</div>
+  <div class="warn"><strong>Erro comum:</strong> depender só de instruções em linguagem natural ("por favor nunca rode comandos destrutivos") para segurança crítica. Modelos de linguagem podem falhar em seguir instruções em casos extremos; hooks são a camada que garante isso de forma mecânica.</div>
+
+  <h2>Exercício prático</h2>
+  <div class="exercise"><strong>Mão na massa:</strong> escolha uma tarefa que você repetiria com frequência no seu projeto (ex.: gerar um resumo de pull request, ou rodar um checklist antes de commitar). Escreva-a como uma skill simples (arquivo <code>SKILL.md</code> com <code>name</code>, <code>description</code> e os passos), salve na pasta apropriada do projeto, e teste invocando com <code>/nome-da-skill</code> no Claude Code. Depois, identifique uma regra de segurança do seu projeto que você gostaria de garantir sempre — e escreva, ao menos em pseudocódigo, como seria um hook para isso.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>Prompts, tools, skills, comandos, agentes, MCPs e hooks são camadas diferentes e complementares do ecossistema do Claude Code: tools são a ação mais granular; skills documentam procedimentos e, desde a unificação em 2026, viram automaticamente comandos de barra; agentes orquestram tudo isso para cumprir um objetivo; MCPs conectam o agente a serviços externos; e hooks garantem regras de segurança de forma automática e determinística, independente do que o modelo "decide" fazer. Entender essa hierarquia evita confusão e ajuda a escolher a ferramenta certa para cada problema nos próximos capítulos do curso.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-03-o-que-sao-ai-agents.html"><span class="lbl">Anterior</span>Cap. 3 — O que são AI Agents</a>
+    <a href="cap-05-workflow-profissional.html" class="next"><span class="lbl">Próximo</span>Cap. 5 — Workflow profissional</a>
+  </div>
+</div>
+</body>
+</html>

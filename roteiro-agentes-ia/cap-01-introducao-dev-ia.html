@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 1: Introdução ao Desenvolvimento de Software com IA — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 1 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">1.</span> Introdução ao Desenvolvimento de Software com IA</h1>
+  <p class="subtitle">Como a inteligência artificial mudou a forma de programar — e por que isso importa para você, mesmo sem experiência prévia.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Entender a diferença entre "usar IA para programar" e "desenvolvimento agentic" (baseado em agentes autônomos).</li>
+      <li>Conhecer a evolução: autocomplete → chat → agentes que executam tarefas sozinhos.</li>
+      <li>Compreender os conceitos-chave que vão aparecer no resto do curso: LLM, prompt, contexto, agente.</li>
+      <li>Identificar em quais situações vale a pena usar IA no seu fluxo de desenvolvimento.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>Se você nunca programou com ajuda de inteligência artificial, a primeira coisa a entender é que "IA no desenvolvimento" não é uma coisa só. É um espectro, e a maioria das pessoas conhece só a ponta mais simples dele: o autocomplete inteligente. Este capítulo existe para te mostrar o mapa completo antes de mergulharmos no Claude Code nos próximos capítulos.</p>
+
+  <p>Um <strong>LLM</strong> (Large Language Model, ou "modelo de linguagem grande") é o motor por trás de tudo isso: um sistema treinado com uma quantidade enorme de texto — incluindo código de milhões de repositórios públicos — que aprendeu a prever qual é a próxima palavra (ou "token", um pedacinho de texto) mais provável dado um contexto. Isso parece simples, mas na prática significa que o modelo consegue escrever código, explicar conceitos, encontrar bugs e sugerir arquiteturas, porque ele "viu" padrões parecidos milhares de vezes durante o treinamento.</p>
+
+  <p>O que mudou nos últimos anos não foi só o modelo ficar mais inteligente. Mudou a forma como ele interage com o seu código. Podemos pensar nisso em três gerações:</p>
+
+  <table>
+    <tr><th>Geração</th><th>Como funciona</th><th>Exemplo</th><th>Limitação principal</th></tr>
+    <tr><td>1. Autocomplete</td><td>Sugere a próxima linha ou função enquanto você digita, dentro do editor.</td><td>GitHub Copilot (modo inline)</td><td>Não entende o projeto inteiro, só o arquivo aberto.</td></tr>
+    <tr><td>2. Chat / assistente</td><td>Você copia e cola código numa conversa, pede explicação ou sugestão, e cola a resposta de volta.</td><td>ChatGPT, Claude.ai</td><td>Você é o "cola-tudo": o modelo não vê o projeto nem executa nada.</td></tr>
+    <tr><td>3. Agentic (agente autônomo)</td><td>A IA lê o repositório sozinha, decide o que fazer, edita arquivos, roda comandos, testa e itera até o resultado ficar pronto.</td><td>Claude Code</td><td>Exige supervisão e bom uso de instruções — não é "mágica sem controle".</td></tr>
+  </table>
+
+  <p>Este curso é sobre a terceira geração. É a diferença entre pedir uma receita de bolo por escrito e ter alguém que vai até a cozinha, separa os ingredientes, assa o bolo e te chama quando estiver pronto — perguntando antes se tiver dúvida.</p>
+
+  <p>Dois termos vão aparecer o tempo todo daqui para frente, então vale fixar agora:</p>
+  <ul>
+    <li><strong>Prompt</strong>: a instrução em linguagem natural que você dá para a IA. Pode ser uma frase curta ("corrija esse bug") ou um parágrafo detalhado com contexto, restrições e exemplos.</li>
+    <li><strong>Contexto</strong>: tudo aquilo que o modelo "enxerga" no momento de responder — o histórico da conversa, arquivos lidos, resultado de comandos executados. Quanto melhor o contexto, melhor a resposta. Gerenciar contexto bem é uma habilidade central quando se trabalha com agentes.</li>
+  </ul>
+
+  <div class="mermaid">
+flowchart LR
+    A["Geração 1<br/>Autocomplete<br/>(sugestão de linha)"] --> B["Geração 2<br/>Chat<br/>(copia e cola)"]
+    B --> C["Geração 3<br/>Agentic<br/>(IA executa sozinha)"]
+    C --> D["Você define o objetivo<br/>e supervisiona o resultado"]
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>Para deixar concreto, veja a mesma tarefa — "adicionar validação de e-mail num formulário" — resolvida nas três gerações:</p>
+
+  <p><strong>Geração 1 (autocomplete):</strong> você começa a digitar <code>function validateEmail(</code> e o editor sugere o corpo da função. Você aceita, mas ainda precisa descobrir sozinho onde chamar essa função, adicionar mensagens de erro na tela e testar.</p>
+
+  <p><strong>Geração 2 (chat):</strong> você abre o ChatGPT ou Claude.ai, cola o código do formulário e pergunta "como adiciono validação de e-mail aqui?". Recebe uma resposta com código, mas precisa copiar manualmente, colar no lugar certo, adaptar nomes de variáveis e testar.</p>
+
+  <p><strong>Geração 3 (agentic, com Claude Code):</strong> você escreve um prompt assim, no terminal do seu projeto:</p>
+  <pre><code>Adicione validação de e-mail no formulário de cadastro em src/components/SignupForm.tsx.
+Mostre uma mensagem de erro abaixo do campo se o e-mail for inválido.
+Rode os testes existentes depois para garantir que nada quebrou.</code></pre>
+  <p>O agente localiza o arquivo sozinho, lê o código ao redor para entender o padrão usado no projeto, escreve a validação, edita o arquivo diretamente, roda a suíte de testes e te mostra o resultado — tudo sem você precisar copiar e colar nada.</p>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <p>Antes de instalar qualquer ferramenta, vale internalizar o papel que você vai ter neste novo modelo de trabalho. Você deixa de ser quem digita cada linha e passa a ser quem define objetivos, dá contexto e revisa o resultado.</p>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Você
+    participant Agente de IA
+    participant Repositório
+
+    Você->>Agente de IA: Descreve o objetivo (prompt)
+    Agente de IA->>Repositório: Lê arquivos relevantes
+    Agente de IA->>Agente de IA: Planeja os passos
+    Agente de IA->>Repositório: Edita código, roda comandos
+    Agente de IA->>Você: Mostra o resultado e pede revisão
+    Você->>Agente de IA: Aprova ou pede ajustes
+  </div>
+
+  <ol>
+    <li>Defina o objetivo com clareza (o que muda, onde, e qual o critério de "pronto").</li>
+    <li>Dê contexto suficiente (nomes de arquivos, padrões do projeto, restrições).</li>
+    <li>Deixe o agente trabalhar e observe o que ele está fazendo.</li>
+    <li>Revise o resultado antes de aceitar — você continua responsável pelo código.</li>
+    <li>Refine o prompt se o resultado não for o esperado, em vez de corrigir manualmente tudo.</li>
+  </ol>
+
+  <h2>Dicas e boas práticas</h2>
+  <div class="tip"><strong>Dica:</strong> comece com tarefas pequenas e bem definidas enquanto aprende a "conversar" com um agente. Isso cria confiança antes de delegar tarefas maiores.</div>
+  <div class="tip"><strong>Dica:</strong> pense em prompt como briefing de trabalho, não como busca no Google. Quanto mais contexto relevante você der, melhor o resultado — assim como orientar um colega novo no time.</div>
+  <div class="tip"><strong>Dica:</strong> você não precisa saber programar para começar a entender esse curso, mas noções básicas de lógica e de como um projeto de software é organizado (pastas, arquivos, versionamento) vão acelerar seu aprendizado.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> achar que "geração 3" significa não precisar mais entender o que o código faz. Você ainda precisa revisar e validar — a IA erra, principalmente em tarefas ambíguas ou mal especificadas.</div>
+  <div class="warn"><strong>Erro comum:</strong> tratar um agente como um mecanismo de busca ("me diz a resposta") em vez de um executor de tarefas ("faça essa mudança"). São usos diferentes e pedem prompts diferentes.</div>
+  <div class="warn"><strong>Erro comum:</strong> dar instruções vagas ("melhore esse código") e se frustrar com o resultado. Sem critério de sucesso claro, o agente vai adivinhar o que você quer — e pode adivinhar errado.</div>
+
+  <h2>Exercício prático</h2>
+  <div class="exercise"><strong>Mão na massa:</strong> pegue uma tarefa de programação simples que você já resolveu antes (ex.: validar um formulário, ordenar uma lista, formatar uma data). Escreva três versões do mesmo pedido: uma como se fosse para o autocomplete (uma linha de código incompleta), uma como se fosse para um chat (uma pergunta), e uma como se fosse para um agente (um objetivo completo, com contexto e critério de sucesso). Compare as três e observe como a forma de pedir muda o nível de detalhe necessário.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>O desenvolvimento de software com IA evoluiu em três gerações: autocomplete, chat e agentic. Este curso foca na terceira, onde ferramentas como o Claude Code leem o repositório, executam tarefas e iteram sozinhas até entregar um resultado, sob sua supervisão. Os conceitos de LLM, prompt e contexto são a base de tudo que vem a seguir. O seu papel muda de "quem escreve cada linha" para "quem define objetivos e revisa resultados" — uma habilidade que vamos desenvolver ao longo do curso.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="index.html"><span class="lbl">Anterior</span>Sumário</a>
+    <a href="cap-02-o-que-e-claude-code.html" class="next"><span class="lbl">Próximo</span>Cap. 2 — O que é o Claude Code</a>
+  </div>
+</div>
+</body>
+</html>

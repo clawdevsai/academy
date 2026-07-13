@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentes de IA com Claude Code — Roteiro Completo</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+
+<style>
+  .hero{padding:40px 0 10px;}
+  .hero h1{font-size:2.3rem;margin-bottom:6px;}
+  .hero p{color:var(--text-dim);font-size:1.1rem;max-width:640px;}
+  .toc{list-style:none;padding:0;margin:30px 0;display:flex;flex-direction:column;gap:10px;}
+  .toc li a{display:flex;align-items:center;gap:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;text-decoration:none;color:var(--text);transition:border-color .15s;}
+  .toc li a:hover{border-color:var(--accent);}
+  .toc .n{flex:0 0 34px;height:34px;border-radius:50%;background:var(--bg-card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:.95rem;}
+  .toc .t{flex:1;}
+  .toc .t .title{font-weight:600;color:#fff;}
+  .toc .t .desc{font-size:.85rem;color:var(--text-dim);margin-top:2px;}
+  .section-label{margin:34px 0 6px;color:var(--accent);text-transform:uppercase;font-size:.75rem;letter-spacing:.08em;font-weight:700;}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <span style="color:var(--text-dim);font-size:14px;">Imersão — Desenvolvimento de Software com IA</span>
+    <span class="badge">14 capítulos</span>
+  </div>
+</header>
+<div class="wrap">
+  <div class="hero">
+    <h1>Agentes de IA com Claude Code</h1>
+    <p class="subtitle">Roteiro completo, do zero ao avançado: workflows, boas práticas e estratégias de desenvolvimento de software orientado por IA.</p>
+  </div>
+
+  <div class="card">
+    <p style="margin:0;">Este material foi feito para quem <strong>nunca usou Claude Code ou AI Agents antes</strong>. Comece pelo Capítulo 1 e siga a ordem — cada capítulo assume o conteúdo dos anteriores. Todos trazem objetivos de aprendizagem, exemplos práticos, diagramas, dicas, erros comuns e exercícios.</p>
+  </div>
+
+  <div class="section-label">Fundamentos</div>
+  <ul class="toc">
+    <li><a href="cap-01-introducao-dev-ia.html"><span class="n">1</span><span class="t"><span class="title">Introdução ao Desenvolvimento de Software com IA</span><span class="desc">Por que a forma de programar está mudando e onde a IA agentic entra nisso.</span></span></a></li>
+    <li><a href="cap-02-o-que-e-claude-code.html"><span class="n">2</span><span class="t"><span class="title">O que é o Claude Code e como ele funciona</span><span class="desc">A ferramenta, seu loop agentic e os fundamentos de uso.</span></span></a></li>
+    <li><a href="cap-03-o-que-sao-ai-agents.html"><span class="n">3</span><span class="t"><span class="title">O que são AI Agents e por que utilizá-los</span><span class="desc">Do assistente que responde ao agente que executa.</span></span></a></li>
+    <li><a href="cap-04-prompts-tools-mcp-skills-hooks.html"><span class="n">4</span><span class="t"><span class="title">Prompts, Comandos, Tools, MCPs, Skills e Hooks</span><span class="desc">O vocabulário essencial — o que é cada peça e quando usar.</span></span></a></li>
+  </ul>
+
+  <div class="section-label">Workflows e Arquitetura</div>
+  <ul class="toc">
+    <li><a href="cap-05-workflow-profissional.html"><span class="n">5</span><span class="t"><span class="title">Workflow profissional com Claude Code</span><span class="desc">Explore → Plan → Code → Commit, CLAUDE.md e configuração de projeto.</span></span></a></li>
+    <li><a href="cap-06-multiplos-agentes.html"><span class="n">6</span><span class="t"><span class="title">Múltiplos agentes especializados</span><span class="desc">Quando e como dividir responsabilidades entre agentes.</span></span></a></li>
+    <li><a href="cap-07-agentes-personalizados.html"><span class="n">7</span><span class="t"><span class="title">Criando e organizando agentes personalizados</span><span class="desc">Frontmatter, tools, escopo e a mecânica de criar um subagente.</span></span></a></li>
+    <li><a href="cap-08-spec-driven-development.html"><span class="n">8</span><span class="t"><span class="title">Spec-Driven Development</span><span class="desc">Specify → Plan → Tasks: reduzindo retrabalho com especificação antes do código.</span></span></a></li>
+    <li><a href="cap-09-revisao-qa-seguranca-devops.html"><span class="n">9</span><span class="t"><span class="title">Revisão, QA, Segurança, DevOps e Arquitetura</span><span class="desc">Agentes especializados por papel dentro de um pipeline real.</span></span></a></li>
+  </ul>
+
+  <div class="section-label">Maturidade e Prática</div>
+  <ul class="toc">
+    <li><a href="cap-10-contexto-e-tokens.html"><span class="n">10</span><span class="t"><span class="title">Contexto entre tarefas e uso de tokens</span><span class="desc">Como manter contexto relevante sem desperdiçar janela e custo.</span></span></a></li>
+    <li><a href="cap-11-boas-praticas.html"><span class="n">11</span><span class="t"><span class="title">Boas práticas para projetos reais</span><span class="desc">Da experimentação para um processo confiável em produção.</span></span></a></li>
+    <li><a href="cap-12-erros-comuns.html"><span class="n">12</span><span class="t"><span class="title">Erros mais comuns de iniciantes</span><span class="desc">Os tropeços mais frequentes — e como evitá-los.</span></span></a></li>
+    <li><a href="cap-13-projeto-completo.html"><span class="n">13</span><span class="t"><span class="title">Demonstração completa de um projeto</span><span class="desc">Estudo de caso: API com autenticação, construída por 5 agentes especializados.</span></span></a></li>
+    <li><a href="cap-14-checklist-final.html"><span class="n">14</span><span class="t"><span class="title">Checklist final de boas práticas</span><span class="desc">Referência rápida para consultar antes e durante qualquer projeto.</span></span></a></li>
+  </ul>
+
+  <div class="summary" style="margin-top:50px;">
+    <h3>Como aproveitar melhor esta imersão</h3>
+    <p>Leia um capítulo por vez, faça o exercício prático antes de avançar, e mantenha o Claude Code aberto ao lado para testar os exemplos enquanto lê. O Capítulo 14 funciona como cola de consulta rápida depois que você já passou pelo curso inteiro.</p>
+  </div>
+</div>
+</body>
+</html>

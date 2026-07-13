@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 6: Dividindo responsabilidades entre múltiplos agentes especializados — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 6 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">6.</span> Dividindo responsabilidades entre múltiplos agentes especializados</h1>
+  <p class="subtitle">Arquitetura: quando um único agente deixa de ser suficiente e como desenhar um sistema com vários.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Entender o que são subagentes e como eles rodam em contexto isolado.</li>
+      <li>Reconhecer os sinais de que uma tarefa deveria ser dividida entre agentes especializados.</li>
+      <li>Conhecer os padrões "Dynamic Workflows" e "Performance Outcomes" (2026).</li>
+      <li>Entender o spawning hierárquico (agentes que criam outros agentes) e seus limites.</li>
+      <li>Diferenciar paralelismo de sequenciamento na orquestração de agentes.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    Até aqui você usou o Claude Code como um agente único conversando com você. Mas em projetos maiores, uma única
+    janela de contexto vira um gargalo: pesquisar em 40 arquivos, rodar testes, ler logs longos e ainda implementar
+    código na mesma conversa faz o contexto "encher" rápido, degradando a qualidade das respostas.
+  </p>
+  <p>
+    A solução é usar <strong>subagentes</strong>: agentes definidos como arquivos Markdown em <code>.claude/agents/</code>,
+    cada um com seu próprio system prompt, seu próprio conjunto de <em>tools</em> permitidas e, opcionalmente, seu próprio
+    modelo. Cada subagente roda em um <strong>contexto isolado</strong> — ele não carrega o histórico da conversa principal,
+    só recebe a tarefa que lhe foi delegada e devolve um resultado resumido. Isso é ótimo para três situações:
+  </p>
+  <ul>
+    <li><strong>Pesquisa paralela</strong> — várias buscas independentes (ex: "onde está a lógica de autenticação", "onde estão os testes de pagamento") rodando ao mesmo tempo.</li>
+    <li><strong>Tarefas ruidosas</strong> — ler logs enormes, resultados de busca extensos ou saídas de comando verbosas; o subagente processa o ruído e devolve só a conclusão.</li>
+    <li><strong>Modificações paralelas independentes</strong> — editar módulos que não se tocam (ex: frontend e backend de uma feature) ao mesmo tempo.</li>
+  </ul>
+  <p>
+    Em 2026, dois padrões se consolidaram no uso avançado de subagentes. O primeiro é <strong>Dynamic Workflows</strong>:
+    um agente líder (orquestrador) analisa a tarefa, monta um plano e dispara — sozinho, sem intervenção humana a cada
+    passo — dezenas ou até centenas de subagentes em paralelo, cada um cuidando de uma fatia do problema. O segundo é
+    <strong>Performance Outcomes</strong>: um agente "grader" (avaliador), separado do agente que fez o trabalho, revisa
+    o resultado contra um rubric (critério de qualidade) e devolve o subagente para revisão até o padrão ser atingido —
+    uma espécie de loop de controle de qualidade automatizado.
+  </p>
+  <p>
+    Também é possível o <strong>spawning hierárquico</strong>: um agente pai cria agentes filhos, que por sua vez podem
+    criar seus próprios filhos, até um limite prático de <strong>3 níveis</strong>. Isso é útil para decompor tarefas
+    grandes que tocam múltiplos módulos — por exemplo, um agente de "migração de API" que cria um filho por serviço afetado,
+    e cada filho cria netos para lidar com cada endpoint. Passar desse limite tende a gerar overhead de coordenação maior
+    que o ganho de paralelismo.
+  </p>
+
+  <table>
+    <tr><th>Sinal</th><th>Agente único basta</th><th>Vale dividir em múltiplos agentes</th></tr>
+    <tr><td>Escopo da tarefa</td><td>Um arquivo ou módulo pequeno</td><td>Vários módulos independentes</td></tr>
+    <tr><td>Volume de leitura</td><td>Poucos arquivos, contexto cabe fácil</td><td>Dezenas de arquivos, logs longos, resultados de busca extensos</td></tr>
+    <tr><td>Natureza do trabalho</td><td>Sequencial, uma coisa depende da outra</td><td>Paralelizável, partes não se tocam</td></tr>
+    <tr><td>Necessidade de papéis distintos</td><td>Implementar e revisar na mesma "cabeça"</td><td>Separar quem implementa de quem revisa/testa/audita</td></tr>
+  </table>
+
+  <div class="mermaid">
+flowchart TD
+    O[Agente orquestrador] --> A[Subagente: pesquisa no código]
+    O --> B[Subagente: implementação módulo A]
+    O --> C[Subagente: implementação módulo B]
+    A --> D[Agente grader / revisor]
+    B --> D
+    C --> D
+    D -->|reprovado| B
+    D -->|aprovado| E[Resultado consolidado ao usuário]
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>
+    Você não precisa "programar" a orquestração — basta pedir em linguagem natural e o Claude Code decide quando delegar,
+    com base na <code>description</code> de cada subagente disponível em <code>.claude/agents/</code>. Exemplo de prompt
+    para o agente principal:
+  </p>
+  <pre><code>Preciso migrar todos os componentes de src/components/legacy para o novo
+padrão de hooks. São 12 componentes independentes entre si.
+Use subagentes em paralelo, um por componente, e depois consolide um
+resumo do que foi alterado em cada um.
+</code></pre>
+  <p>
+    Estrutura típica de projeto com múltiplos agentes especializados (cada um será detalhado mecanicamente no capítulo 7):
+  </p>
+  <pre><code>.claude/
+  agents/
+    arquiteto.md        # planeja mudanças estruturais
+    implementador.md    # escreve código a partir de um plano aprovado
+    revisor-codigo.md   # revisão de qualidade e padrões
+    qa-tester.md        # escreve e roda testes
+    seguranca.md        # audita vulnerabilidades e segredos expostos
+    devops.md           # cuida de CI/CD, infra, deploy
+</code></pre>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Comece sempre com um agente único até sentir o contexto ficar pesado ou o escopo se tornar claramente paralelizável.</li>
+    <li>Identifique papéis, não pessoas: "quem planeja", "quem implementa", "quem audita" — não confunda divisão de papéis com divisão arbitrária de arquivos.</li>
+    <li>Dê ao agente orquestrador uma instrução explícita de quando paralelizar e quando esperar um subagente terminar antes de iniciar outro (dependências sequenciais).</li>
+    <li>Use um agente revisor/grader separado do agente que implementou — nunca deixe quem escreveu o código ser o único a validar a própria qualidade.</li>
+    <li>Consolide sempre um resumo final para o humano; não deixe os detalhes de cada subagente poluir a conversa principal.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Você
+    participant Lead as Agente líder
+    participant S1 as Subagente 1
+    participant S2 as Subagente 2
+    participant G as Agente grader
+    Dev->>Lead: Tarefa grande com partes independentes
+    Lead->>S1: Delega parte A
+    Lead->>S2: Delega parte B
+    S1-->>Lead: Resultado A
+    S2-->>Lead: Resultado B
+    Lead->>G: Envia resultado consolidado
+    G-->>Lead: Aprovado / pontos a corrigir
+    Lead-->>Dev: Resumo final
+  </div>
+
+  <div class="tip"><strong>Dica:</strong> subagentes isolam contexto, não responsabilidade — o agente orquestrador continua sendo o responsável por garantir que o resultado final faça sentido como um todo.</div>
+  <div class="tip"><strong>Dica:</strong> comece com 2-3 subagentes especializados (implementação, revisão, testes) antes de partir para arquiteturas com dezenas de agentes — complexidade de orquestração também tem custo.</div>
+  <div class="tip"><strong>Dica:</strong> use o padrão "grader separado" sempre que a tarefa tiver um critério de qualidade objetivo (cobertura de testes, ausência de vulnerabilidades, aderência a um design system).</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> dividir agentes por arquivo em vez de por responsabilidade. Isso cria múltiplos agentes fazendo a mesma coisa (implementar) sem nenhum ganho de qualidade, só de velocidade — e ainda corre risco de conflito quando os arquivos na verdade se relacionam.</div>
+  <div class="warn"><strong>Erro comum:</strong> paralelizar tarefas que têm dependência real entre si (ex: implementar a API antes do frontend que a consome). O resultado é retrabalho, porque um subagente termina antes de saber a interface que o outro definiu.</div>
+  <div class="warn"><strong>Erro comum:</strong> ultrapassar os 3 níveis de spawning hierárquico "porque dá para fazer". O overhead de coordenação cresce mais rápido que o ganho — geralmente 1-2 níveis já resolvem a maioria dos casos reais.</div>
+
+  <div class="exercise"><strong>Mão na massa:</strong> pegue uma tarefa do seu backlog que toque pelo menos 3 arquivos não relacionados entre si (ex: 3 componentes de UI independentes). Peça ao Claude Code para usar subagentes em paralelo, um por arquivo, e depois consolidar um resumo. Compare o tempo e a qualidade do resultado com fazer a mesma tarefa em uma única conversa sequencial.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>Subagentes rodam em contexto isolado e resolvem o problema de contexto poluído e trabalho paralelizável.
+    Os padrões Dynamic Workflows (orquestração automática em larga escala) e Performance Outcomes (grader separado
+    validando contra um rubric) representam o estado da arte em 2026. O spawning hierárquico permite decompor tarefas
+    grandes em até 3 níveis, mas o critério para dividir deve sempre ser responsabilidade e paralelizabilidade real —
+    nunca divisão arbitrária de arquivos. O próximo capítulo mostra a mecânica de criar cada um desses agentes na prática.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-05-workflow-profissional.html"><span class="lbl">Anterior</span>Cap. 5 — Workflow profissional</a>
+    <a href="cap-07-agentes-personalizados.html" class="next"><span class="lbl">Próximo</span>Cap. 7 — Agentes personalizados</a>
+  </div>
+</div>
+</body>
+</html>

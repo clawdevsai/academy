@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 5: Como estruturar um workflow profissional com Claude Code — Agentes de IA com Claude Code</title>
+<style>
+  :root{
+    --bg:#0f1117; --bg-card:#161925; --bg-card2:#1c2030; --border:#2a2f42;
+    --text:#e8e9ee; --text-dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
+    --green:#4caf7d; --red:#e0605c; --yellow:#e0c93f; --code-bg:#11131b;
+    --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 80px;}
+  header.top{position:sticky;top:0;background:rgba(15,17,23,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);z-index:10;}
+  header.top .inner{max-width:880px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  header.top a{color:var(--text-dim);text-decoration:none;font-size:14px;}
+  header.top a:hover{color:var(--accent);}
+  .badge{display:inline-block;background:var(--accent);color:#1a1206;font-weight:700;font-size:12px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+  h1{font-size:2rem;line-height:1.2;margin:20px 0 8px;color:#fff;}
+  h1 .num{color:var(--accent);}
+  h2{font-size:1.35rem;margin:44px 0 14px;color:#fff;border-left:4px solid var(--accent);padding-left:12px;}
+  h3{font-size:1.1rem;margin:26px 0 10px;color:#fff;}
+  p{margin:12px 0;color:var(--text);}
+  .subtitle{color:var(--text-dim);font-size:1.05rem;margin-bottom:24px;}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .obj{background:linear-gradient(135deg,#1d2233,#171a26);border:1px solid var(--accent2);border-radius:12px;padding:18px 22px;margin:20px 0;}
+  .obj h3{margin-top:0;color:var(--accent2);}
+  .obj ul{margin:8px 0 0;padding-left:20px;}
+  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .tip strong{color:var(--green);}
+  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn strong{color:var(--red);}
+  .exercise{background:#231d10;border-left:4px solid var(--yellow);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .exercise strong{color:var(--yellow);}
+  .summary{background:var(--bg-card2);border:1px dashed var(--accent);border-radius:12px;padding:18px 22px;margin:30px 0;}
+  .summary h3{color:var(--accent);margin-top:0;}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.85rem;}
+  code{font-family:"SF Mono",Consolas,Monaco,monospace;background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.85em;}
+  pre code{background:none;padding:0;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--border);padding:8px 12px;text-align:left;}
+  th{background:var(--bg-card2);color:#fff;}
+  tr:nth-child(even){background:rgba(255,255,255,.02);}
+  .mermaid{background:#fff;border-radius:12px;padding:16px;margin:20px 0;}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border);}
+  .chapnav a{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;color:var(--text);text-decoration:none;font-size:.9rem;}
+  .chapnav a:hover{border-color:var(--accent);}
+  .chapnav .lbl{display:block;color:var(--text-dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .chapnav .next{text-align:right;}
+  a{color:var(--accent2);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a href="index.html">← Sumário do curso</a>
+    <span class="badge">Capítulo 5 de 14</span>
+  </div>
+</header>
+<div class="wrap">
+  <h1><span class="num">5.</span> Como estruturar um workflow profissional com Claude Code</h1>
+  <p class="subtitle">Saindo do "prompt avulso" para um processo repetível de trabalho em projetos reais.</p>
+
+  <div class="obj">
+    <h3>🎯 Objetivos de aprendizagem</h3>
+    <ul>
+      <li>Entender por que "conversar com a IA" não é a mesma coisa que ter um workflow profissional.</li>
+      <li>Conhecer o padrão Explore → Plan → Code → Commit e quando aplicá-lo.</li>
+      <li>Estruturar um <code>CLAUDE.md</code> de projeto como memória persistente da equipe.</li>
+      <li>Configurar permissões e comandos customizados para reduzir fricção no dia a dia.</li>
+      <li>Saber quando parar e pedir revisão humana dentro do fluxo.</li>
+    </ul>
+  </div>
+
+  <h2>Explicação conceitual</h2>
+  <p>
+    Nos capítulos anteriores você viu as peças soltas: prompts, comandos, tools, MCP, skills e hooks.
+    Um workflow profissional é a forma como você <strong>organiza essas peças em um processo repetível</strong>,
+    de modo que qualquer pessoa do time — ou você mesmo, seis meses depois — consiga rodar a mesma tarefa
+    com resultado previsível. Sem isso, cada sessão de Claude Code vira uma improvisação: às vezes funciona bem,
+    às vezes o agente sai editando arquivos que não deveria, às vezes o contexto fica poluído e a qualidade cai.
+  </p>
+  <p>
+    O ponto de partida mental é um padrão que a própria Anthropic recomenda internamente:
+    <strong>Explore → Plan → Code → Commit</strong>. A ideia é simples, mas contraintuitiva para quem vem do hábito de
+    "pedir direto o código pronto":
+  </p>
+  <ul>
+    <li><strong>Explore</strong> — peça ao Claude Code para ler os arquivos relevantes e resumir o que entendeu, <em>sem escrever código ainda</em>.</li>
+    <li><strong>Plan</strong> — peça um plano de implementação (pode usar o modo de planejamento do Claude Code). Você revisa e ajusta antes de qualquer edição.</li>
+    <li><strong>Code</strong> — só agora o agente implementa, seguindo o plano aprovado.</li>
+    <li><strong>Commit</strong> — o agente (ou você) revisa o diff, roda testes e faz o commit com uma mensagem clara.</li>
+  </ul>
+  <p>
+    Esse padrão evita o maior risco de produtividade com agentes de IA: deixá-los "correr solto" gerando muito código
+    antes de qualquer checkpoint humano. Quanto maior a tarefa, mais caro fica descobrir tarde que a direção estava errada.
+  </p>
+
+  <table>
+    <tr><th>Prompting ad-hoc</th><th>Workflow profissional</th></tr>
+    <tr><td>Um prompt gigante pedindo tudo de uma vez</td><td>Tarefa dividida em explorar, planejar, codar, revisar</td></tr>
+    <tr><td>Contexto do projeto explicado toda vez na conversa</td><td>Contexto fixado em <code>CLAUDE.md</code>, lido automaticamente</td></tr>
+    <tr><td>Permissões amplas concedidas "na pressa"</td><td>Permissões configuradas uma vez em <code>settings.json</code></td></tr>
+    <tr><td>Resultado varia de sessão para sessão</td><td>Processo repetível, auditável, revisável em cada etapa</td></tr>
+    <tr><td>Revisão humana só no final (ou nunca)</td><td>Checkpoints de revisão em pontos estratégicos</td></tr>
+  </table>
+
+  <div class="mermaid">
+flowchart LR
+    A[Explore] --> B[Plan]
+    B --> C{Plano aprovado?}
+    C -- não --> B
+    C -- sim --> D[Code]
+    D --> E[Testes / Lint]
+    E --> F{Passou?}
+    F -- não --> D
+    F -- sim --> G[Commit]
+  </div>
+
+  <h2>Exemplos práticos</h2>
+  <p>
+    O arquivo <code>CLAUDE.md</code> na raiz do projeto é lido automaticamente pelo Claude Code no início de cada sessão.
+    Ele funciona como a "memória de longo prazo" do projeto — convenções, comandos de build, arquitetura, coisas a evitar.
+  </p>
+  <pre><code># CLAUDE.md
+
+## Stack
+- Next.js 14 (App Router) + TypeScript + Prisma + PostgreSQL
+
+## Comandos úteis
+- `npm run dev` — sobe o ambiente local
+- `npm run test` — roda a suíte de testes (Vitest)
+- `npm run lint` — ESLint + Prettier
+
+## Convenções
+- Componentes em `src/components`, sempre com testes ao lado (`Componente.test.tsx`)
+- Nunca alterar arquivos em `src/generated/**` (gerados pelo Prisma)
+- Commits seguem Conventional Commits (feat:, fix:, chore:...)
+
+## O que NÃO fazer
+- Não fazer `git push --force` na branch main
+- Não instalar dependências novas sem perguntar antes
+</code></pre>
+
+  <p>
+    Comandos customizados (slash commands) reduzem prompts repetitivos. Eles ficam em <code>.claude/commands/</code>:
+  </p>
+  <pre><code># .claude/commands/revisar-pr.md
+Revise o diff atual como um engenheiro sênior faria em um PR review.
+Aponte: bugs, problemas de segurança, código duplicado e testes faltando.
+Não corrija nada ainda — apenas liste os pontos encontrados.
+</code></pre>
+
+  <p>
+    Permissões ficam em <code>.claude/settings.json</code>, evitando que você precise aprovar a mesma ação repetidamente
+    ou, pior, aprove ações perigosas sem pensar:
+  </p>
+  <pre><code>{
+  "permissions": {
+    "allow": ["Bash(npm run test:*)", "Bash(npm run lint:*)"],
+    "deny": ["Bash(git push --force:*)", "Bash(rm -rf:*)"]
+  }
+}
+</code></pre>
+
+  <h2>Fluxo de trabalho recomendado</h2>
+  <ol>
+    <li>Antes de começar, garanta que o <code>CLAUDE.md</code> está atualizado com o estado real do projeto.</li>
+    <li>Descreva a tarefa e peça explicitamente para o agente <strong>explorar</strong> antes de agir.</li>
+    <li>Peça um <strong>plano</strong> por escrito. Leia com atenção — é o ponto mais barato para corrigir rumo.</li>
+    <li>Aprove ou ajuste o plano. Só então libere a implementação.</li>
+    <li>Depois do código gerado, rode testes e lint automaticamente (via hooks ou comando manual).</li>
+    <li>Revise o diff final antes do commit — nunca faça commit "às cegas" de código gerado por IA.</li>
+  </ol>
+
+  <div class="mermaid">
+sequenceDiagram
+    participant Dev as Você
+    participant CC as Claude Code
+    Dev->>CC: Descreve a tarefa
+    CC->>Dev: Resumo da exploração
+    Dev->>CC: "Agora monte um plano"
+    CC->>Dev: Plano de implementação
+    Dev->>CC: Aprova / ajusta plano
+    CC->>Dev: Código implementado
+    CC->>CC: Roda testes e lint
+    Dev->>Dev: Revisa diff
+    Dev->>CC: "Pode commitar"
+  </div>
+
+  <div class="tip"><strong>Dica:</strong> use o modo de planejamento (plan mode) do Claude Code para tarefas médias ou grandes — ele impede edições até que você aprove explicitamente o plano.</div>
+  <div class="tip"><strong>Dica:</strong> mantenha o <code>CLAUDE.md</code> curto e vivo. Um arquivo de 3 páginas que ninguém atualiza é pior do que um de 20 linhas sempre correto.</div>
+  <div class="tip"><strong>Dica:</strong> versione <code>.claude/commands/</code> e <code>.claude/settings.json</code> junto com o código — assim todo o time herda o mesmo workflow.</div>
+
+  <h2>Erros comuns</h2>
+  <div class="warn"><strong>Erro comum:</strong> pular a fase de exploração e plano em tarefas grandes "para ir mais rápido". Resultado: o agente implementa na direção errada e você perde mais tempo desfazendo do que teria gasto planejando.</div>
+  <div class="warn"><strong>Erro comum:</strong> aprovar permissões amplas demais (ex: liberar todo comando <code>Bash</code>) só para parar de ser interrompido. Isso remove a rede de segurança justamente quando ela é mais necessária — prefira listas específicas de allow/deny.</div>
+  <div class="warn"><strong>Erro comum:</strong> tratar o commit gerado pelo agente como definitivo sem ler o diff. Mesmo com um bom workflow, revisão humana final continua sendo sua responsabilidade.</div>
+
+  <div class="exercise"><strong>Mão na massa:</strong> escolha um projeto real (ou crie um pequeno). Crie um <code>CLAUDE.md</code> com stack, comandos e convenções. Depois peça ao Claude Code uma tarefa pequena seguindo explicitamente as quatro fases: "explore o projeto", "monte um plano", "implemente conforme o plano" e "prepare o commit". Compare o resultado com o que aconteceria se você tivesse pedido tudo em um único prompt.</div>
+
+  <div class="summary">
+    <h3>Resumo do capítulo</h3>
+    <p>Um workflow profissional transforma o Claude Code de "assistente de prompt único" em um processo repetível e auditável.
+    O padrão Explore → Plan → Code → Commit cria checkpoints de revisão humana antes que erros fiquem caros.
+    O <code>CLAUDE.md</code> funciona como memória persistente do projeto, enquanto comandos customizados e permissões em
+    <code>settings.json</code> reduzem fricção sem abrir mão de segurança. Esse workflow é a base para os próximos capítulos,
+    que tratam de dividir esse processo entre múltiplos agentes especializados.</p>
+  </div>
+
+  <div class="chapnav">
+    <a href="cap-04-prompts-tools-mcp-skills-hooks.html"><span class="lbl">Anterior</span>Cap. 4 — Prompts, tools, MCP, skills e hooks</a>
+    <a href="cap-06-multiplos-agentes.html" class="next"><span class="lbl">Próximo</span>Cap. 6 — Múltiplos agentes especializados</a>
+  </div>
+</div>
+</body>
+</html>
