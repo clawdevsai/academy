@@ -90,6 +90,29 @@
   .pageend button:hover{border-color:var(--accent);}
 
   @media(max-width:640px){ .agenda-grid{grid-template-columns:1fr;} .risk-grid{grid-template-columns:1fr;} }
+
+  /* animações e microinterações (usabilidade) */
+  @media (prefers-reduced-motion: no-preference){
+    /* stagger: filhos do painel ativo entram em sequência */
+    @keyframes slideup{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+    .panel.on{animation:none;}
+    .panel.on > *{animation:slideup .4s ease both;}
+    .panel.on > *:nth-child(1){animation-delay:.03s;}
+    .panel.on > *:nth-child(2){animation-delay:.09s;}
+    .panel.on > *:nth-child(3){animation-delay:.15s;}
+    .panel.on > *:nth-child(4){animation-delay:.21s;}
+    .panel.on > *:nth-child(5){animation-delay:.27s;}
+    .panel.on > *:nth-child(n+6){animation-delay:.33s;}
+
+    /* hover lift */
+    .agenda-card,.card,.risk-card{transition:transform .18s ease,border-color .15s ease;}
+    .agenda-card:hover,.card:hover,.risk-card:hover{transform:translateY(-3px);}
+    .risk-card:hover{border-color:var(--accent);}
+
+    /* feedback de clique nos botões */
+    nav.tabs button,.pageend button{transition:transform .12s ease,color .15s,border-color .15s,background .15s;}
+    nav.tabs button:active,.pageend button:active{transform:scale(.95);}
+  }
 </style>
 </head>
 <body>

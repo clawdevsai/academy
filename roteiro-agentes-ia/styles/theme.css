@@ -116,3 +116,70 @@ li{margin:6px 0;}
 .toc .t .title{font-weight:600;color:#fff;}
 .toc .t .desc{font-size:.85rem;color:var(--color-muted);margin-top:2px;}
 .section-label{margin:34px 0 6px;color:var(--color-magenta);text-transform:uppercase;font-size:.75rem;letter-spacing:.08em;font-weight:700;}
+
+/* ============================================================
+   Animações e microinterações (usabilidade)
+   Tudo sob prefers-reduced-motion; scroll-reveal degrada seguro
+   via @supports (sem suporte = conteúdo estático e visível).
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference){
+  @keyframes reveal{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
+
+  /* revelação ao rolar — puro CSS, zero JS */
+  @supports (animation-timeline: view()){
+    .wrap > *, .toc li, .checklist li{
+      animation:reveal linear both;
+      animation-timeline:view();
+      animation-range:entry 0% cover 22%;
+    }
+  }
+
+  /* microinterações de hover — funcionam em qualquer navegador */
+  .card,.obj,.tip,.warn,.exercise,.summary,.catcard{
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+  }
+  .card:hover,.obj:hover,.tip:hover,.warn:hover,.exercise:hover,.summary:hover,.catcard:hover{
+    transform:translateY(-3px);
+  }
+  .card:hover{border-color:var(--color-cyan);box-shadow:var(--glow-cyan);}
+  .toc li a:hover,.chapnav a:hover{transform:translateY(-3px);}
+  .toc li a,.chapnav a{transition:border-color .15s,box-shadow .15s,transform .18s ease;}
+  .checklist li{transition:border-color .18s ease,transform .18s ease;}
+  .checklist li:hover{border-color:var(--color-cyan);transform:translateX(4px);}
+  tbody tr,table tr{transition:background .15s ease;}
+  tr:hover td{background:rgba(34,211,238,.06);}
+}
+
+/* ============================================================
+   Usabilidade (CSS-only, cobre todas as páginas)
+   ============================================================ */
+
+/* rolagem suave + offset para o header fixo (âncoras não ficam escondidas) */
+html{scroll-behavior:smooth;scroll-padding-top:72px;}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto;}}
+h1,h2,h3{scroll-margin-top:72px;}
+
+/* barra de progresso de leitura — puro CSS via scroll timeline */
+@media (prefers-reduced-motion: no-preference){
+  @supports (animation-timeline: scroll()){
+    @keyframes readprogress{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+    body::before{
+      content:"";position:fixed;top:0;left:0;right:0;height:3px;z-index:50;
+      transform-origin:0 50%;background:var(--gradient-neon);
+      animation:readprogress linear;animation-timeline:scroll(root block);
+    }
+  }
+}
+
+/* foco visível para navegação por teclado (acessibilidade) */
+a:focus-visible,button:focus-visible,summary:focus-visible{
+  outline:2px solid var(--color-cyan);outline-offset:3px;border-radius:6px;
+}
+
+/* alvo de toque confortável nos links do header */
+header.top a{display:inline-flex;align-items:center;min-height:44px;}
+
+/* tabelas roláveis no mobile (evita scroll horizontal da página) */
+@media (max-width:640px){
+  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+}
