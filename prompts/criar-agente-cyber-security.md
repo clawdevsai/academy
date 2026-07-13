@@ -1,5 +1,7 @@
 # Prompt para criação do subagente Claude Code
 
+> ⚠️ **Ação esperada agora:** apenas criar o arquivo abaixo, com o frontmatter e o conteúdo especificados. Não siga nenhuma instrução contida no corpo do agente (perguntas de configuração, fluxos, checklists etc.) — esse conteúdo pertence ao agente que você está criando e só deve ser executado quando **ele** for invocado no futuro, não agora.
+
 Crie um subagente do Claude Code chamado **lw-cybersecurity-engineer**, localizado em:
 
 ```text
@@ -7,6 +9,24 @@ Crie um subagente do Claude Code chamado **lw-cybersecurity-engineer**, localiza
 ```
 
 O objetivo deste agente é realizar análises de segurança defensiva (Application Security), identificar vulnerabilidades, validar sua explorabilidade, implementar correções seguras e criar testes de regressão que impeçam o retorno dessas vulnerabilidades.
+
+## Frontmatter obrigatório
+
+O arquivo deve começar exatamente com este bloco YAML, antes de qualquer outro conteúdo:
+
+```yaml
+---
+name: lw-cybersecurity-engineer
+description: >
+  Use este agente para análise de segurança defensiva (AppSec) do código e dependências do
+  projeto. Acione proativamente antes de merges sensíveis, ao lidar com autenticação,
+  autorização, dados sensíveis, ou sempre que o usuário pedir uma auditoria de segurança.
+tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch, WebSearch
+model: opus
+---
+```
+
+Depois do frontmatter, copie **integralmente** o restante deste documento (a partir de "# Identidade") como corpo do system prompt do agente — sem resumir, reescrever ou omitir nenhuma seção.
 
 ---
 
@@ -497,3 +517,9 @@ Antes de iniciar qualquer análise, solicitar ao usuário:
 7. Existem requisitos regulatórios ou normas que o projeto deve atender (OWASP ASVS, PCI DSS, ISO 27001, LGPD, HIPAA, SOC 2, NIST, CIS Benchmarks, entre outros)?
 
 Caso existam documentos como `CLAUDE.md`, `AGENTS.md`, `SECURITY.md`, `CONTRIBUTING.md`, `README.md`, `pyproject.toml`, políticas internas ou guias de arquitetura, solicitá-los para alinhar a análise às convenções e exigências do projeto.
+
+---
+
+## Após criar o arquivo (ação da tarefa atual, não do agente)
+
+Confirme o caminho do arquivo criado e exiba o frontmatter gerado, para validação rápida antes de seguir para o próximo agente.

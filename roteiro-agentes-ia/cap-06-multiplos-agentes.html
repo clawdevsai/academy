@@ -106,7 +106,7 @@
   </p>
   <p>
     Também é possível o <strong>spawning hierárquico</strong>: um agente pai cria agentes filhos, que por sua vez podem
-    criar seus próprios filhos, até um limite prático de <strong>3 níveis</strong>. Isso é útil para decompor tarefas
+    criar seus próprios filhos, até um limite prático de <strong>5 níveis</strong>. Isso é útil para decompor tarefas
     grandes que tocam múltiplos módulos — por exemplo, um agente de "migração de API" que cria um filho por serviço afetado,
     e cada filho cria netos para lidar com cada endpoint. Passar desse limite tende a gerar overhead de coordenação maior
     que o ganho de paralelismo.
@@ -189,7 +189,7 @@ sequenceDiagram
   <h2>Erros comuns</h2>
   <div class="warn"><strong>Erro comum:</strong> dividir agentes por arquivo em vez de por responsabilidade. Isso cria múltiplos agentes fazendo a mesma coisa (implementar) sem nenhum ganho de qualidade, só de velocidade — e ainda corre risco de conflito quando os arquivos na verdade se relacionam.</div>
   <div class="warn"><strong>Erro comum:</strong> paralelizar tarefas que têm dependência real entre si (ex: implementar a API antes do frontend que a consome). O resultado é retrabalho, porque um subagente termina antes de saber a interface que o outro definiu.</div>
-  <div class="warn"><strong>Erro comum:</strong> ultrapassar os 3 níveis de spawning hierárquico "porque dá para fazer". O overhead de coordenação cresce mais rápido que o ganho — geralmente 1-2 níveis já resolvem a maioria dos casos reais.</div>
+  <div class="warn"><strong>Erro comum:</strong> ultrapassar os 5 níveis de spawning hierárquico "porque dá para fazer". O overhead de coordenação cresce mais rápido que o ganho — geralmente 1-2 níveis já resolvem a maioria dos casos reais.</div>
 
   <div class="exercise"><strong>Mão na massa:</strong> pegue uma tarefa do seu backlog que toque pelo menos 3 arquivos não relacionados entre si (ex: 3 componentes de UI independentes). Peça ao Claude Code para usar subagentes em paralelo, um por arquivo, e depois consolidar um resumo. Compare o tempo e a qualidade do resultado com fazer a mesma tarefa em uma única conversa sequencial.</div>
 
@@ -198,7 +198,7 @@ sequenceDiagram
     <p>Subagentes rodam em contexto isolado e resolvem o problema de contexto poluído e trabalho paralelizável.
     Os padrões Dynamic Workflows (orquestração automática em larga escala) e Performance Outcomes (grader separado
     validando contra um rubric) representam o estado da arte em 2026. O spawning hierárquico permite decompor tarefas
-    grandes em até 3 níveis, mas o critério para dividir deve sempre ser responsabilidade e paralelizabilidade real —
+    grandes em até 5 níveis, mas o critério para dividir deve sempre ser responsabilidade e paralelizabilidade real —
     nunca divisão arbitrária de arquivos. O próximo capítulo mostra a mecânica de criar cada um desses agentes na prática.</p>
   </div>
 

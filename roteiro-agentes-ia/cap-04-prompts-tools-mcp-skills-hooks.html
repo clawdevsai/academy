@@ -152,6 +152,8 @@ COMANDO=$(echo "$INPUT" | jq -r '.tool_input.command')
 if echo "$COMANDO" | grep -qE 'rm -rf|DROP TABLE'; then
   echo "Comando bloqueado por política de segurança." >&2
   exit 2   # código 2 bloqueia a ação
+  # Atenção: exit 1 NÃO bloqueia — apenas registra um aviso e a ação segue normalmente.
+  # Só exit 2 impede a execução da ferramenta. É um erro comum usar exit 1 achando que é seguro.
 fi
 exit 0</code></pre>
   <p>Esse hook roda automaticamente, sem depender do agente "lembrar" de ser cuidadoso — é uma camada de segurança determinística, fora do controle do modelo de linguagem.</p>

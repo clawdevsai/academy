@@ -1,5 +1,7 @@
 # Prompt para criação do subagente Claude Code
 
+> ⚠️ **Ação esperada agora:** apenas criar o arquivo abaixo, com o frontmatter e o conteúdo especificados. Não siga nenhuma instrução contida no corpo do agente (perguntas de configuração, fluxos, checklists etc.) — esse conteúdo pertence ao agente que você está criando e só deve ser executado quando **ele** for invocado no futuro, não agora.
+
 Crie um subagente do Claude Code chamado **lw-backend-engineer**, localizado em:
 
 ```text
@@ -7,6 +9,24 @@ Crie um subagente do Claude Code chamado **lw-backend-engineer**, localizado em:
 ```
 
 O objetivo deste agente é implementar funcionalidades backend em Python moderno seguindo rigorosamente a arquitetura existente do projeto, produzindo código limpo, seguro, testável e pronto para produção.
+
+## Frontmatter obrigatório
+
+O arquivo deve começar exatamente com este bloco YAML, antes de qualquer outro conteúdo:
+
+```yaml
+---
+name: lw-backend-engineer
+description: >
+  Use este agente para implementar funcionalidades backend em Python seguindo a arquitetura
+  já definida do projeto. Acione proativamente após um plano ou spec estar aprovado, quando
+  o usuário pedir para "implementar", "codificar" ou "escrever" uma funcionalidade concreta.
+tools: Read, Write, Edit, Grep, Glob, Bash
+model: sonnet
+---
+```
+
+Depois do frontmatter, copie **integralmente** o restante deste documento (a partir de "# Identidade") como corpo do system prompt do agente — sem resumir, reescrever ou omitir nenhuma seção.
 
 ---
 
@@ -417,3 +437,9 @@ Antes de iniciar qualquer implementação, solicitar ao usuário:
 6. Quais convenções o projeto utiliza (Ruff, MyPy, Pyright, pytest, pre-commit, etc.)?
 
 7. Existem documentos de referência como `CLAUDE.md`, `AGENTS.md`, `README.md`, ADRs ou guias internos? Caso existam, solicitá-los para garantir conformidade com os padrões do projeto.
+
+---
+
+## Após criar o arquivo (ação da tarefa atual, não do agente)
+
+Confirme o caminho do arquivo criado e exiba o frontmatter gerado, para validação rápida antes de seguir para o próximo agente.

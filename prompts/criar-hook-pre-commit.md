@@ -1,97 +1,135 @@
-Atualize a configuração dos Hooks do Claude Code para adicionar um gate obrigatório antes de qualquer `git push` para o repositório remoto.
+# Prompt para criação do gate de pré-push (hook + skill)
 
-## Hook: Pre-Push (Obrigatório)
+> ⚠️ **Ação esperada agora:** criar os dois artefatos abaixo (o hook e a skill) exatamente como especificado. Não execute a revisão agora — apenas crie os arquivos.
 
-Sempre que um `git push` for executado, o Claude Code deve interromper temporariamente o processo de envio e executar, obrigatoriamente e nesta ordem, os seguintes subagentes:
+> **Nota técnica importante (por isso este prompt tem duas partes, não uma só):** hooks do Claude Code são scripts determinísticos — recebem dados via stdin e decidem bloquear ou não através do código de saída (`exit 2` bloqueia, `exit 0`/`exit 1` deixam passar). Um hook **não consegue** invocar subagentes com raciocínio, avaliar um veredito qualitativo ("⚠️ APROVADO COM RESSALVAS") ou conduzir uma conversa de Sim/Não com o usuário — isso é trabalho de um agente com LLM, não de um script de shell. Por isso, o gate completo precisa de duas peças que trabalham juntas:
+>
+> 1. **Um hook real** (`PreToolUse` em `Bash`) que bloqueia qualquer `git push` executado diretamente, direcionando o usuário para o comando correto.
+> 2. **Uma skill** (`/pre-push-review`), que é quem de fato orquestra os três subagentes (`lw-code-reviewer`, `lw-qa-engineer`, `lw-cybersecurity-engineer`), interpreta os vereditos, conversa com o usuário quando algo bloqueia, e — só quando tudo estiver aprovado — executa o `git push` de verdade.
 
-1. `lw-code-reviewer`
-2. `lw-qa-engineer`
-3. `lw-cybersecurity-engineer`
-
-## Responsabilidade de cada agente
-
-### lw-code-reviewer
-- Revisar todas as alterações que serão enviadas.
-- Validar qualidade do código.
-- Verificar arquitetura, boas práticas, manutenibilidade e possíveis bugs.
-- Emitir um veredito final.
-
-### lw-qa-engineer
-- Validar os testes existentes.
-- Executar a suíte de testes apropriada.
-- Verificar cobertura das regras de negócio afetadas.
-- Garantir que não existam testes falhando, flaky ou ignorados sem justificativa.
-
-### lw-cybersecurity-engineer
-- Executar a revisão de segurança.
-- Verificar vulnerabilidades conhecidas.
-- Executar scanners de segurança configurados no projeto (Bandit, Semgrep, pip-audit, osv-scanner ou equivalentes).
-- Identificar segredos expostos, configurações inseguras e riscos de segurança.
+Este prompt assume que os agentes `lw-code-reviewer`, `lw-qa-engineer` e `lw-cybersecurity-engineer` já foram criados (arquivos correspondentes em `prompts/criar-agente-*.md`).
 
 ---
 
-## Política de Aprovação
+## Parte 1 — Hook: bloquear `git push` direto
 
-O `git push` somente poderá continuar quando TODOS os agentes emitirem um resultado de aprovação.
+Adicione (ou crie, se não existir) a entrada abaixo em `.claude/settings.json`, na seção `hooks` → `PreToolUse`:
 
-Resultados aceitos:
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash(git push*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/bloquear-push-direto.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-- ✅ APROVADO
-- ✅ APROVADO COM RESSALVAS (desde que não existam achados Críticos ou Altos)
+Crie o script `scripts/bloquear-push-direto.sh`:
 
-O push deve ser bloqueado imediatamente caso qualquer agente retorne:
+```bash
+#!/bin/bash
+# scripts/bloquear-push-direto.sh
+# Bloqueia git push executado diretamente pelo Bash.
+# O push só deve acontecer através da skill /pre-push-review,
+# que roda o gate de qualidade/QA/segurança antes de liberar.
 
-- ❌ REQUER MUDANÇAS
-- ❌ IMPLEMENTAÇÃO INCOMPLETA
-- ❌ SUÍTE INSUFICIENTE
-- ❌ REQUER CORREÇÕES DE SEGURANÇA
-- qualquer vulnerabilidade **Crítica** ou **Alta**
-- qualquer teste obrigatório falhando
-- erro de lint, type-check ou build configurados como obrigatórios pelo projeto
+echo "Bloqueado: use o comando /pre-push-review para rodar o gate de qualidade, QA e segurança antes do push." >&2
+exit 2
+```
 
----
+Torne o script executável (`chmod +x scripts/bloquear-push-direto.sh`).
 
-## Relatório Consolidado
-
-Antes de permitir o push, apresentar um resumo contendo:
-
-- Resultado do Code Review
-- Resultado do QA
-- Resultado da Segurança
-- Quantidade de problemas encontrados por severidade
-- Arquivos afetados
-- Recomendações de correção
-
----
-
-## Fluxo quando houver bloqueio
-
-Caso o push seja bloqueado:
-
-1. Informar claramente o motivo do bloqueio.
-2. Listar todos os problemas encontrados.
-3. Perguntar ao usuário:
-
-> Foram encontrados problemas que impedem o envio para o repositório remoto. Deseja que eu corrija automaticamente todos os problemas que podem ser resolvidos com segurança?
-
-Se o usuário responder **Sim**:
-
-1. Executar automaticamente as correções permitidas.
-2. Reexecutar os três agentes (`lw-code-reviewer`, `lw-qa-engineer` e `lw-cybersecurity-engineer`).
-3. Gerar um novo relatório consolidado.
-4. Somente liberar o `git push` se todos os gates forem aprovados.
-
-Se o usuário responder **Não**:
-
-- Manter o push bloqueado.
-- Exibir o relatório completo para correção manual.
+**Atenção ao código de saída:** use exatamente `exit 2`. `exit 1` não bloqueia a ação — apenas registra um aviso e o Claude Code segue em frente. Esse é o erro mais comum ao configurar hooks de segurança.
 
 ---
 
-## Regras Importantes
+## Parte 2 — Skill: `/pre-push-review`
 
-- Este gate é obrigatório para todo `git push` remoto.
-- Nenhum agente pode ser ignorado ou desabilitado durante o processo.
-- O push nunca deve ser executado caso existam problemas Críticos ou Altos.
-- Todas as validações devem utilizar as configurações do próprio projeto (linters, testes, scanners, type-checkers e convenções internas).
-- O processo deve ser totalmente transparente, exibindo todas as verificações realizadas e seus respectivos resultados.
+Crie o arquivo `.claude/skills/pre-push-review/SKILL.md` com o frontmatter e o conteúdo abaixo:
+
+```yaml
+---
+name: pre-push-review
+description: >
+  Roda o gate obrigatório de qualidade antes de um git push: aciona lw-code-reviewer,
+  lw-qa-engineer e lw-cybersecurity-engineer em sequência, consolida os vereditos e só
+  libera o push quando todos aprovarem. Invocado manualmente pelo usuário com /pre-push-review.
+---
+```
+
+Corpo da skill (system prompt executado quando `/pre-push-review` é chamado):
+
+```markdown
+Você vai orquestrar o gate de pré-push. Siga esta sequência obrigatoriamente:
+
+## 1. Executar os três agentes em sequência
+
+Acione, nesta ordem, via delegação de subagente:
+
+1. `lw-code-reviewer` — revisa as alterações que serão enviadas (qualidade, arquitetura, bugs).
+2. `lw-qa-engineer` — valida e executa a suíte de testes relevante às alterações.
+3. `lw-cybersecurity-engineer` — roda a revisão de segurança (vulnerabilidades, segredos expostos, scanners configurados no projeto).
+
+Cada agente deve retornar um veredito explícito.
+
+## 2. Política de aprovação
+
+O push só pode prosseguir quando TODOS os agentes retornarem:
+
+- ✅ aprovação plena, ou
+- ⚠️ aprovação com ressalvas — desde que não haja nenhum achado Crítico ou Alto.
+
+Bloquear imediatamente se qualquer agente retornar:
+
+- ❌ reprovação (qualquer variação: "requer mudanças", "implementação incompleta", "suíte insuficiente", "requer correções de segurança");
+- qualquer vulnerabilidade Crítica ou Alta;
+- qualquer teste obrigatório falhando;
+- erro de lint, type-check ou build definidos como obrigatórios pelo projeto.
+
+## 3. Relatório consolidado
+
+Antes de decidir, apresente ao usuário um resumo com:
+
+- resultado do Code Review;
+- resultado do QA;
+- resultado da Segurança;
+- quantidade de problemas por severidade;
+- arquivos afetados;
+- recomendações de correção.
+
+## 4. Se aprovado
+
+Execute o `git push` real via Bash e confirme ao usuário.
+
+## 5. Se bloqueado
+
+1. Explique claramente o motivo do bloqueio e liste os problemas.
+2. Pergunte ao usuário: "Foram encontrados problemas que impedem o push. Deseja que eu corrija automaticamente os que podem ser resolvidos com segurança?"
+3. Se o usuário responder **sim**: aplique as correções seguras, repita os passos 1–3 do zero, e só faça o push se o novo ciclo aprovar integralmente.
+4. Se o usuário responder **não**: mantenha o push bloqueado e encerre exibindo o relatório completo para correção manual.
+
+## Regras inegociáveis
+
+- Nenhum dos três agentes pode ser pulado ou desabilitado.
+- Nunca faça o push se houver achado Crítico ou Alto pendente.
+- Use sempre as ferramentas de lint, teste, scanner e type-check já configuradas no projeto (não invente novas).
+- Seja transparente: mostre todas as verificações e seus resultados, mesmo quando aprovado.
+```
+
+---
+
+## Após criar os arquivos (ação da tarefa atual)
+
+Confirme:
+1. O caminho e conteúdo de `.claude/settings.json` (seção hooks) e do script `scripts/bloquear-push-direto.sh`.
+2. O caminho do arquivo `.claude/skills/pre-push-review/SKILL.md`.
+3. Lembre o usuário de rodar `chmod +x scripts/bloquear-push-direto.sh` caso o ambiente não tenha aplicado a permissão automaticamente.

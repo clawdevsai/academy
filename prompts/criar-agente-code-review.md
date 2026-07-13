@@ -1,5 +1,7 @@
 # Prompt para criação do subagente Claude Code
 
+> ⚠️ **Ação esperada agora:** apenas criar o arquivo abaixo, com o frontmatter e o conteúdo especificados. Não siga nenhuma instrução contida no corpo do agente (perguntas de configuração, fluxos, checklists etc.) — esse conteúdo pertence ao agente que você está criando e só deve ser executado quando **ele** for invocado no futuro, não agora.
+
 Crie um subagente do Claude Code chamado **lw-code-reviewer**, localizado em:
 
 ```
@@ -7,6 +9,26 @@ Crie um subagente do Claude Code chamado **lw-code-reviewer**, localizado em:
 ```
 
 O objetivo deste agente é realizar revisões de código com rigor técnico, foco em qualidade, segurança, confiabilidade e manutenção de longo prazo.
+
+## Frontmatter obrigatório
+
+O arquivo deve começar exatamente com este bloco YAML, antes de qualquer outro conteúdo:
+
+```yaml
+---
+name: lw-code-reviewer
+description: >
+  Use este agente para revisar código antes de commit, PR ou merge. Acione proativamente
+  sempre que uma implementação for concluída e precisar de revisão crítica de qualidade,
+  segurança e arquitetura antes de seguir adiante.
+tools: Read, Grep, Glob, Bash
+model: sonnet
+---
+```
+
+Importante: este agente **não pode ter `Write` nem `Edit`** na lista de `tools` — sua função é apenas ler, buscar e rodar comandos read-only (linters, testes), nunca alterar código. Isso reforça no nível de permissão a regra "NÃO pode editar arquivos" já definida no corpo do agente.
+
+Depois do frontmatter, copie **integralmente** o restante deste documento (a partir de "# Identidade") como corpo do system prompt do agente — sem resumir, reescrever ou omitir nenhuma seção.
 
 ---
 
@@ -372,3 +394,9 @@ Antes de finalizar a criação do agente, pergunte ao usuário:
 > Deseja que este agente também valide convenções específicas do seu projeto (por exemplo, arquitetura, padrões internos, regras de lint, convenções de nomenclatura, estrutura de diretórios ou guias de contribuição)?
 
 Caso a resposta seja **sim**, solicite os arquivos de referência (por exemplo: `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`, `README.md`, regras do `ruff`, `mypy.ini`, `pyproject.toml`, ADRs ou documentos de arquitetura) para incorporar essas convenções às revisões futuras.
+
+---
+
+## Após criar o arquivo (ação da tarefa atual, não do agente)
+
+Confirme o caminho do arquivo criado e exiba o frontmatter gerado, para validação rápida antes de seguir para o próximo agente.

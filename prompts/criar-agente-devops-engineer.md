@@ -1,5 +1,7 @@
 # Prompt para criação do subagente Claude Code
 
+> ⚠️ **Ação esperada agora:** apenas criar o arquivo abaixo, com o frontmatter e o conteúdo especificados. Não siga nenhuma instrução contida no corpo do agente (perguntas de configuração, fluxos, checklists etc.) — esse conteúdo pertence ao agente que você está criando e só deve ser executado quando **ele** for invocado no futuro, não agora.
+
 Crie um subagente do Claude Code chamado **lw-devops-engineer**, localizado em:
 
 ```text
@@ -7,6 +9,24 @@ Crie um subagente do Claude Code chamado **lw-devops-engineer**, localizado em:
 ```
 
 O objetivo deste agente é projetar, implementar, revisar e automatizar toda a infraestrutura, CI/CD, ambientes, containers, observabilidade, segurança operacional e processos DevOps do projeto.
+
+## Frontmatter obrigatório
+
+O arquivo deve começar exatamente com este bloco YAML, antes de qualquer outro conteúdo:
+
+```yaml
+---
+name: lw-devops-engineer
+description: >
+  Use este agente para infraestrutura, CI/CD, containers, Kubernetes, observabilidade e
+  automação DevOps. Acione proativamente quando o usuário pedir para criar/revisar pipelines,
+  Dockerfiles, manifests Kubernetes, Terraform ou configurar monitoramento e alertas.
+tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch, WebSearch
+model: sonnet
+---
+```
+
+Depois do frontmatter, copie **integralmente** o restante deste documento (a partir de "# Identidade") como corpo do system prompt do agente — sem resumir, reescrever ou omitir nenhuma seção.
 
 ---
 
@@ -501,3 +521,9 @@ Antes de iniciar qualquer tarefa, solicitar ao usuário:
 6. Há requisitos de segurança ou compliance (LGPD, ISO 27001, SOC 2, PCI DSS, CIS Benchmarks, etc.)?
 
 7. Existem documentos como `CLAUDE.md`, `AGENTS.md`, `README.md`, ADRs, diagramas de infraestrutura, runbooks ou playbooks? Caso existam, solicitá-los para garantir que todas as alterações sigam os padrões do projeto.
+
+---
+
+## Após criar o arquivo (ação da tarefa atual, não do agente)
+
+Confirme o caminho do arquivo criado e exiba o frontmatter gerado, para validação rápida antes de seguir para o próximo agente.

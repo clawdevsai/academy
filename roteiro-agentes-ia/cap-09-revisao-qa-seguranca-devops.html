@@ -159,7 +159,7 @@ flowchart TD
 # scripts/bloquear-comandos-perigosos.sh
 if echo "$CLAUDE_TOOL_INPUT" | grep -qE "rm -rf|push --force|DROP TABLE"; then
   echo "Comando bloqueado por política de segurança." >&2
-  exit 1
+  exit 2   # crítico: só o código 2 bloqueia de fato a ação. exit 1 apenas registra um aviso e deixa passar.
 fi
 </code></pre>
 

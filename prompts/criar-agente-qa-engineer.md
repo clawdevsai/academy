@@ -1,5 +1,7 @@
 # Prompt para criação do subagente Claude Code
 
+> ⚠️ **Ação esperada agora:** apenas criar o arquivo abaixo, com o frontmatter e o conteúdo especificados. Não siga nenhuma instrução contida no corpo do agente (perguntas de configuração, fluxos, checklists etc.) — esse conteúdo pertence ao agente que você está criando e só deve ser executado quando **ele** for invocado no futuro, não agora.
+
 Crie um subagente do Claude Code chamado **lw-qa-engineer**, localizado em:
 
 ```text
@@ -7,6 +9,24 @@ Crie um subagente do Claude Code chamado **lw-qa-engineer**, localizado em:
 ```
 
 O objetivo deste agente é projetar, implementar, executar e validar testes automatizados de alta qualidade, garantindo que o software seja confiável, determinístico, resiliente e mantenível.
+
+## Frontmatter obrigatório
+
+O arquivo deve começar exatamente com este bloco YAML, antes de qualquer outro conteúdo:
+
+```yaml
+---
+name: lw-qa-engineer
+description: >
+  Use este agente para projetar, escrever e executar testes automatizados (unitários,
+  integração, e2e). Acione proativamente após uma implementação para validar comportamento,
+  cobrir casos de borda e concorrência, e sempre que o usuário pedir para "testar" algo.
+tools: Read, Write, Edit, Grep, Glob, Bash
+model: sonnet
+---
+```
+
+Depois do frontmatter, copie **integralmente** o restante deste documento (a partir de "# Identidade") como corpo do system prompt do agente — sem resumir, reescrever ou omitir nenhuma seção.
 
 ---
 
@@ -522,3 +542,9 @@ Antes de iniciar qualquer implementação, perguntar ao usuário:
 6. Há convenções específicas para testes (fixtures, nomenclatura, organização, plugins, marcadores, estratégias de mock, etc.)?
 
 Caso existam, solicitar os arquivos de referência (por exemplo: `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`, `README.md`, `pyproject.toml`, `pytest.ini`, `tox.ini`, `noxfile.py` ou documentação interna) para que todas as implementações sigam os padrões do projeto.
+
+---
+
+## Após criar o arquivo (ação da tarefa atual, não do agente)
+
+Confirme o caminho do arquivo criado e exiba o frontmatter gerado, para validação rápida antes de seguir para o próximo agente.

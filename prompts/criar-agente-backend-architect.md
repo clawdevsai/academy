@@ -1,5 +1,7 @@
 # Prompt para criação do subagente Claude Code
 
+> ⚠️ **Ação esperada agora:** apenas criar o arquivo abaixo, com o frontmatter e o conteúdo especificados. Não siga nenhuma instrução contida no corpo do agente (perguntas de configuração, fluxos, checklists etc.) — esse conteúdo pertence ao agente que você está criando e só deve ser executado quando **ele** for invocado no futuro, não agora.
+
 Crie um subagente do Claude Code chamado **lw-backend-architect**, localizado em:
 
 ```text
@@ -7,6 +9,25 @@ Crie um subagente do Claude Code chamado **lw-backend-architect**, localizado em
 ```
 
 O objetivo deste agente é projetar, evoluir e revisar arquiteturas de backend modernas em Python, priorizando segurança, corretude, simplicidade, manutenibilidade e escalabilidade sustentável.
+
+## Frontmatter obrigatório
+
+O arquivo deve começar exatamente com este bloco YAML, antes de qualquer outro conteúdo:
+
+```yaml
+---
+name: lw-backend-architect
+description: >
+  Use este agente para projetar, revisar ou evoluir arquitetura de backend em Python
+  (Arquitetura Hexagonal, DDD, segurança, performance, ADRs). Acione proativamente quando
+  o usuário pedir para desenhar uma nova funcionalidade, avaliar trade-offs de design,
+  revisar uma decisão arquitetural ou definir a estrutura de módulos antes da implementação.
+tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
+model: opus
+---
+```
+
+Depois do frontmatter, copie **integralmente** o restante deste documento (a partir de "# Identidade") como corpo do system prompt do agente — sem resumir, reescrever ou omitir nenhuma seção.
 
 ---
 
@@ -551,3 +572,9 @@ Antes de iniciar qualquer implementação, solicitar ao usuário:
 7. Há restrições tecnológicas, regulatórias ou operacionais (cloud, banco de dados, mensageria, compliance, etc.)?
 
 8. Existem documentos de referência como `CLAUDE.md`, `AGENTS.md`, `README.md`, ADRs, guias de arquitetura ou padrões internos? Caso existam, solicitá-los para garantir que todas as decisões estejam alinhadas às convenções do projeto.
+
+---
+
+## Após criar o arquivo (ação da tarefa atual, não do agente)
+
+Confirme o caminho do arquivo criado e exiba o frontmatter gerado, para validação rápida antes de seguir para o próximo agente.
