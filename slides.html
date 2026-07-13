@@ -4,18 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Imersão Claude Code — Guia dos 4 Dias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+  /* Paleta Neon Tech — alinhada a roteiro-agentes-ia/styles/theme.css */
   :root{
-    --bg:#0f1117; --card:#161925; --card2:#1c2030; --border:#2a2f42;
-    --text:#e8e9ee; --dim:#a8adc0; --accent:#e07b39; --accent2:#5b8def;
-    --green:#4caf7d; --yellow:#e0c93f; --red:#e0605c; --code-bg:#11131b;
-    --font-head:Cambria,"Times New Roman",serif; --font-body:-apple-system,"Segoe UI",Calibri,Arial,sans-serif;
+    --bg:#0B1220; --card:#131B2E; --card2:#182238; --border:#243049;
+    --text:#E6EDF7; --dim:#8A94AD; --accent:#22D3EE; --accent2:#D946EF;
+    --purple:#8B5CF6;
+    --green:#34D399; --yellow:#FBBF24; --red:#FB7185; --code-bg:#0A101C;
+    --gradient-neon:linear-gradient(90deg,#22D3EE,#D946EF);
+    --glow-cyan:0 0 14px rgba(34,211,238,.35);
+    --font-head:'DM Sans',-apple-system,"Segoe UI",Arial,sans-serif; --font-body:'DM Sans',-apple-system,"Segoe UI",Calibri,Arial,sans-serif;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;}
-  a{color:var(--accent2);}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;
+    background-image:radial-gradient(1200px 500px at 85% -10%,rgba(34,211,238,.08),transparent 60%),
+                     radial-gradient(1000px 500px at 0% 0%,rgba(217,70,239,.08),transparent 55%);
+    background-attachment:fixed;}
+  a{color:#67E8F9;}
 
-  header.top{position:sticky;top:0;z-index:20;background:rgba(15,17,23,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);}
+  header.top{position:sticky;top:0;z-index:20;background:rgba(11,18,32,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--border);}
   .topinner{max-width:960px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
   .brand{font-family:var(--font-head);font-weight:700;font-size:1.05rem;color:#fff;white-space:nowrap;}
   .brand span{color:var(--accent);}
@@ -56,12 +65,12 @@
   .step .sdesc{color:var(--dim);font-size:.92rem;margin-bottom:.5rem;}
   .step pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto;font-size:.82rem;margin:.5rem 0;}
   .step code{font-family:"SF Mono",Consolas,Monaco,monospace;}
-  .checkpoint{background:#132a20;border-left:3px solid var(--green);border-radius:6px;padding:9px 14px;margin-top:.5rem;font-size:.85rem;}
+  .checkpoint{background:rgba(52,211,153,.08);border-left:3px solid var(--green);border-radius:6px;padding:9px 14px;margin-top:.5rem;font-size:.85rem;}
   .checkpoint strong{color:var(--green);}
 
-  .tip{background:#132a20;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:.9rem;}
+  .tip{background:rgba(52,211,153,.08);border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:.9rem;}
   .tip strong{color:var(--green);}
-  .warn{background:#2b1a17;border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:.9rem;}
+  .warn{background:rgba(251,113,133,.08);border-left:4px solid var(--red);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:.9rem;}
   .warn strong{color:var(--red);}
 
   .chips{display:flex;gap:10px;margin:10px 0 20px;flex-wrap:wrap;}
@@ -360,23 +369,4 @@ passarem.</code></pre>
       <div class="risk-card"><h4>Roteiro de apoio</h4><p>15 capítulos em HTML, leitura antes/depois de cada dia — incluindo o capítulo 15 sobre workflows dinâmicos.</p></div>
       <div class="risk-card"><h4>Ensaio geral</h4><p>Rodar o ciclo Dia 1 → 2 → 3 → 4 uma vez, de ponta a ponta, antes da turma.</p></div>
     </div>
-    <div class="pageend"><button data-goto="d4">← Dia 4</button><button data-goto="overview">Voltar à visão geral →</button></div>
-  </section>
-
-</div>
-
-<script>
-  const tabs = document.querySelectorAll('nav.tabs button');
-  const panels = document.querySelectorAll('.panel');
-  function showTab(name) {
-    tabs.forEach(b => b.classList.toggle('on', b.dataset.t === name));
-    panels.forEach(p => p.classList.toggle('on', p.id === 'p-' + name));
-    window.scrollTo({top: 0, behavior: 'instant'});
-  }
-  tabs.forEach(b => b.addEventListener('click', () => showTab(b.dataset.t)));
-  document.querySelectorAll('[data-goto]').forEach(el => {
-    el.addEventListener('click', () => showTab(el.dataset.goto));
-  });
-</script>
-</body>
-</html>
+    <div class="pageend"><button data-goto="d4">← Dia 4</button><button data-goto="overview">Voltar à visão ger
