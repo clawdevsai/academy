@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imersão Claude Code — Agentes Especialistas</title>
+<style>
+  :root{
+    --bg:#14161F; --card:#1D2130; --card2:#242A3D; --border:#2E3448;
+    --text:#F3F4F8; --dim:#9BA1B7; --accent:#E07B39; --accent2:#5B8DEF;
+    --green:#4CAF7D; --yellow:#E0C93F; --red:#E0605C;
+    --font-head:Cambria,"Times New Roman",serif; --font-body:Calibri,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);overflow:hidden;}
+  .deck{position:relative;width:100vw;height:100vh;}
+  .slide{
+    position:absolute;inset:0;display:none;flex-direction:column;justify-content:flex-start;
+    padding:5vh 6vw 4.5rem;opacity:0;transition:opacity .25s ease;
+    overflow-y:auto;
+  }
+  .slide.active{display:flex;opacity:1;}
+  .kicker{font-size:.85rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.6rem;}
+  h1{font-family:var(--font-head);font-size:2.6rem;margin:.1rem 0 .3rem;color:#fff;}
+  h2{font-family:var(--font-head);font-size:1.9rem;margin:.1rem 0 .3rem;color:#fff;}
+  .subtitle{color:var(--dim);font-size:1.05rem;margin:0 0 1.2rem;}
+  .italic-sub{font-style:italic;font-size:.95rem;margin:0 0 1rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.4rem;}
+  .glow{position:absolute;border-radius:50%;background:#1A1D2B;z-index:0;}
+  .content{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;min-height:0;}
+
+  /* title slide */
+  .pills{display:flex;gap:.9rem;margin-top:1.6rem;flex-wrap:wrap;}
+  .pill{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.7rem 1.1rem;min-width:9rem;}
+  .pill .lbl{color:var(--accent);font-size:.75rem;font-weight:700;display:block;margin-bottom:.15rem;}
+  .pill .val{font-family:var(--font-head);font-weight:700;font-size:1.05rem;}
+
+  /* agenda cards */
+  .agenda-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.2rem;flex:1;}
+  .agenda-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem;display:flex;flex-direction:column;}
+  .num-badge{width:2.6rem;height:2.6rem;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:1.2rem;border:1.5px solid var(--c);}
+  .agenda-card .day-lbl{font-size:.7rem;font-weight:700;letter-spacing:.08em;margin:.7rem 0 .3rem;}
+  .agenda-card .day-title{font-family:var(--font-head);font-weight:700;font-size:1.15rem;margin-bottom:.3rem;}
+  .agenda-card .day-sub{font-style:italic;font-size:.85rem;margin-bottom:.5rem;}
+  .agenda-card .day-desc{color:var(--dim);font-size:.85rem;line-height:1.35;}
+
+  /* timeline blocks */
+  .timeline{display:flex;flex-direction:column;gap:1rem;margin-top:1rem;flex:1;justify-content:center;}
+  .tblock{display:flex;gap:1rem;align-items:flex-start;}
+  .tcircle{flex:0 0 4.6rem;height:4.6rem;border-radius:50%;background:var(--card2);border:2px solid var(--c);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;}
+  .tbody .ttitle{font-family:var(--font-head);font-weight:700;font-size:1.05rem;margin-bottom:.2rem;color:#fff;}
+  .tbody .tdesc{color:var(--dim);font-size:.85rem;line-height:1.3;}
+
+  /* verdict chips */
+  .chips{display:flex;gap:.7rem;margin-top:.8rem;}
+  .chip{border-radius:20px;border:1.5px solid var(--c);padding:.5rem 1.2rem;font-weight:700;font-size:.85rem;}
+
+  /* risk slide */
+  .risk-box{background:var(--card);border:1.5px solid var(--yellow);border-radius:12px;padding:1.2rem 1.4rem;margin-top:1rem;}
+  .risk-box h3{color:var(--yellow);font-family:var(--font-head);font-size:1.15rem;margin:0 0 .5rem;}
+  .risk-box p{color:var(--dim);font-size:.9rem;line-height:1.4;margin:0;}
+  .risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.2rem;}
+  .risk-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;}
+  .risk-card h4{font-family:var(--font-head);font-size:1rem;margin:0 0 .4rem;color:#fff;}
+  .risk-card p{color:var(--dim);font-size:.85rem;line-height:1.35;margin:0;}
+
+  /* nav */
+  .nav{position:fixed;bottom:1.2rem;right:1.6rem;display:flex;align-items:center;gap:.8rem;z-index:10;}
+  .nav button{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:.4rem .8rem;cursor:pointer;font-size:.9rem;}
+  .nav button:hover{border-color:var(--accent);}
+  .counter{color:var(--dim);font-size:.8rem;}
+  .dots{position:fixed;bottom:1.3rem;left:50%;transform:translateX(-50%);display:flex;gap:.5rem;z-index:10;}
+  .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--border);cursor:pointer;}
+  .dot.on{background:var(--accent);}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <section class="slide active">
+    <div class="glow" style="width:340px;height:340px;top:-90px;right:-40px;"></div>
+    <div class="glow" style="width:220px;height:220px;top:20px;right:60px;background:#20263A;"></div>
+    <div class="content" style="justify-content:center;">
+      <div class="kicker" style="color:var(--accent);">Imersão Claude Code</div>
+      <h1>Agentes Especialistas</h1>
+      <p class="subtitle">4 dias · 1h por dia · 100% prático, direto no projeto Python</p>
+      <div class="pills">
+        <div class="pill"><span class="lbl">DIA 1</span><span class="val">Criar</span></div>
+        <div class="pill"><span class="lbl">DIA 2</span><span class="val">Checar</span></div>
+        <div class="pill"><span class="lbl">DIA 3</span><span class="val">Automatizar</span></div>
+        <div class="pill"><span class="lbl">DIA 4</span><span class="val">Orquestrar</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="kicker" style="color:var(--accent);">Visão geral</div>
+      <h2>O arco dos 4 dias</h2>
+      <p class="subtitle">Cada dia entrega um agente (ou capacidade) novo em produção — sem teoria solta, tudo executado ao vivo no projeto real.</p>
+      <div class="agenda-grid">
+        <div class="agenda-card">
+          <div class="num-badge" style="--c:var(--accent);color:var(--accent);">1</div>
+          <div class="day-lbl" style="color:var(--accent);">DIA 1</div>
+          <div class="day-title">Arquitetura + Implementação</div>
+          <div class="day-sub" style="color:var(--accent);">Agentes que criam</div>
+          <div class="day-desc">lw-backend-architect desenha, lw-backend-engineer implementa em sequência.</div>
+        </div>
+        <div class="agenda-card">
+          <div class="num-badge" style="--c:var(--accent2);color:var(--accent2);">2</div>
+          <div class="day-lbl" style="color:var(--accent2);">DIA 2</div>
+          <div class="day-title">Qualidade</div>
+          <div class="day-sub" style="color:var(--accent2);">Agentes que checam</div>
+          <div class="day-desc">lw-code-reviewer, lw-qa-engineer e lw-cybersecurity-engineer avaliam o código do Dia 1.</div>
+        </div>
+        <div class="agenda-card">
+          <div class="num-badge" style="--c:var(--green);color:var(--green);">3</div>
+          <div class="day-lbl" style="color:var(--green);">DIA 3</div>
+          <div class="day-title">Automação</div>
+          <div class="day-sub" style="color:var(--green);">O gate de push</div>
+          <div class="day-desc">lw-devops-engineer, hook + skill /pre-push-review liberam o push automaticamente.</div>
+        </div>
+        <div class="agenda-card">
+          <div class="num-badge" style="--c:var(--yellow);color:var(--yellow);">4</div>
+          <div class="day-lbl" style="color:var(--yellow);">DIA 4</div>
+          <div class="day-title">Workflows Dinâmicos</div>
+          <div class="day-sub" style="color:var(--yellow);">Agentes em escala</div>
+          <div class="day-desc">Os 6 padrões orquestrando os mesmos agentes em paralelo, com verificação cruzada.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="kicker" style="color:var(--accent);">Dia 1 · 1 hora</div>
+      <h2>Arquitetura + Implementação</h2>
+      <p class="italic-sub" style="color:var(--accent);">Agentes que criam</p>
+      <div class="timeline">
+        <div class="tblock"><div class="tcircle" style="--c:var(--accent);color:var(--accent);">0–10</div><div class="tbody"><div class="ttitle">Mostrar .claude/agents/</div><div class="tdesc">Rodar claude "$(cat prompts/criar-agente-backend-architect.md)" ao vivo, abrir o .md gerado e comentar o frontmatter.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--accent);color:var(--accent);">10–20</div><div class="tbody"><div class="ttitle">Criar o segundo agente</div><div class="tdesc">Mesma coisa com criar-agente-backend-enginner.md — turma já vê o padrão se repetindo.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--accent);color:var(--accent);">20–50</div><div class="tbody"><div class="ttitle">Os dois agentes em ação</div><div class="tdesc">No projeto Python real: lw-backend-architect desenha uma funcionalidade pequena, lw-backend-engineer implementa. Sequência ao vivo.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--accent);color:var(--accent);">50–60</div><div class="tbody"><div class="ttitle">Recap + lição de casa</div><div class="tdesc">Fechamento rápido. Tarefa: ler os capítulos 6 e 7 do roteiro antes do Dia 2.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="kicker" style="color:var(--accent2);">Dia 2 · 1 hora</div>
+      <h2>Qualidade</h2>
+      <p class="italic-sub" style="color:var(--accent2);">Agentes que checam</p>
+      <div class="timeline">
+        <div class="tblock"><div class="tcircle" style="--c:var(--accent2);color:var(--accent2);">0–15</div><div class="tbody"><div class="ttitle">Criar os três agentes</div><div class="tdesc">lw-code-reviewer, lw-qa-engineer e lw-cybersecurity-engineer — os três prompts, seguidos, ao vivo.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--accent2);color:var(--accent2);">15–50</div><div class="tbody"><div class="ttitle">Rodar nos três no código do Dia 1</div><div class="tdesc">Mostrar os vereditos (aprovado, ressalvas ou reprovado). Se o código estiver limpo demais, injetar um bug de propósito antes da aula para garantir um achado real.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--accent2);color:var(--accent2);">50–60</div><div class="tbody"><div class="ttitle">Recap + gancho</div><div class="tdesc">"Amanhã automatizamos isso" — prepara o clímax do Dia 3.</div></div></div>
+      </div>
+      <div class="chips">
+        <div class="chip" style="--c:var(--green);color:var(--green);">APROVADO</div>
+        <div class="chip" style="--c:var(--yellow);color:var(--yellow);">RESSALVAS</div>
+        <div class="chip" style="--c:var(--red);color:var(--red);">REQUER AJUSTES</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="kicker" style="color:var(--green);">Dia 3 · 1 hora</div>
+      <h2>Automação — o gate de push</h2>
+      <p class="italic-sub" style="color:var(--green);">O clímax da imersão</p>
+      <div class="timeline">
+        <div class="tblock"><div class="tcircle" style="--c:var(--green);color:var(--green);">0–10</div><div class="tbody"><div class="ttitle">Criar lw-devops-engineer</div><div class="tdesc">Último agente especialista do time.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--green);color:var(--green);">10–30</div><div class="tbody"><div class="ttitle">Montar o hook + a skill</div><div class="tdesc">/pre-push-review, a partir de criar-hook-pre-commit.md (já corrigido) — hook bloqueia push direto, skill orquestra os 3 agentes do Dia 2.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--green);color:var(--green);">30–55</div><div class="tbody"><div class="ttitle">Clímax ao vivo</div><div class="tdesc">Tentar git push direto → bloqueado pelo hook. Rodar /pre-push-review → os 3 agentes disparam em sequência e só liberam o push se todos aprovarem.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--green);color:var(--green);">55–60</div><div class="tbody"><div class="ttitle">Fechamento</div><div class="tdesc">Checklist do capítulo 14 do roteiro como material de consulta pós-curso.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="content">
+      <div class="kicker" style="color:var(--yellow);">Dia 4 · 1 hora</div>
+      <h2>Workflows Dinâmicos com Agentes</h2>
+      <p class="italic-sub" style="color:var(--yellow);">Os 6 padrões, aplicados aos agentes que já existem</p>
+      <div class="timeline">
+        <div class="tblock"><div class="tcircle" style="--c:var(--yellow);color:var(--yellow);">0–10</div><div class="tbody"><div class="ttitle">O que muda com workflows</div><div class="tdesc">Claude decide turno a turno num subagente/skill. Num workflow, ele escreve um script que orquestra tudo sozinho, em segundo plano.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--yellow);color:var(--yellow);">10–25</div><div class="tbody"><div class="ttitle">Fan-Out/Synthesize ao vivo</div><div class="tdesc">lw-code-reviewer roda em paralelo, um por módulo do projeto; um passo final sintetiza um único relatório de auditoria.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--yellow);color:var(--yellow);">25–40</div><div class="tbody"><div class="ttitle">Adversarial Verification ao vivo</div><div class="tdesc">lw-backend-engineer aplica uma correção; lw-cybersecurity-engineer desafia adversarialmente se o risco foi mesmo eliminado.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--yellow);color:var(--yellow);">40–55</div><div class="tbody"><div class="ttitle">Classify-and-Act + Loop Until Done</div><div class="tdesc">Issues são classificadas e roteadas entre arquiteto, engenheiro e segurança, repetindo até não sobrar pendência.</div></div></div>
+        <div class="tblock"><div class="tcircle" style="--c:var(--yellow);color:var(--yellow);">55–60</div><div class="tbody"><div class="ttitle">Fechamento</div><div class="tdesc">Quando vale um workflow vs. quando é desperdício de tokens. Salvar o favorito com /workflows → s.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="glow" style="width:300px;height:300px;bottom:-100px;left:-120px;"></div>
+    <div class="content">
+      <div class="kicker" style="color:var(--yellow);">Antes de ir ao vivo</div>
+      <h2>O único risco real desse plano</h2>
+      <div class="risk-box">
+        <h3>Os agentes rodam de verdade — e podem demorar ou surpreender.</h3>
+        <p>Revisão + testes + scan de segurança não são instantâneos. Rode o fluxo completo dos 4 dias pelo menos uma vez antes da aula, do início ao fim, para não descobrir ao vivo que um agente trava, demora demais ou o hook não dispara.</p>
+      </div>
+      <div class="risk-grid">
+        <div class="risk-card"><h4>Prompts prontos</h4><p>6 agentes + hook/skill em prompts/, já corrigidos e testáveis.</p></div>
+        <div class="risk-card"><h4>Roteiro de apoio</h4><p>15 capítulos em HTML, leitura antes/depois de cada dia — incluindo o capítulo 15 sobre workflows dinâmicos.</p></div>
+        <div class="risk-card"><h4>Ensaio geral</h4><p>Rodar o ciclo Dia 1 → 2 → 3 → 4 uma vez, de ponta a ponta, antes da turma.</p></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev">← Anterior</button>
+  <span class="counter"><span id="cur">1</span> / <span id="tot">7</span></span>
+  <button id="next">Próximo →</button>
+</div>
+<div class="dots" id="dots"></div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let idx = 0;
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' on' : '');
+    d.addEventListener('click', () => go(i));
+    dotsEl.appendChild(d);
+  });
+  const dots = document.querySelectorAll('.dot');
+  document.getElementById('tot').textContent = total;
+
+  function go(n) {
+    idx = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    dots.forEach((d, i) => d.classList.toggle('on', i === idx));
+    document.getElementById('cur').textContent = idx + 1;
+  }
+  document.getElementById('prev').addEventListener('click', () => go(idx - 1));
+  document.getElementById('next').addEventListener('click', () => go(idx + 1));
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') go(idx + 1);
+    if (e.key === 'ArrowLeft') go(idx - 1);
+  });
+</script>
+</body>
+</html>

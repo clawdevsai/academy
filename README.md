@@ -26,6 +26,10 @@ Curso em HTML sobre desenvolvimento de software com agentes de IA usando o **Cla
 | 14 | Checklist final de boas práticas |
 | 15 | Workflows Dinâmicos com Agentes (os 6 padrões) |
 
+### 🎞️ Slides (`slides.html`)
+
+Deck de apoio da imersão em HTML navegável (setas, clique ou teclado) — 7 telas cobrindo os 4 dias práticos. Abra `slides.html` no navegador.
+
 ### 🤖 Prompts (`prompts/`)
 
 Prompts prontos para criar agentes e hooks:
