@@ -8,6 +8,8 @@ Curso em HTML sobre desenvolvimento de software com agentes de IA usando o **Cla
 
 15 capítulos em HTML. Abra `roteiro-agentes-ia/index.html` no navegador para começar.
 
+Visual: tema dark neon (ciano `#22D3EE` / magenta `#D946EF` sobre azul-marinho `#0B1220`), com fonte DM Sans. Todo o CSS é compartilhado em `roteiro-agentes-ia/styles/theme.css` — os capítulos apenas importam esse arquivo. Cada capítulo termina com uma seção **Referências oficiais**, com links verificados para a documentação da Anthropic (docs.claude.com e anthropic.com/engineering).
+
 | Cap | Tema |
 |-----|------|
 | 01 | Introdução ao desenvolvimento de software com IA |
@@ -28,7 +30,7 @@ Curso em HTML sobre desenvolvimento de software com agentes de IA usando o **Cla
 
 ### 🎞️ Slides (`slides.html`)
 
-Deck de apoio da imersão em HTML navegável (setas, clique ou teclado) — 7 telas cobrindo os 4 dias práticos. Abra `slides.html` no navegador.
+Deck de apoio da imersão em HTML navegável (setas, clique ou teclado) — 7 telas cobrindo os 4 dias práticos. Abra `slides.html` no navegador. Usa a mesma paleta neon do roteiro.
 
 ### 🤖 Prompts (`prompts/`)
 

@@ -369,4 +369,37 @@ passarem.</code></pre>
       <div class="risk-card"><h4>Roteiro de apoio</h4><p>15 capítulos em HTML, leitura antes/depois de cada dia — incluindo o capítulo 15 sobre workflows dinâmicos.</p></div>
       <div class="risk-card"><h4>Ensaio geral</h4><p>Rodar o ciclo Dia 1 → 2 → 3 → 4 uma vez, de ponta a ponta, antes da turma.</p></div>
     </div>
-    <div class="pageend"><button data-goto="d4">← Dia 4</button><button data-goto="overview">Voltar à visão ger
+    <div class="pageend"><button data-goto="d4">← Dia 4</button><button data-goto="overview">Voltar à visão geral</button></div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  var tabs = document.querySelectorAll('nav.tabs button');
+  var order = Array.prototype.map.call(tabs, function(b){ return b.dataset.t; });
+
+  function go(t){
+    if(!document.getElementById('p-'+t)) return;
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('on', p.id === 'p-'+t); });
+    tabs.forEach(function(b){ b.classList.toggle('on', b.dataset.t === t); });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  tabs.forEach(function(b){ b.addEventListener('click', function(){ go(b.dataset.t); }); });
+
+  document.querySelectorAll('[data-goto]').forEach(function(el){
+    el.addEventListener('click', function(){ go(el.dataset.goto); });
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var cur = document.querySelector('nav.tabs button.on');
+    var i = order.indexOf(cur ? cur.dataset.t : 'overview');
+    var next = e.key === 'ArrowRight' ? Math.min(i+1, order.length-1) : Math.max(i-1, 0);
+    if(next !== i) go(order[next]);
+  });
+})();
+</script>
+</body>
+</html>
