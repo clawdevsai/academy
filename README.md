@@ -6,7 +6,7 @@ Curso em HTML sobre desenvolvimento de software com agentes de IA usando o **Cla
 
 ### 📚 Roteiro (`roteiro-agentes-ia/`)
 
-14 capítulos em HTML. Abra `roteiro-agentes-ia/index.html` no navegador para começar.
+15 capítulos em HTML. Abra `roteiro-agentes-ia/index.html` no navegador para começar.
 
 | Cap | Tema |
 |-----|------|
@@ -24,6 +24,7 @@ Curso em HTML sobre desenvolvimento de software com agentes de IA usando o **Cla
 | 12 | Erros mais comuns de iniciantes e como evitá-los |
 | 13 | Demonstração completa — projeto com múltiplos agentes |
 | 14 | Checklist final de boas práticas |
+| 15 | Workflows Dinâmicos com Agentes (os 6 padrões) |
 
 ### 🤖 Prompts (`prompts/`)
 
