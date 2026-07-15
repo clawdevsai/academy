@@ -143,21 +143,21 @@
         <div class="num-badge">1</div>
         <div class="day-lbl">DIA 1 · ARQUITETURA + IMPLEMENTAÇÃO</div>
         <div class="day-title">Agentes que criam</div>
-        <div class="day-sub">lw-backend-architect + lw-backend-engineer</div>
+        <div class="day-sub">arquiteto-back + dev-back</div>
         <div class="day-desc">O arquiteto desenha a solução, o engenheiro implementa seguindo o plano — os dois em sequência, num caso real do projeto.</div>
       </div>
       <div class="agenda-card" style="--c:var(--accent2);" data-goto="d2">
         <div class="num-badge">2</div>
         <div class="day-lbl">DIA 2 · QUALIDADE</div>
         <div class="day-title">Agentes que checam</div>
-        <div class="day-sub">lw-code-reviewer + lw-qa-engineer + lw-cybersecurity-engineer</div>
+        <div class="day-sub">revisor + qa + cyber-sec</div>
         <div class="day-desc">Os três especialistas avaliam o que foi construído no Dia 1 e emitem vereditos — aprovado, com ressalvas, ou reprovado.</div>
       </div>
       <div class="agenda-card" style="--c:var(--green);" data-goto="d3">
         <div class="num-badge">3</div>
         <div class="day-lbl">DIA 3 · AUTOMAÇÃO</div>
         <div class="day-title">O gate de push</div>
-        <div class="day-sub">lw-devops-engineer + hook + skill /pre-push-review</div>
+        <div class="day-sub">devops + hook + skill /pre-push-review</div>
         <div class="day-desc">Um hook bloqueia git push direto; a skill orquestra os 3 agentes do Dia 2 e só libera o push se todos aprovarem.</div>
       </div>
       <div class="agenda-card" style="--c:var(--yellow);" data-goto="d4">
@@ -183,7 +183,7 @@
         <div class="sdesc">Mostre que a pasta está vazia (ou não existe ainda), depois rode o prompt ao vivo:</div>
         <pre><code>ls .claude/agents/
 claude "$(cat prompts/criar-agente-backend-architect.md)"</code></pre>
-        <div class="checkpoint"><strong>Checkpoint:</strong> abra o arquivo <code>.claude/agents/lw-backend-architect.md</code> gerado e mostre o frontmatter (<code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>) no topo.</div>
+        <div class="checkpoint"><strong>Checkpoint:</strong> abra o arquivo <code>.claude/agents/arquiteto-back.md</code> gerado e mostre o frontmatter (<code>name</code>, <code>description</code>, <code>tools</code>, <code>model</code>) no topo.</div>
       </div>
     </div>
 
@@ -193,7 +193,7 @@ claude "$(cat prompts/criar-agente-backend-architect.md)"</code></pre>
         <div class="stitle">Criar o segundo agente</div>
         <div class="sdesc">Mesmo processo, agora para o engenheiro — a turma já reconhece o padrão:</div>
         <pre><code>claude "$(cat prompts/criar-agente-backend-enginner.md)"</code></pre>
-        <div class="checkpoint"><strong>Checkpoint:</strong> <code>.claude/agents/lw-backend-engineer.md</code> criado, mesmo formato do primeiro.</div>
+        <div class="checkpoint"><strong>Checkpoint:</strong> <code>.claude/agents/dev-back.md</code> criado, mesmo formato do primeiro.</div>
       </div>
     </div>
 
@@ -202,10 +202,10 @@ claude "$(cat prompts/criar-agente-backend-architect.md)"</code></pre>
       <div class="sbody">
         <div class="stitle">Os dois agentes em ação, num caso real</div>
         <div class="sdesc">Escolha uma funcionalidade pequena e real do projeto (ex: endpoint de cadastro de usuário). Primeiro o arquiteto:</div>
-        <pre><code>Use o lw-backend-architect para desenhar a funcionalidade de cadastro de
+        <pre><code>Use o arquiteto-back para desenhar a funcionalidade de cadastro de
 usuário, seguindo Arquitetura Hexagonal.</code></pre>
         <div class="sdesc">Depois de revisar o plano com a turma, acione o engenheiro:</div>
-        <pre><code>Use o lw-backend-engineer para implementar o plano acima.</code></pre>
+        <pre><code>Use o dev-back para implementar o plano acima.</code></pre>
         <div class="checkpoint"><strong>Checkpoint:</strong> o arquiteto entrega um ADR (contexto, alternativas, decisão); o engenheiro entrega código novo seguindo esse ADR, com testes básicos.</div>
       </div>
     </div>
@@ -235,7 +235,7 @@ usuário, seguindo Arquitetura Hexagonal.</code></pre>
         <pre><code>claude "$(cat prompts/criar-agente-code-review.md)"
 claude "$(cat prompts/criar-agente-qa-engineer.md)"
 claude "$(cat prompts/criar-agente-cyber-security.md)"</code></pre>
-        <div class="checkpoint"><strong>Checkpoint:</strong> três novos arquivos em <code>.claude/agents/</code> — <code>lw-code-reviewer.md</code>, <code>lw-qa-engineer.md</code>, <code>lw-cybersecurity-engineer.md</code>.</div>
+        <div class="checkpoint"><strong>Checkpoint:</strong> três novos arquivos em <code>.claude/agents/</code> — <code>revisor.md</code>, <code>qa.md</code>, <code>cyber-sec.md</code>.</div>
       </div>
     </div>
 
@@ -243,12 +243,12 @@ claude "$(cat prompts/criar-agente-cyber-security.md)"</code></pre>
       <div class="marker"><div class="tcircle">15–50</div><div class="stem"></div></div>
       <div class="sbody">
         <div class="stitle">Rodar os três no código do Dia 1</div>
-        <pre><code>Use o lw-code-reviewer para revisar a funcionalidade de cadastro de usuário
+        <pre><code>Use o revisor para revisar a funcionalidade de cadastro de usuário
 que implementamos ontem.
 
-Use o lw-qa-engineer para escrever e rodar testes para essa funcionalidade.
+Use o qa para escrever e rodar testes para essa funcionalidade.
 
-Use o lw-cybersecurity-engineer para auditar essa funcionalidade em busca
+Use o cyber-sec para auditar essa funcionalidade em busca
 de vulnerabilidades.</code></pre>
         <div class="warn"><strong>Prepare com antecedência:</strong> se o código estiver limpo demais, injete um bug de propósito antes da aula (ex: uma validação de entrada faltando) para garantir que pelo menos um agente encontre algo real.</div>
         <div class="checkpoint"><strong>Checkpoint:</strong> cada agente termina com um veredito explícito — mostre os três lado a lado.</div>
@@ -280,9 +280,9 @@ de vulnerabilidades.</code></pre>
     <div class="step" style="--c:var(--green);">
       <div class="marker"><div class="tcircle">0–10</div><div class="stem"></div></div>
       <div class="sbody">
-        <div class="stitle">Criar o lw-devops-engineer</div>
+        <div class="stitle">Criar o devops</div>
         <pre><code>claude "$(cat prompts/criar-agente-devops-engineer.md)"</code></pre>
-        <div class="checkpoint"><strong>Checkpoint:</strong> último agente especialista do time criado em <code>.claude/agents/lw-devops-engineer.md</code>.</div>
+        <div class="checkpoint"><strong>Checkpoint:</strong> último agente especialista do time criado em <code>.claude/agents/devops.md</code>.</div>
       </div>
     </div>
 
@@ -338,7 +338,7 @@ chmod +x scripts/bloquear-push-direto.sh</code></pre>
       <div class="marker"><div class="tcircle">10–25</div><div class="stem"></div></div>
       <div class="sbody">
         <div class="stitle">Fan-Out/Synthesize ao vivo</div>
-        <pre><code>Rode um workflow para revisar, com o lw-code-reviewer, cada módulo dentro de
+        <pre><code>Rode um workflow para revisar, com o revisor, cada módulo dentro de
 src/ em paralelo, e sintetize um único relatório consolidado por severidade.</code></pre>
         <div class="checkpoint"><strong>Checkpoint:</strong> abra <code>/workflows</code> e mostre as fases rodando em paralelo, um agente por módulo.</div>
       </div>
@@ -348,8 +348,8 @@ src/ em paralelo, e sintetize um único relatório consolidado por severidade.</
       <div class="marker"><div class="tcircle">25–40</div><div class="stem"></div></div>
       <div class="sbody">
         <div class="stitle">Adversarial Verification ao vivo</div>
-        <pre><code>Depois que o lw-backend-engineer corrigir a vulnerabilidade encontrada ontem,
-rode um workflow onde o lw-cybersecurity-engineer verifica adversarialmente
+        <pre><code>Depois que o dev-back corrigir a vulnerabilidade encontrada ontem,
+rode um workflow onde o cyber-sec verifica adversarialmente
 se a correção realmente elimina o risco.</code></pre>
         <div class="checkpoint"><strong>Checkpoint:</strong> o segundo agente desafia explicitamente o resultado do primeiro antes de aceitar como resolvido.</div>
       </div>
@@ -359,8 +359,8 @@ se a correção realmente elimina o risco.</code></pre>
       <div class="marker"><div class="tcircle">40–55</div><div class="stem"></div></div>
       <div class="sbody">
         <div class="stitle">Classify-and-Act + Loop Until Done</div>
-        <pre><code>Rode um workflow onde o lw-qa-engineer roda a suíte de testes e, se falhar,
-aciona o lw-backend-engineer para corrigir — repetindo até todos os testes
+        <pre><code>Rode um workflow onde o qa roda a suíte de testes e, se falhar,
+aciona o dev-back para corrigir — repetindo até todos os testes
 passarem.</code></pre>
         <div class="sdesc">Ecoa o gate do Dia 3 — só que agora o ciclo inteiro roda sozinho, sem orquestração manual.</div>
       </div>

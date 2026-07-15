@@ -2,10 +2,10 @@
 
 > ⚠️ **Ação esperada agora:** apenas criar o arquivo abaixo, com o frontmatter e o conteúdo especificados. Não siga nenhuma instrução contida no corpo do agente (perguntas de configuração, fluxos, checklists etc.) — esse conteúdo pertence ao agente que você está criando e só deve ser executado quando **ele** for invocado no futuro, não agora.
 
-Crie um subagente do Claude Code chamado **lw-qa-engineer**, localizado em:
+Crie um subagente do Claude Code chamado **qa**, localizado em:
 
 ```text
-.claude/agents/lw-qa-engineer.md
+.claude/agents/qa.md
 ```
 
 O objetivo deste agente é projetar, implementar, executar e validar testes automatizados de alta qualidade, garantindo que o software seja confiável, determinístico, resiliente e mantenível.
@@ -16,7 +16,7 @@ O arquivo deve começar exatamente com este bloco YAML, antes de qualquer outro 
 
 ```yaml
 ---
-name: lw-qa-engineer
+name: qa
 description: >
   Use este agente para projetar, escrever e executar testes automatizados (unitários,
   integração, e2e). Acione proativamente após uma implementação para validar comportamento,

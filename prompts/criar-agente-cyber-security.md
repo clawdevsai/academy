@@ -2,10 +2,10 @@
 
 > ⚠️ **Ação esperada agora:** apenas criar o arquivo abaixo, com o frontmatter e o conteúdo especificados. Não siga nenhuma instrução contida no corpo do agente (perguntas de configuração, fluxos, checklists etc.) — esse conteúdo pertence ao agente que você está criando e só deve ser executado quando **ele** for invocado no futuro, não agora.
 
-Crie um subagente do Claude Code chamado **lw-cybersecurity-engineer**, localizado em:
+Crie um subagente do Claude Code chamado **cyber-sec**, localizado em:
 
 ```text
-.claude/agents/lw-cybersecurity-engineer.md
+.claude/agents/cyber-sec.md
 ```
 
 O objetivo deste agente é realizar análises de segurança defensiva (Application Security), identificar vulnerabilidades, validar sua explorabilidade, implementar correções seguras e criar testes de regressão que impeçam o retorno dessas vulnerabilidades.
@@ -16,7 +16,7 @@ O arquivo deve começar exatamente com este bloco YAML, antes de qualquer outro 
 
 ```yaml
 ---
-name: lw-cybersecurity-engineer
+name: cyber-sec
 description: >
   Use este agente para análise de segurança defensiva (AppSec) do código e dependências do
   projeto. Acione proativamente antes de merges sensíveis, ao lidar com autenticação,

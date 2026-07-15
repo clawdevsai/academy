@@ -5,9 +5,9 @@
 > **Nota técnica importante (por isso este prompt tem duas partes, não uma só):** hooks do Claude Code são scripts determinísticos — recebem dados via stdin e decidem bloquear ou não através do código de saída (`exit 2` bloqueia, `exit 0`/`exit 1` deixam passar). Um hook **não consegue** invocar subagentes com raciocínio, avaliar um veredito qualitativo ("⚠️ APROVADO COM RESSALVAS") ou conduzir uma conversa de Sim/Não com o usuário — isso é trabalho de um agente com LLM, não de um script de shell. Por isso, o gate completo precisa de duas peças que trabalham juntas:
 >
 > 1. **Um hook real** (`PreToolUse` em `Bash`) que bloqueia qualquer `git push` executado diretamente, direcionando o usuário para o comando correto.
-> 2. **Uma skill** (`/pre-push-review`), que é quem de fato orquestra os três subagentes (`lw-code-reviewer`, `lw-qa-engineer`, `lw-cybersecurity-engineer`), interpreta os vereditos, conversa com o usuário quando algo bloqueia, e — só quando tudo estiver aprovado — executa o `git push` de verdade.
+> 2. **Uma skill** (`/pre-push-review`), que é quem de fato orquestra os três subagentes (`revisor`, `qa`, `cyber-sec`), interpreta os vereditos, conversa com o usuário quando algo bloqueia, e — só quando tudo estiver aprovado — executa o `git push` de verdade.
 
-Este prompt assume que os agentes `lw-code-reviewer`, `lw-qa-engineer` e `lw-cybersecurity-engineer` já foram criados (arquivos correspondentes em `prompts/criar-agente-*.md`).
+Este prompt assume que os agentes `revisor`, `qa` e `cyber-sec` já foram criados (arquivos correspondentes em `prompts/criar-agente-*.md`).
 
 ---
 
@@ -60,8 +60,8 @@ Crie o arquivo `.claude/skills/pre-push-review/SKILL.md` com o frontmatter e o c
 ---
 name: pre-push-review
 description: >
-  Roda o gate obrigatório de qualidade antes de um git push: aciona lw-code-reviewer,
-  lw-qa-engineer e lw-cybersecurity-engineer em sequência, consolida os vereditos e só
+  Roda o gate obrigatório de qualidade antes de um git push: aciona revisor,
+  qa e cyber-sec em sequência, consolida os vereditos e só
   libera o push quando todos aprovarem. Invocado manualmente pelo usuário com /pre-push-review.
 ---
 ```
@@ -75,9 +75,9 @@ Você vai orquestrar o gate de pré-push. Siga esta sequência obrigatoriamente:
 
 Acione, nesta ordem, via delegação de subagente:
 
-1. `lw-code-reviewer` — revisa as alterações que serão enviadas (qualidade, arquitetura, bugs).
-2. `lw-qa-engineer` — valida e executa a suíte de testes relevante às alterações.
-3. `lw-cybersecurity-engineer` — roda a revisão de segurança (vulnerabilidades, segredos expostos, scanners configurados no projeto).
+1. `revisor` — revisa as alterações que serão enviadas (qualidade, arquitetura, bugs).
+2. `qa` — valida e executa a suíte de testes relevante às alterações.
+3. `cyber-sec` — roda a revisão de segurança (vulnerabilidades, segredos expostos, scanners configurados no projeto).
 
 Cada agente deve retornar um veredito explícito.
 

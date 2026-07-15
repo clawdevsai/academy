@@ -33,7 +33,7 @@
   </div>
 
   <h2>Explicação conceitual</h2>
-  <p>Até aqui, todo agente que você criou era acionado <strong>dentro de uma conversa</strong>: você (ou o Claude principal) decidia, turno por turno, quando chamar o <code>lw-code-reviewer</code> ou o <code>lw-qa-engineer</code>, e o resultado de cada um voltava para o contexto da conversa. Isso funciona bem até a tarefa ficar grande demais para caber num vaivém de turnos — uma auditoria em 50 módulos, uma migração de 500 arquivos, uma pesquisa que precisa cruzar dezenas de fontes.</p>
+  <p>Até aqui, todo agente que você criou era acionado <strong>dentro de uma conversa</strong>: você (ou o Claude principal) decidia, turno por turno, quando chamar o <code>revisor</code> ou o <code>qa</code>, e o resultado de cada um voltava para o contexto da conversa. Isso funciona bem até a tarefa ficar grande demais para caber num vaivém de turnos — uma auditoria em 50 módulos, uma migração de 500 arquivos, uma pesquisa que precisa cruzar dezenas de fontes.</p>
   <p>Um <strong>workflow dinâmico</strong> é a resposta a esse problema: em vez de o Claude principal decidir a cada turno o que fazer a seguir, ele escreve um <strong>script</strong> (JavaScript) que descreve toda a orquestração de uma vez — quantos agentes rodam, em que ordem, o que cada um recebe, como os resultados se combinam. Um runtime executa esse script em segundo plano, sua sessão continua livre, e só a resposta final chega ao contexto da conversa. Os resultados intermediários ficam em variáveis do script, não no contexto do Claude.</p>
 
   <table>
@@ -130,7 +130,7 @@ graph LR
         <line x1="185" y1="204" x2="248" y2="145" stroke="#333" stroke-width="1"/>
         <line x1="253" y1="137" x2="296" y2="137" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
         <text x="320" y="180" text-anchor="middle" font-size="11" fill="#888">synthesize</text>
-        <text x="20" y="252" font-size="12" fill="#555">1 lw-code-reviewer por módulo → 1 relatório único</text>
+        <text x="20" y="252" font-size="12" fill="#555">1 revisor por módulo → 1 relatório único</text>
       </g>
 
       <!-- ===== Panel 3: Adversarial Verification ===== -->
@@ -151,7 +151,7 @@ graph LR
         <line x1="112" y1="160" x2="282" y2="205" stroke="#333" stroke-width="1.3" marker-end="url(#arrow)"/>
         <line x1="282" y1="90" x2="118" y2="145" stroke="#333" stroke-width="1"/>
         <line x1="282" y1="210" x2="118" y2="155" stroke="#333" stroke-width="1"/>
-        <text x="20" y="252" font-size="12" fill="#555">lw-cybersecurity-engineer desafia a correção do worker</text>
+        <text x="20" y="252" font-size="12" fill="#555">cyber-sec desafia a correção do worker</text>
       </g>
 
       <!-- ===== Panel 4: Generate-and-Filter ===== -->
@@ -179,7 +179,7 @@ graph LR
         <text x="343" y="105" text-anchor="middle" font-size="10" fill="#888">best</text>
         <rect x="320" y="190" width="46" height="20" fill="#fff" stroke="#ccc" stroke-width="1.2" stroke-dasharray="3,2"/>
         <text x="343" y="228" text-anchor="middle" font-size="10" fill="#bbb">discarded</text>
-        <text x="20" y="285" font-size="12" fill="#555">lw-backend-architect gera ADRs; filtro escolhe os melhores</text>
+        <text x="20" y="285" font-size="12" fill="#555">arquiteto-back gera ADRs; filtro escolhe os melhores</text>
       </g>
 
       <!-- ===== Panel 5: Tournament ===== -->
@@ -208,7 +208,7 @@ graph LR
         <line x1="168" y1="127" x2="232" y2="175" stroke="#333" stroke-width="1"/>
         <line x1="168" y1="232" x2="232" y2="188" stroke="#333" stroke-width="1"/>
         <line x1="285" y1="182" x2="316" y2="182" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <text x="20" y="285" font-size="12" fill="#555">3 caches candidatos → lw-qa-engineer julga par a par</text>
+        <text x="20" y="285" font-size="12" fill="#555">3 caches candidatos → qa julga par a par</text>
       </g>
 
       <!-- ===== Panel 6: Loop Until Done ===== -->
@@ -229,7 +229,7 @@ graph LR
         <text x="285" y="160" font-size="10" fill="#888">no</text>
         <line x1="110" y1="150" x2="178" y2="160" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
         <line x1="260" y1="165" x2="316" y2="165" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <text x="20" y="255" font-size="12" fill="#555">lw-qa-engineer repete até a suíte inteira passar</text>
+        <text x="20" y="255" font-size="12" fill="#555">qa repete até a suíte inteira passar</text>
       </g>
 
       <defs>
@@ -244,27 +244,27 @@ graph LR
   <p>Um agente classificador olha cada item e decide o tipo, roteando para o especialista certo.</p>
   <p><strong>Cenário no projeto:</strong> uma lista de issues abertas precisa ser distribuída entre os agentes certos sem que você leia uma por uma.</p>
   <pre><code>Rode um workflow para classificar cada issue aberta no repositório: bugs de
-implementação vão para o lw-backend-engineer, decisões de arquitetura para o
-lw-backend-architect, e suspeitas de vulnerabilidade para o lw-cybersecurity-engineer.</code></pre>
+implementação vão para o dev-back, decisões de arquitetura para o
+arquiteto-back, e suspeitas de vulnerabilidade para o cyber-sec.</code></pre>
   <div class="tip"><strong>Padrão relacionado — quarentena:</strong> em triagens que processam conteúdo não confiável (issues abertas por qualquer pessoa, tickets externos), não deixe o classificador — que lê esse conteúdo bruto — executar ações de alto privilégio diretamente. A ação (corrigir, mergear, escalar) fica a cargo de um agente separado que só recebe a classificação já feita.</div>
 
   <h3>2. Fan-Out / Synthesize (espalhar e sintetizar)</h3>
   <p>Divide o trabalho em unidades independentes, roda um agente por unidade em contexto limpo (sem contaminação cruzada), e um passo final sintetiza tudo.</p>
   <p><strong>Cenário no projeto:</strong> auditar todos os módulos do projeto sem revisar módulo por módulo numa conversa só.</p>
-  <pre><code>Rode um workflow para revisar, com o lw-code-reviewer, cada módulo dentro de
+  <pre><code>Rode um workflow para revisar, com o revisor, cada módulo dentro de
 src/ em paralelo, e sintetize um único relatório consolidado por severidade.</code></pre>
 
   <h3>3. Adversarial Verification (verificação adversarial)</h3>
   <p>Para cada resultado que um agente produz, um segundo agente é acionado só para desafiar esse resultado contra critérios objetivos — contrapondo a tendência do modelo de confiar demais no próprio trabalho.</p>
   <p><strong>Cenário no projeto:</strong> confirmar que uma correção de segurança realmente resolve o problema, não só esconde o sintoma.</p>
-  <pre><code>Depois que o lw-backend-engineer corrigir a vulnerabilidade em auth.py, rode um
-workflow onde o lw-cybersecurity-engineer verifica adversarialmente se a correção
+  <pre><code>Depois que o dev-back corrigir a vulnerabilidade em auth.py, rode um
+workflow onde o cyber-sec verifica adversarialmente se a correção
 realmente elimina o risco, antes de aceitar como resolvido.</code></pre>
 
   <h3>4. Generate-and-Filter (gerar e filtrar)</h3>
   <p>Gera muitos candidatos, filtra por um critério ou verificação, remove quase-duplicados e devolve só os sobreviventes de maior qualidade.</p>
   <p><strong>Cenário no projeto:</strong> explorar várias alternativas de design antes de se comprometer com uma.</p>
-  <pre><code>Rode um workflow onde o lw-backend-architect gera 5 alternativas de design para
+  <pre><code>Rode um workflow onde o arquiteto-back gera 5 alternativas de design para
 o módulo de pagamentos, e filtre por segurança e simplicidade até sobrar só as
 2 melhores.</code></pre>
 
@@ -272,14 +272,14 @@ o módulo de pagamentos, e filtre por segurança e simplicidade até sobrar só 
   <p>Em vez de dividir o trabalho, os agentes competem nele: cada um tenta a mesma tarefa com uma abordagem diferente, e um agente juiz avalia os confrontos par a par até restar um vencedor.</p>
   <p><strong>Cenário no projeto:</strong> comparar implementações candidatas de uma função sensível a performance.</p>
   <pre><code>Rode um workflow onde três implementações candidatas da função de cache competem
-em um torneio, com o lw-qa-engineer e o lw-backend-architect julgando cada
+em um torneio, com o qa e o arquiteto-back julgando cada
 confronto par a par por corretude e performance.</code></pre>
 
   <h3>6. Loop Until Done (repetir até terminar)</h3>
   <p>Para tarefas com quantidade de trabalho desconhecida, o workflow repete a geração de agentes até uma condição real de parada ser atingida (sem novos achados, sem mais erros), em vez de um número fixo de passagens.</p>
   <p><strong>Cenário no projeto:</strong> é exatamente a lógica por trás do gate de pré-push do Dia 3 — só que rodando sozinho, sem você orquestrar manualmente.</p>
-  <pre><code>Rode um workflow onde o lw-qa-engineer roda a suíte de testes e, se falhar,
-aciona o lw-backend-engineer para corrigir — repetindo até todos os testes
+  <pre><code>Rode um workflow onde o qa roda a suíte de testes e, se falhar,
+aciona o dev-back para corrigir — repetindo até todos os testes
 passarem.</code></pre>
 
   <h2>Exemplos práticos</h2>
@@ -287,7 +287,7 @@ passarem.</code></pre>
   <pre><code>/deep-research O que mudou no modelo de permissões do Node.js entre v20 e v22?</code></pre>
   <p>Para pedir um workflow sob medida, basta incluir a palavra <code>workflow</code> no prompt — o Claude Code destaca a palavra e escreve um script em vez de trabalhar turno por turno:</p>
   <pre><code>Rode um workflow para auditar todos os endpoints em src/routes/
-procurando checagens de autorização ausentes, usando o lw-cybersecurity-engineer
+procurando checagens de autorização ausentes, usando o cyber-sec
 por módulo e um passo de verificação adversarial em cada achado antes de reportar.</code></pre>
   <p>Antes de a execução começar, o Claude Code mostra as fases planejadas e pergunta: <strong>Sim, execute</strong> / <strong>Ver script bruto</strong> (ou <code>Ctrl+G</code> para abrir no editor) / <strong>Não</strong>. Acompanhe o progresso a qualquer momento com:</p>
   <pre><code>/workflows</code></pre>
@@ -331,7 +331,7 @@ sequenceDiagram
   <p>A própria Anthropic documenta workflows aplicados bem além de código: o <strong>Bun</strong> foi reescrito de Zig para Rust usando workflows (um agente por ponto de falha, revisão adversarial, merge); times usam workflows para minerar canais de incidentes no Slack em busca de causas-raiz recorrentes sem ticket aberto; para rankear grandes listas (ex: 80 currículos, milhares de tickets) por comparação par-a-par em vez de nota absoluta — muito mais confiável do que pedir para o modelo pontuar 1000+ itens de uma vez; e até para investigação de causa-raiz fora de código, gerando hipóteses a partir de evidências desconexas (logs, dados, arquivos) e as confrontando com um painel de verificadores.</p>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> no seu projeto Python, peça um workflow usando o padrão Fan-Out/Synthesize: "Rode um workflow para revisar, com o lw-code-reviewer, cada módulo dentro de src/ em paralelo, e sintetize um único relatório consolidado por severidade." Depois, abra <code>/workflows</code> e observe as fases, os agentes e o consumo de tokens de cada um.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> no seu projeto Python, peça um workflow usando o padrão Fan-Out/Synthesize: "Rode um workflow para revisar, com o revisor, cada módulo dentro de src/ em paralelo, e sintetize um único relatório consolidado por severidade." Depois, abra <code>/workflows</code> e observe as fases, os agentes e o consumo de tokens de cada um.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>
