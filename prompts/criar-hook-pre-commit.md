@@ -24,7 +24,7 @@ Adicione (ou crie, se não existir) a entrada abaixo em `.claude/settings.json`,
         "hooks": [
           {
             "type": "command",
-            "command": "scripts/bloquear-push-direto.sh"
+            "command": ".claude/scripts/bloquear-push-direto.sh"
           }
         ]
       }
@@ -33,11 +33,11 @@ Adicione (ou crie, se não existir) a entrada abaixo em `.claude/settings.json`,
 }
 ```
 
-Crie o script `scripts/bloquear-push-direto.sh`:
+Crie o script `.claude/scripts/bloquear-push-direto.sh`:
 
 ```bash
 #!/bin/bash
-# scripts/bloquear-push-direto.sh
+# .claude/scripts/bloquear-push-direto.sh
 # Bloqueia git push executado diretamente pelo Bash.
 # O push só deve acontecer através da skill /pre-push-review,
 # que roda o gate de qualidade/QA/segurança antes de liberar.
@@ -46,7 +46,7 @@ echo "Bloqueado: use o comando /pre-push-review para rodar o gate de qualidade, 
 exit 2
 ```
 
-Torne o script executável (`chmod +x scripts/bloquear-push-direto.sh`).
+Torne o script executável (`chmod +x .claude/scripts/bloquear-push-direto.sh`).
 
 **Atenção ao código de saída:** use exatamente `exit 2`. `exit 1` não bloqueia a ação — apenas registra um aviso e o Claude Code segue em frente. Esse é o erro mais comum ao configurar hooks de segurança.
 
@@ -130,6 +130,6 @@ Execute o `git push` real via Bash e confirme ao usuário.
 ## Após criar os arquivos (ação da tarefa atual)
 
 Confirme:
-1. O caminho e conteúdo de `.claude/settings.json` (seção hooks) e do script `scripts/bloquear-push-direto.sh`.
+1. O caminho e conteúdo de `.claude/settings.json` (seção hooks) e do script `.claude/scripts/bloquear-push-direto.sh`.
 2. O caminho do arquivo `.claude/skills/pre-push-review/SKILL.md`.
-3. Lembre o usuário de rodar `chmod +x scripts/bloquear-push-direto.sh` caso o ambiente não tenha aplicado a permissão automaticamente.
+3. Lembre o usuário de rodar `chmod +x .claude/scripts/bloquear-push-direto.sh` caso o ambiente não tenha aplicado a permissão automaticamente.

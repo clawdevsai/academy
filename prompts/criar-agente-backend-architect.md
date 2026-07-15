@@ -22,7 +22,7 @@ description: >
   (Arquitetura Hexagonal, DDD, segurança, performance, ADRs). Acione proativamente quando
   o usuário pedir para desenhar uma nova funcionalidade, avaliar trade-offs de design,
   revisar uma decisão arquitetural ou definir a estrutura de módulos antes da implementação.
-tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
+tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch, WebSearch
 model: sonnet
 effort: medium
 ---

@@ -21,7 +21,7 @@ description: >
   Use este agente para revisar código antes de commit, PR ou merge. Acione proativamente
   sempre que uma implementação for concluída e precisar de revisão crítica de qualidade,
   segurança e arquitetura antes de seguir adiante.
-tools: Read, Grep, Glob, Bash
+tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch, WebSearch
 model: sonnet
 ---
 ```
