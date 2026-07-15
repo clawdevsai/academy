@@ -243,9 +243,10 @@ graph LR
   <h3>1. Classify-and-Act (classificar e agir)</h3>
   <p>Um agente classificador olha cada item e decide o tipo, roteando para o especialista certo.</p>
   <p><strong>Cenário no projeto:</strong> uma lista de issues abertas precisa ser distribuída entre os agentes certos sem que você leia uma por uma.</p>
-  <pre><code>Rode um workflow para classificar cada issue aberta no repositório: bugs de
-implementação vão para o dev-back, decisões de arquitetura para o
-arquiteto-back, e suspeitas de vulnerabilidade para o cyber-sec.</code></pre>
+  <pre><code>Rode um workflow para classificar cada issue aberta no repositório: bugs
+reprodutíveis vão para o bug-fix, pedidos de feature nova para o dev-back,
+decisões de arquitetura para o arquiteto-back, e suspeitas de vulnerabilidade
+para o cyber-sec.</code></pre>
   <div class="tip"><strong>Padrão relacionado — quarentena:</strong> em triagens que processam conteúdo não confiável (issues abertas por qualquer pessoa, tickets externos), não deixe o classificador — que lê esse conteúdo bruto — executar ações de alto privilégio diretamente. A ação (corrigir, mergear, escalar) fica a cargo de um agente separado que só recebe a classificação já feita.</div>
 
   <h3>2. Fan-Out / Synthesize (espalhar e sintetizar)</h3>
@@ -257,7 +258,7 @@ src/ em paralelo, e sintetize um único relatório consolidado por severidade.</
   <h3>3. Adversarial Verification (verificação adversarial)</h3>
   <p>Para cada resultado que um agente produz, um segundo agente é acionado só para desafiar esse resultado contra critérios objetivos — contrapondo a tendência do modelo de confiar demais no próprio trabalho.</p>
   <p><strong>Cenário no projeto:</strong> confirmar que uma correção de segurança realmente resolve o problema, não só esconde o sintoma.</p>
-  <pre><code>Depois que o dev-back corrigir a vulnerabilidade em auth.py, rode um
+  <pre><code>Depois que o bug-fix corrigir a vulnerabilidade em auth.py, rode um
 workflow onde o cyber-sec verifica adversarialmente se a correção
 realmente elimina o risco, antes de aceitar como resolvido.</code></pre>
 
@@ -279,8 +280,8 @@ confronto par a par por corretude e performance.</code></pre>
   <p>Para tarefas com quantidade de trabalho desconhecida, o workflow repete a geração de agentes até uma condição real de parada ser atingida (sem novos achados, sem mais erros), em vez de um número fixo de passagens.</p>
   <p><strong>Cenário no projeto:</strong> é exatamente a lógica por trás do gate de pré-push do Dia 3 — só que rodando sozinho, sem você orquestrar manualmente.</p>
   <pre><code>Rode um workflow onde o qa roda a suíte de testes e, se falhar,
-aciona o dev-back para corrigir — repetindo até todos os testes
-passarem.</code></pre>
+aciona o bug-fix para diagnosticar a causa raiz e corrigir — repetindo
+até todos os testes passarem.</code></pre>
 
   <h2>Exemplos práticos</h2>
   <p>Para rodar o workflow embutido de pesquisa profunda:</p>

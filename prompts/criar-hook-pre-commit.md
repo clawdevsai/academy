@@ -5,9 +5,9 @@
 > **Nota técnica importante (por isso este prompt tem duas partes, não uma só):** hooks do Claude Code são scripts determinísticos — recebem dados via stdin e decidem bloquear ou não através do código de saída (`exit 2` bloqueia, `exit 0`/`exit 1` deixam passar). Um hook **não consegue** invocar subagentes com raciocínio, avaliar um veredito qualitativo ("⚠️ APROVADO COM RESSALVAS") ou conduzir uma conversa de Sim/Não com o usuário — isso é trabalho de um agente com LLM, não de um script de shell. Por isso, o gate completo precisa de duas peças que trabalham juntas:
 >
 > 1. **Um hook real** (`PreToolUse` em `Bash`) que bloqueia qualquer `git push` executado diretamente, direcionando o usuário para o comando correto.
-> 2. **Uma skill** (`/pre-push-review`), que é quem de fato orquestra os três subagentes (`revisor`, `qa`, `cyber-sec`), interpreta os vereditos, conversa com o usuário quando algo bloqueia, e — só quando tudo estiver aprovado — executa o `git push` de verdade.
+> 2. **Uma skill** (`/pre-push-review`), que é quem de fato orquestra os três subagentes de checagem (`revisor`, `qa`, `cyber-sec`), interpreta os vereditos, conversa com o usuário quando algo bloqueia, aciona o `bug-fix` para corrigir os achados quando autorizado, e — só quando tudo estiver aprovado — executa o `git push` de verdade.
 
-Este prompt assume que os agentes `revisor`, `qa` e `cyber-sec` já foram criados (arquivos correspondentes em `prompts/criar-agente-*.md`).
+Este prompt assume que os agentes `revisor`, `qa`, `cyber-sec` e `bug-fix` já foram criados (arquivos correspondentes em `prompts/criar-agente-*.md`).
 
 ---
 
@@ -61,8 +61,9 @@ Crie o arquivo `.claude/skills/pre-push-review/SKILL.md` com o frontmatter e o c
 name: pre-push-review
 description: >
   Roda o gate obrigatório de qualidade antes de um git push: aciona revisor,
-  qa e cyber-sec em sequência, consolida os vereditos e só
-  libera o push quando todos aprovarem. Invocado manualmente pelo usuário com /pre-push-review.
+  qa e cyber-sec em sequência, consolida os vereditos, aciona o bug-fix para
+  corrigir achados quando autorizado, e só libera o push quando todos
+  aprovarem. Invocado manualmente pelo usuário com /pre-push-review.
 ---
 ```
 
@@ -113,13 +114,15 @@ Execute o `git push` real via Bash e confirme ao usuário.
 ## 5. Se bloqueado
 
 1. Explique claramente o motivo do bloqueio e liste os problemas.
-2. Pergunte ao usuário: "Foram encontrados problemas que impedem o push. Deseja que eu corrija automaticamente os que podem ser resolvidos com segurança?"
-3. Se o usuário responder **sim**: aplique as correções seguras, repita os passos 1–3 do zero, e só faça o push se o novo ciclo aprovar integralmente.
-4. Se o usuário responder **não**: mantenha o push bloqueado e encerre exibindo o relatório completo para correção manual.
+2. Pergunte ao usuário: "Foram encontrados problemas que impedem o push. Deseja que eu acione o bug-fix para corrigir automaticamente os que podem ser resolvidos com segurança?"
+3. Se o usuário responder **sim**: acione o subagente `bug-fix`, passando a ele o relatório consolidado (achados, arquivos, testes falhando) como evidência real — nunca uma descrição vaga. O `bug-fix` diagnostica a causa raiz e aplica a menor correção possível, seguindo seu próprio fluxo de testes.
+4. Depois que o `bug-fix` concluir, repita os passos 1–3 do zero (revisor, qa, cyber-sec de novo), e só faça o push se o novo ciclo aprovar integralmente.
+5. Se o `bug-fix` não conseguir resolver algo, ou se o usuário responder **não**: mantenha o push bloqueado e encerre exibindo o relatório completo (incluindo o que o `bug-fix` já tentou, se for o caso) para correção manual.
 
 ## Regras inegociáveis
 
-- Nenhum dos três agentes pode ser pulado ou desabilitado.
+- Nenhum dos três agentes de checagem (revisor, qa, cyber-sec) pode ser pulado ou desabilitado.
+- A correção de achados nunca é feita pela skill diretamente — sempre delegada ao subagente `bug-fix`, que segue seu próprio processo de causa raiz e validação por testes.
 - Nunca faça o push se houver achado Crítico ou Alto pendente.
 - Use sempre as ferramentas de lint, teste, scanner e type-check já configuradas no projeto (não invente novas).
 - Seja transparente: mostre todas as verificações e seus resultados, mesmo quando aprovado.

@@ -285,12 +285,13 @@ usuário, seguindo Arquitetura Hexagonal.</code></pre>
     <div class="step" style="--c:var(--accent2);">
       <div class="marker"><div class="tcircle">0–15</div><div class="stem"></div></div>
       <div class="sbody">
-        <div class="stitle">Criar os três agentes de qualidade</div>
-        <div class="sdesc">Os três prompts, seguidos, ao vivo:</div>
+        <div class="stitle">Criar os quatro agentes de qualidade</div>
+        <div class="sdesc">Os quatro prompts, seguidos, ao vivo — os três de sempre, mais o <code>bug-fix</code>, que fecha o pipeline diagnosticando e corrigindo o que os outros encontrarem:</div>
         <pre><code>claude "$(cat prompts/criar-agente-code-review.md)"
 claude "$(cat prompts/criar-agente-qa-engineer.md)"
-claude "$(cat prompts/criar-agente-cyber-security.md)"</code></pre>
-        <div class="checkpoint"><strong>Checkpoint:</strong> três novos arquivos em <code>.claude/agents/</code> — <code>revisor.md</code>, <code>qa.md</code>, <code>cyber-sec.md</code>.</div>
+claude "$(cat prompts/criar-agente-cyber-security.md)"
+claude "$(cat prompts/criar-agente-bug-fix.md)"</code></pre>
+        <div class="checkpoint"><strong>Checkpoint:</strong> quatro novos arquivos em <code>.claude/agents/</code> — <code>revisor.md</code>, <code>qa.md</code>, <code>cyber-sec.md</code>, <code>bug-fix.md</code>.</div>
       </div>
     </div>
 
@@ -307,6 +308,10 @@ Use o cyber-sec para auditar essa funcionalidade em busca
 de vulnerabilidades.</code></pre>
         <div class="warn"><strong>Prepare com antecedência:</strong> se o código estiver limpo demais, injete um bug de propósito antes da aula (ex: uma validação de entrada faltando) para garantir que pelo menos um agente encontre algo real.</div>
         <div class="checkpoint"><strong>Checkpoint:</strong> cada agente termina com um veredito explícito — mostre os três lado a lado.</div>
+        <div class="sdesc">Agora feche o ciclo: peça para o <code>bug-fix</code> corrigir o que o QA ou a segurança encontraram, a partir do log/relatório de falha real, não de uma descrição vaga:</div>
+        <pre><code>Use o bug-fix para corrigir a falha que o qa encontrou no teste
+de cadastro de usuário. Rode a suíte de novo até passar.</code></pre>
+        <div class="checkpoint"><strong>Checkpoint:</strong> o bug-fix explica a causa raiz antes de tocar em código, aplica a menor correção possível, e reexecuta os testes até aprovar.</div>
         <div class="chips">
           <div class="chip" style="--c:var(--green);">APROVADO</div>
           <div class="chip" style="--c:var(--yellow);">RESSALVAS</div>
@@ -361,6 +366,10 @@ chmod +x scripts/bloquear-push-direto.sh</code></pre>
         <div class="sdesc">Agora o caminho certo:</div>
         <pre><code>/pre-push-review</code></pre>
         <div class="checkpoint"><strong>Checkpoint 2:</strong> os três agentes do Dia 2 disparam em sequência, um relatório consolidado aparece, e o push só acontece se todos aprovarem.</div>
+        <div class="sdesc">Se o gate bloquear (ex: o QA reportou um teste falhando), não corrija na mão — acione o <code>bug-fix</code> com a evidência real que o relatório trouxe, e só então repita o gate:</div>
+        <pre><code>Use o bug-fix para corrigir a falha reportada pelo pre-push-review
+(teste X falhando). Depois rode /pre-push-review de novo.</code></pre>
+        <div class="checkpoint"><strong>Checkpoint 3:</strong> o bug-fix explica a causa raiz antes de tocar em código, aplica a menor correção possível, reexecuta a suíte, e o <code>/pre-push-review</code> repetido aprova sem ressalvas.</div>
       </div>
     </div>
 
@@ -415,8 +424,8 @@ se a correção realmente elimina o risco.</code></pre>
       <div class="sbody">
         <div class="stitle">Classify-and-Act + Loop Until Done</div>
         <pre><code>Rode um workflow onde o qa roda a suíte de testes e, se falhar,
-aciona o dev-back para corrigir — repetindo até todos os testes
-passarem.</code></pre>
+aciona o bug-fix para diagnosticar a causa raiz e corrigir —
+repetindo até todos os testes passarem.</code></pre>
         <div class="sdesc">Ecoa o gate do Dia 3 — só que agora o ciclo inteiro roda sozinho, sem orquestração manual.</div>
       </div>
     </div>
@@ -443,7 +452,7 @@ passarem.</code></pre>
       <p>Revisão + testes + scan de segurança não são instantâneos, e workflows dinâmicos consomem mais tokens que uma conversa comum. Rode o fluxo completo dos 4 dias pelo menos uma vez antes da aula, do início ao fim, para não descobrir ao vivo que um agente trava, demora demais ou o hook não dispara.</p>
     </div>
     <div class="risk-grid">
-      <div class="risk-card"><h4>Prompts prontos</h4><p>6 agentes + hook/skill em <code>prompts/</code>, já corrigidos e testáveis.</p></div>
+      <div class="risk-card"><h4>Prompts prontos</h4><p>7 agentes + hook/skill em <code>prompts/</code>, já corrigidos e testáveis.</p></div>
       <div class="risk-card"><h4>Roteiro de apoio</h4><p>15 capítulos em HTML, leitura antes/depois de cada dia — incluindo o capítulo 15 sobre workflows dinâmicos.</p></div>
       <div class="risk-card"><h4>Ensaio geral</h4><p>Rodar o ciclo Dia 1 → 2 → 3 → 4 uma vez, de ponta a ponta, antes da turma.</p></div>
     </div>

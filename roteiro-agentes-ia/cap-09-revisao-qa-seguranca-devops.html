@@ -40,7 +40,7 @@
     torno de um PR (pull request), com papéis específicos e reforço automático de regras via hooks.
   </p>
   <p>
-    Um pipeline maduro normalmente separa seis papéis. Cada um deles pode ser um subagente com tools e prompt restritos
+    Um pipeline maduro normalmente separa sete papéis. Cada um deles pode ser um subagente com tools e prompt restritos
     ao seu escopo, exatamente como você aprendeu no capítulo 7:
   </p>
   <table>
@@ -49,9 +49,16 @@
     <tr><td>Implementação</td><td>Escreve o código a partir de um plano aprovado</td><td>Read, Write, Edit, Bash</td></tr>
     <tr><td>Revisão de código</td><td>Aponta bugs, más práticas, código duplicado</td><td>Read, Grep, Glob (sem Write)</td></tr>
     <tr><td>QA / testes</td><td>Escreve e roda testes, valida cenários de borda</td><td>Read, Write, Bash</td></tr>
+    <tr><td>Bug-fix</td><td>Diagnostica causa raiz a partir de logs/testes falhando e aplica a menor correção possível</td><td>Read, Write, Edit, Grep, Glob, Bash</td></tr>
     <tr><td>Segurança</td><td>Audita vulnerabilidades, segredos expostos, dependências inseguras</td><td>Read, Grep, Bash (scanners)</td></tr>
     <tr><td>DevOps / infra</td><td>CI/CD, configuração de deploy, observabilidade</td><td>Bash, MCP de CI/infra</td></tr>
   </table>
+  <p>
+    O papel de <strong>bug-fix</strong> é o elo que fecha o ciclo: quando revisão, QA ou segurança encontram algo que
+    precisa de correção, é ele quem recebe a evidência (log, stack trace, teste falhando) e aplica a menor mudança
+    possível para eliminar a causa raiz — nunca o próprio agente que encontrou o problema, para preservar a separação
+    de papéis descrita abaixo.
+  </p>
   <p>
     A separação importa porque cada papel tem um <em>viés natural</em> diferente. Quem implementa tende a validar o
     próprio raciocínio; por isso o agente de revisão e o de QA devem ser entidades separadas, com contexto isolado,
