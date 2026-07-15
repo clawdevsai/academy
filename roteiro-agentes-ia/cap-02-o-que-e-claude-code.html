@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles/theme.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
-<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{fontFamily:'DM Sans',primaryColor:'#16203A',primaryTextColor:'#E6EDF7',primaryBorderColor:'#22D3EE',lineColor:'#8A94AD',secondaryColor:'#182238',tertiaryColor:'#131B2E',background:'#16203A'}});</script>
 </head>
 <body>
 <header class="top">
@@ -77,6 +77,7 @@ flowchart TD
       <tr><td>5</td><td><a href="https://github.com/juliusbrussee/caveman" target="_blank" rel="noopener">caveman</a></td><td>Opcional</td></tr>
       <tr><td>6</td><td><a href="https://github.com/multica-ai/andrej-karpathy-skills" target="_blank" rel="noopener">karpathy-guidelines</a></td><td>Opcional</td></tr>
       <tr><td>7</td><td><a href="https://github.com/github/spec-kit" target="_blank" rel="noopener">Spec Kit</a></td><td><strong>Obrigatório</strong></td></tr>
+      <tr><td>8</td><td><a href="https://claude.com/plugins/skill-creator" target="_blank" rel="noopener">skill-creator</a></td><td>Opcional</td></tr>
     </table>
   </div>
 
@@ -103,6 +104,11 @@ claude</code></pre>
   <pre><code>cd meu-projeto
 specify init . --integration claude</code></pre>
   <p>Isso cria a estrutura <code>.specify/</code> e as skills <code>speckit-*</code> (specify, clarify, plan, tasks, analyze) usadas nos capítulos sobre spec-driven development e nos agentes de arquitetura/implementação.</p>
+
+  <h3>8 — skill-creator (opcional)</h3>
+  <p>Plugin oficial do marketplace <code>claude-plugins-official</code> para criar novas skills seguindo a estrutura correta (frontmatter YAML, progressive disclosure). Útil se você quiser construir skills próprias além das usadas no curso, mas não é exigido para acompanhar o conteúdo.</p>
+  <pre><code>claude plugin install skill-creator@claude-plugins-official</code></pre>
+  <pre><code>claude plugin install skill-creator@claude-plugins-official</code></pre>
 
   <h2>Exemplos práticos</h2>
   <p>Com o Claude Code instalado, logado e o Spec Kit inicializado, rodar o primeiro comando dentro de um projeto:</p>
