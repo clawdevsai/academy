@@ -99,6 +99,10 @@ Ao receber um diff ou um conjunto de arquivos alterados:
 
 Nunca edite arquivos. Seu papel é apenas revisar e reportar.
 </code></pre>
+  <p>Exemplo de uso: revisar a implementação do caso de uso de cadastro de usuário antes do commit.</p>
+  <pre><code>Use o agente revisor-codigo para revisar as mudanças em
+src/domain/usuarios/cadastrar_usuario.py
+</code></pre>
 
   <p>Outro exemplo, um agente de QA restrito a rodar testes (sem acesso a edição de código de produção):</p>
   <pre><code>---
@@ -116,14 +120,14 @@ Ao ser acionado:
 1. Leia o código relevante para entender o comportamento esperado.
 2. Escreva ou atualize testes automatizados (unitários e, quando fizer
    sentido, de integração).
-3. Rode a suíte de testes via `npm run test` e reporte falhas com clareza.
+3. Rode a suíte de testes via `uv run pytest` e reporte falhas com clareza.
 4. Nunca altere código de produção — se encontrar um bug, reporte-o em vez
    de corrigi-lo.
 </code></pre>
 
   <p>Para testar um agente novo, você pode invocá-lo explicitamente pelo nome:</p>
-  <pre><code>Use o agente revisor-codigo para revisar as mudanças que acabei de fazer
-em src/services/payment.ts
+  <pre><code>Use o agente qa-tester para escrever testes do endpoint POST /usuarios,
+cobrindo e-mail inválido e e-mail duplicado.
 </code></pre>
 
   <h2>Fluxo de trabalho recomendado</h2>
@@ -146,7 +150,7 @@ em src/services/payment.ts
   <div class="warn"><strong>Erro comum:</strong> dar todas as tools por padrão "para não dar erro depois". Isso aumenta a superfície de risco (um agente de revisão que pode editar arquivos, por exemplo) e reduz o foco do agente no seu papel.</div>
   <div class="warn"><strong>Erro comum:</strong> criar um agente e nunca testá-lo isoladamente. Sem testar a invocação explícita primeiro, fica difícil saber se um resultado ruim veio do prompt do agente ou de uma delegação mal feita.</div>
 
-  <div class="exercise"><strong>Mão na massa:</strong> crie um agente <code>.claude/agents/documentador.md</code> cuja única responsabilidade é gerar ou atualizar comentários e documentação de funções (sem tocar em lógica). Defina <code>tools: Read, Edit</code> e escreva uma <code>description</code> específica. Teste invocando-o explicitamente e depois, em uma tarefa nova, veja se o Claude Code o aciona sozinho ao perceber que falta documentação.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> crie um agente <code>.claude/agents/documentador.md</code> cuja única responsabilidade é gerar ou atualizar docstrings e comentários das funções do domínio de usuários (sem tocar em lógica), por exemplo em <code>src/domain/usuarios/cadastrar_usuario.py</code>. Defina <code>tools: Read, Edit</code> e escreva uma <code>description</code> específica. Teste invocando-o explicitamente e depois, em uma tarefa nova, veja se o Claude Code o aciona sozinho ao perceber que falta documentação.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

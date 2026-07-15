@@ -70,9 +70,9 @@ flowchart TD
   <p>Em 2026, essa ideia evoluiu para o que a Anthropic chama de <strong>Dynamic Workflows</strong>: o agente líder pode planejar e disparar dezenas ou até centenas de subagentes em paralelo, dentro da mesma sessão, distribuindo partes independentes de uma tarefa grande entre eles. Além disso, existe o <strong>spawning hierárquico</strong>: um subagente pode, por sua vez, criar seus próprios subagentes filhos, formando uma hierarquia — atualmente com limite de até três níveis de profundidade. Isso é útil, por exemplo, quando um subagente de "revisão de arquitetura" precisa disparar vários subagentes menores para revisar módulos diferentes do sistema em paralelo.</p>
 
   <h2>Exemplos práticos</h2>
-  <p>Um subagente é definido em um arquivo Markdown simples. Exemplo de um subagente revisor de código, salvo em <code>.claude/agents/revisor-codigo.md</code>:</p>
+  <p>Um subagente é definido em um arquivo Markdown simples. No projeto user-api, por exemplo, existe o subagente <code>revisor</code>, salvo em <code>.claude/agents/revisor.md</code>:</p>
   <pre><code>---
-name: revisor-codigo
+name: revisor
 description: Revisa código em busca de bugs, problemas de segurança e más práticas.
 tools: Read, Grep, Glob
 model: sonnet
@@ -85,10 +85,11 @@ Você é um revisor de código sênior. Ao analisar um trecho de código:
 Nunca edite arquivos diretamente — apenas reporte.</code></pre>
 
   <p>Com esse arquivo criado, você pode pedir ao agente principal:</p>
-  <pre><code>&gt; Use o subagente revisor-codigo para revisar as mudanças
-  que acabamos de fazer em src/api/pagamentos.ts</code></pre>
+  <pre><code>&gt; Use o subagente revisor para revisar as mudanças
+  que acabamos de fazer em src/domain/use_cases/cadastrar_usuario.py</code></pre>
 
-  <p>O agente principal delega a tarefa, o subagente revisa com seu próprio contexto e ferramentas limitadas (só leitura — note que ele não tem permissão de <code>Edit</code>), e retorna um relatório. O agente principal decide o que fazer com esse relatório, sem ter "poluído" seu próprio raciocínio com todo o processo de revisão linha a linha.</p>
+  <p>O agente principal delega a tarefa, o subagente revisa com seu próprio contexto e ferramentas limitadas (só leitura — note que ele não tem permissão de <code>Edit</code>/<code>Write</code>), e retorna um relatório. O agente principal decide o que fazer com esse relatório, sem ter "poluído" seu próprio raciocínio com todo o processo de revisão linha a linha.</p>
+  <p>O user-api conta com sete subagentes desse tipo, cada um especializado numa etapa do fluxo: <code>arquiteto-back</code> (projeta a arquitetura), <code>dev-back</code> (implementa), <code>revisor</code> (revisão de código), <code>qa</code> (testes automatizados), <code>cyber-sec</code> (segurança AppSec), <code>devops</code> (CI/CD e infraestrutura) e <code>bug-fix</code> (diagnóstico e correção a partir de logs e testes falhando).</p>
 
   <h2>Fluxo de trabalho recomendado</h2>
   <ol>
@@ -106,12 +107,12 @@ sequenceDiagram
     participant Sub1 as Subagente pesquisa
     participant Sub2 as Subagente testes
 
-    Você->>Líder: "Avalie e implemente a biblioteca X"
-    Líder->>Sub1: Pesquisar documentação e alternativas
+    Você->>Líder: "Implemente o cadastro de usuário"
+    Líder->>Sub1: Pesquisar padrões de validação de e-mail em Python
     Sub1-->>Líder: Resumo da pesquisa
-    Líder->>Líder: Implementa a integração
-    Líder->>Sub2: Escrever testes da nova integração
-    Sub2-->>Líder: Testes criados e resultado da execução
+    Líder->>Líder: Implementa o endpoint POST /usuarios
+    Líder->>Sub2: Escrever testes do endpoint (subagente qa)
+    Sub2-->>Líder: Testes criados e resultado do "uv run pytest"
     Líder->>Você: Resumo final da tarefa
   </div>
 
@@ -126,7 +127,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> paralelizar tarefas que na verdade dependem umas das outras (ex.: revisar código antes dele existir). Dynamic Workflows ajudam com tarefas independentes, não substituem planejamento de dependências.</div>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> crie um arquivo <code>.claude/agents/documentador.md</code> definindo um subagente cuja única função é ler um arquivo de código e gerar um resumo em português do que ele faz, sem sugerir mudanças. Peça ao Claude Code para usar esse subagente em um arquivo real do seu projeto e compare o resultado com o que o agente principal geraria sozinho, sem delegação.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> crie um arquivo <code>.claude/agents/documentador.md</code> definindo um subagente cuja única função é ler um arquivo de código (ex.: <code>src/domain/use_cases/cadastrar_usuario.py</code>, do user-api) e gerar um resumo em português do que ele faz, sem sugerir mudanças. Peça ao Claude Code para usar esse subagente nesse arquivo e compare o resultado com o que o agente principal geraria sozinho, sem delegação.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

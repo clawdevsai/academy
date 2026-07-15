@@ -85,8 +85,8 @@ flowchart TD
   <pre><code># instala o Claude Code globalmente (requer Node.js instalado)
 npm install -g @anthropic-ai/claude-code
 
-# entra na pasta do seu projeto
-cd meu-projeto
+# entra na pasta do projeto (ex.: user-api, nossa API de exemplo)
+cd user-api
 
 # inicia o Claude Code — na primeira execução ele pede login
 # (abre o navegador para autenticar com sua conta Anthropic/Claude)
@@ -100,8 +100,8 @@ claude</code></pre>
   <div class="tip"><strong>Dica:</strong> antes de instalar, confira o README de cada repositório — o nome exato do plugin no marketplace e eventuais passos extras (variáveis de ambiente, dependências) podem mudar entre versões.</div>
 
   <h3>7 — Spec Kit (obrigatório)</h3>
-  <p>Usado a partir do Capítulo 8 (Spec-Driven Development) e por vários dos agentes personalizados do curso. Instale a CLI <code>specify</code> conforme o README do repositório e inicialize a integração com Claude Code dentro do seu projeto:</p>
-  <pre><code>cd meu-projeto
+  <p>Usado a partir do Capítulo 8 (Spec-Driven Development) e por vários dos agentes personalizados do curso. Instale a CLI <code>specify</code> conforme o README do repositório e inicialize a integração com Claude Code dentro do projeto user-api:</p>
+  <pre><code>cd user-api
 specify init . --integration claude</code></pre>
   <p>Isso cria a estrutura <code>.specify/</code> e as skills <code>speckit-*</code> (specify, clarify, plan, tasks, analyze) usadas nos capítulos sobre spec-driven development e nos agentes de arquitetura/implementação.</p>
 
@@ -111,20 +111,20 @@ specify init . --integration claude</code></pre>
   <pre><code>claude plugin install skill-creator@claude-plugins-official</code></pre>
 
   <h2>Exemplos práticos</h2>
-  <p>Com o Claude Code instalado, logado e o Spec Kit inicializado, rodar o primeiro comando dentro de um projeto:</p>
-  <pre><code>cd meu-projeto
+  <p>Com o Claude Code instalado, logado e o Spec Kit inicializado, rodar o primeiro comando dentro do projeto user-api:</p>
+  <pre><code>cd user-api
 claude</code></pre>
 
   <p>Depois de iniciado, você conversa com ele em linguagem natural, no próprio terminal:</p>
-  <pre><code>&gt; Leia o arquivo package.json e me diga quais dependências
+  <pre><code>&gt; Leia o pyproject.toml e me diga quais dependências
   desatualizadas o projeto tem hoje.</code></pre>
 
   <p>Ou peça uma tarefa mais completa, que exige várias ações em sequência:</p>
-  <pre><code>&gt; Crie um endpoint POST /usuarios que valide nome e e-mail,
-  salve no banco usando o padrão que já existe em src/repositories,
-  e escreva um teste para o caso de e-mail inválido.</code></pre>
+  <pre><code>&gt; Crie o endpoint POST /usuarios que valide nome e e-mail,
+  persista o usuário usando o repositório em src/adapters/db,
+  e escreva um teste em tests/ para o caso de e-mail inválido.</code></pre>
 
-  <p>Nesse segundo exemplo, o Claude Code provavelmente vai: (1) explorar a pasta <code>src/repositories</code> para entender o padrão usado no projeto, (2) criar o endpoint seguindo esse padrão, (3) escrever o teste, e (4) rodar a suíte de testes para confirmar que tudo passa — tudo isso de forma autônoma, mostrando o progresso no terminal.</p>
+  <p>Nesse segundo exemplo, o Claude Code provavelmente vai: (1) explorar a pasta <code>src/adapters/db</code> e o domínio em <code>src/domain</code> para entender o padrão hexagonal usado no projeto, (2) criar o endpoint seguindo esse padrão, (3) escrever o teste em <code>tests/</code>, e (4) rodar <code>uv run pytest</code> para confirmar que tudo passa — tudo isso de forma autônoma, mostrando o progresso no terminal.</p>
 
   <h2>Fluxo de trabalho recomendado</h2>
   <ol>
@@ -152,7 +152,7 @@ sequenceDiagram
   </div>
 
   <h2>Dicas e boas práticas</h2>
-  <div class="tip"><strong>Dica:</strong> use um arquivo <code>CLAUDE.md</code> na raiz do projeto para descrever convenções, comandos de build/test e preferências do time. O Claude Code lê esse arquivo automaticamente e passa a seguir essas regras em todas as tarefas.</div>
+  <div class="tip"><strong>Dica:</strong> use um arquivo <code>CLAUDE.md</code> na raiz do projeto para descrever convenções, comandos de build/test e preferências do time — no user-api, por exemplo, documentando que os testes rodam com <code>uv run pytest</code>, o lint com <code>ruff check</code> e que a arquitetura é hexagonal. O Claude Code lê esse arquivo automaticamente e passa a seguir essas regras em todas as tarefas.</div>
   <div class="tip"><strong>Dica:</strong> em projetos críticos, comece com o modo de permissões mais conservador (confirmação a cada ação) e vá relaxando conforme ganha confiança na ferramenta.</div>
   <div class="tip"><strong>Dica:</strong> use controle de versão (git) sempre. Isso te dá uma rede de segurança: se o resultado não for o esperado, é fácil reverter.</div>
 
@@ -162,7 +162,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> pedir tarefas gigantes e vagas de uma vez ("refatore o sistema inteiro"). Isso deixa a IA sem critério claro de sucesso e aumenta a chance de erro. Prefira tarefas menores e mais bem definidas, como vimos no Capítulo 1.</div>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> instale o Claude Code em uma pasta de projeto simples (pode ser um projeto de estudo, mesmo pequeno). Peça para ele explicar a estrutura de pastas do projeto em português, e depois peça uma pequena mudança (ex.: adicionar um comentário explicativo em uma função, ou criar um arquivo README básico). Observe no terminal quais ferramentas ele usou (leitura, escrita, etc.) durante a execução.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> instale o Claude Code na pasta do user-api (ou de um projeto de estudo equivalente). Peça para ele explicar a estrutura de pastas do projeto em português (domínio em <code>src/domain</code>, adapters em <code>src/adapters</code>, testes em <code>tests</code>), e depois peça uma pequena mudança (ex.: adicionar um comentário explicativo no caso de uso de cadastro de usuário, ou criar um <code>README.md</code> básico). Observe no terminal quais ferramentas ele usou (leitura, escrita, etc.) durante a execução.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

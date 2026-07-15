@@ -19,7 +19,7 @@
 </header>
 <div class="wrap">
   <h1><span class="num">13.</span> Demonstração completa — um projeto construído com múltiplos agentes</h1>
-  <p class="subtitle">Estudo de caso ponta a ponta: uma API de tarefas com autenticação, construída por cinco agentes especializados e um humano no comando.</p>
+  <p class="subtitle">Estudo de caso ponta a ponta: o endpoint de cadastro de usuário do <strong>user-api</strong>, construído por cinco agentes especializados e um humano no comando.</p>
 
   <div class="obj">
     <h3>🎯 Objetivos de aprendizagem</h3>
@@ -34,10 +34,11 @@
   <h2>Explicação conceitual</h2>
   <p>
     Este capítulo é diferente dos anteriores: em vez de explicar um conceito isoladamente, vamos narrar um projeto
-    fictício do início ao fim, aplicando tudo o que foi visto no curso. O cenário: construir uma <strong>API de
-    gerenciamento de tarefas (to-do list) com autenticação</strong> — simples o suficiente para caber em um capítulo,
-    mas realista o suficiente para ter todas as arestas que aparecem em projetos de verdade: autenticação, validação,
-    persistência, testes e uma superfície de ataque real (login, tokens, dados de usuário).
+    real do início ao fim, aplicando tudo o que foi visto no curso. O cenário: o <strong>user-api</strong>, nosso
+    projeto Python/FastAPI recorrente, precisa do endpoint <code>POST /usuarios</code> para <strong>cadastro de
+    usuário</strong> — simples o suficiente para caber em um capítulo, mas realista o suficiente para ter todas as
+    arestas que aparecem em projetos de verdade: validação de entrada, persistência via repositório, testes e uma
+    superfície de ataque real (e-mail duplicado, dados inválidos, mensagens de erro que vazam informação).
   </p>
   <p>
     Vamos usar cinco papéis de agente, cada um com uma responsabilidade única — o mesmo princípio de especialização
@@ -45,45 +46,45 @@
   </p>
   <table>
     <tr><th>Agente</th><th>Responsabilidade</th><th>Entrega</th></tr>
-    <tr><td>Planejador</td><td>Traduzir o pedido do humano em especificação e plano técnico</td><td>spec.md, plan.md</td></tr>
-    <tr><td>Implementador</td><td>Codificar seguindo o plano aprovado</td><td>Código-fonte + commits</td></tr>
-    <tr><td>Revisor de código</td><td>Auditar qualidade, legibilidade e aderência ao plano</td><td>Comentários de revisão / diff ajustado</td></tr>
-    <tr><td>QA</td><td>Escrever e rodar testes automatizados</td><td>Suíte de testes + relatório de cobertura</td></tr>
-    <tr><td>Segurança</td><td>Auditar especificamente o fluxo de autenticação</td><td>Relatório de vulnerabilidades + correções</td></tr>
+    <tr><td>arquiteto-back</td><td>Traduzir o pedido do humano em especificação e plano técnico</td><td>spec.md, plan.md</td></tr>
+    <tr><td>dev-back</td><td>Codificar seguindo o plano aprovado</td><td>Código-fonte + commits</td></tr>
+    <tr><td>revisor</td><td>Auditar qualidade, legibilidade e aderência ao plano</td><td>Comentários de revisão / diff ajustado</td></tr>
+    <tr><td>qa</td><td>Escrever e rodar testes automatizados</td><td>Suíte de testes (pytest) + relatório de cobertura</td></tr>
+    <tr><td>cyber-sec</td><td>Auditar especificamente o fluxo de cadastro de usuário</td><td>Relatório de vulnerabilidades + correções</td></tr>
   </table>
 
   <div class="mermaid">
 sequenceDiagram
     participant H as Humano
-    participant P as Agente Planejador
-    participant I as Agente Implementador
-    participant R as Agente Revisor
-    participant Q as Agente QA
-    participant S as Agente Segurança
+    participant P as arquiteto-back
+    participant I as dev-back
+    participant R as revisor
+    participant Q as qa
+    participant S as cyber-sec
 
-    H->>P: "Preciso de uma API de tarefas com login/senha e JWT"
+    H->>P: "Preciso do endpoint POST /usuarios para cadastro"
     P->>P: Gera spec.md
     P-->>H: spec.md para aprovação
-    H->>P: Aprova com 1 ajuste (rate limit no login)
+    H->>P: Aprova com 1 ajuste (normalizar e-mail antes de validar)
     P->>P: Gera plan.md com as etapas
     P-->>H: plan.md para aprovação
     H->>I: Aprova plano, autoriza implementação
-    I->>I: Codifica modelo, rotas, auth
+    I->>I: Codifica domínio, repositório, rota HTTP
     I-->>R: Solicita revisão do diff
     R->>R: Analisa qualidade e aderência ao plano
     R-->>I: Pede ajuste em tratamento de erro
     I->>R: Reenvia diff corrigido
     R-->>H: Diff aprovado
     H->>Q: Autoriza QA
-    Q->>Q: Escreve testes unitários e de integração
+    Q->>Q: Escreve testes unitários e de integração (pytest)
     Q->>Q: Roda suíte, mede cobertura
     Q-->>H: Relatório: 92% cobertura, 2 bugs encontrados
     H->>I: Pede correção dos 2 bugs
     I-->>Q: Reenvia código corrigido
     Q-->>H: Suíte 100% verde
-    H->>S: Autoriza auditoria de segurança do fluxo de auth
-    S->>S: Analisa hashing, tokens, rate limit, headers
-    S-->>H: Relatório: 1 achado médio (token sem expiração curta)
+    H->>S: Autoriza auditoria de segurança do cadastro
+    S->>S: Analisa validação, mensagens de erro, enumeração de e-mail
+    S-->>H: Relatório: 1 achado médio (erro 409 vaza existência do e-mail)
     H->>I: Pede correção do achado de segurança
     I-->>S: Reenvia código corrigido
     S-->>H: Aprovado para deploy
@@ -93,74 +94,73 @@ sequenceDiagram
   <h2>Exemplos práticos</h2>
   <h3>1. O pedido inicial e o spec.md</h3>
   <p>
-    O humano começa com um pedido em linguagem natural, propositalmente não muito detalhado — é papel do agente
-    planejador extrair as perguntas certas e formalizar:
+    O humano começa com um pedido em linguagem natural, propositalmente não muito detalhado — é papel do
+    <code>arquiteto-back</code> extrair as perguntas certas e formalizar:
   </p>
-  <pre><code>Você: Preciso de uma API REST de gerenciamento de tarefas (to-do list).
-Cada usuário deve poder se cadastrar, fazer login e gerenciar
-apenas suas próprias tarefas. Use um agente de planejamento
-para gerar a spec antes de qualquer código.</code></pre>
-  <p>O agente planejador devolve algo como:</p>
-  <pre><code># spec.md — API de Gerenciamento de Tarefas
+  <pre><code>Você: Preciso do endpoint POST /usuarios no user-api, para cadastro
+de usuário com nome e e-mail. Use o arquiteto-back para gerar
+a spec antes de qualquer código.</code></pre>
+  <p>O <code>arquiteto-back</code> devolve algo como:</p>
+  <pre><code># spec.md — Cadastro de usuário (POST /usuarios)
 
 ## Objetivo
-Fornecer uma API REST para que usuários autenticados criem,
-listem, atualizem e removam suas próprias tarefas.
+Fornecer um endpoint REST para cadastrar um novo usuário no
+user-api, validando nome e e-mail e persistindo via repositório.
 
 ## Escopo
-- Cadastro de usuário (email + senha)
-- Login com emissão de JWT (access token) + refresh token
-- CRUD de tarefas (título, descrição, status, prazo)
-- Isolamento: um usuário nunca acessa tarefas de outro
+- POST /usuarios recebendo { nome, email }
+- Validação de nome (não vazio) e e-mail (formato válido)
+- Persistência via repositório de usuários (PostgreSQL)
+- Rejeição de e-mail duplicado
 
 ## Fora de escopo (v1)
-- Recuperação de senha por e-mail
-- Compartilhamento de tarefas entre usuários
-- Notificações
+- Autenticação/login (endpoint futuro)
+- Confirmação de e-mail por link
+- Edição/remoção de usuário
 
 ## Requisitos não funcionais
-- Senhas armazenadas com hash (bcrypt, custo >= 12)
-- Access token expira em 15 min; refresh token em 7 dias
-- Rate limit no endpoint de login (máx. 5 tentativas / 15 min / IP)
-- Todas as rotas de tarefas exigem autenticação
+- Arquitetura hexagonal: domínio em src/domain/, adapter HTTP em
+  src/adapters/http/, adapter de persistência em src/adapters/db/
+- E-mail normalizado (lowercase, trim) antes de validar e persistir
+- Mensagem de erro de duplicidade não deve vazar se o e-mail já
+  existe de forma que permita enumeração de usuários cadastrados
 
 ## Critérios de aceite
-- [ ] Usuário A não consegue ler/editar tarefa de usuário B (testado)
-- [ ] Senha nunca aparece em log ou resposta de API
-- [ ] Suíte de testes cobre casos de sucesso e de erro (401, 403, 404)
+- [ ] Cadastro com dados válidos retorna 201 e o usuário criado
+- [ ] E-mail inválido retorna 422 com mensagem clara
+- [ ] E-mail duplicado retorna 409 sem vazar dados do usuário existente
+- [ ] Suíte de testes cobre casos de sucesso e de erro (422, 409)
 </code></pre>
   <p>
-    O humano revisa e faz um único ajuste: pede explicitamente o rate limit no login, que o agente já havia incluído
-    — mostrando que um bom agente de planejamento já antecipa requisitos de segurança óbvios, mas a revisão humana
-    continua sendo o ponto de controle final antes de qualquer código ser escrito.
+    O humano revisa e faz um único ajuste: pede explicitamente a normalização do e-mail antes da validação, que o
+    agente já havia incluído — mostrando que um bom <code>arquiteto-back</code> já antecipa requisitos óbvios, mas a
+    revisão humana continua sendo o ponto de controle final antes de qualquer código ser escrito.
   </p>
 
   <h3>2. O plan.md</h3>
-  <pre><code># plan.md — Implementação da API de Tarefas
+  <pre><code># plan.md — Implementação do cadastro de usuário
 
-## Etapa 1 — Modelagem de dados
-- Tabela `users` (id, email único, password_hash, created_at)
-- Tabela `tasks` (id, user_id FK, title, description, status, due_date)
+## Etapa 1 — Domínio
+- src/domain/usuario.py — entidade Usuario (nome, email)
+- src/domain/exceptions.py — EmailInvalidoError, EmailDuplicadoError
 
-## Etapa 2 — Autenticação
-- POST /auth/register
-- POST /auth/login (com rate limit)
-- POST /auth/refresh
-- Middleware de verificação de JWT
+## Etapa 2 — Persistência
+- src/adapters/db/models.py — modelo SQLAlchemy UsuarioModel
+- src/adapters/db/repositorio_usuario.py — RepositorioUsuario
+  (porta definida no domínio, adapter aqui implementa)
 
-## Etapa 3 — CRUD de tarefas
-- GET /tasks (só do usuário autenticado)
-- POST /tasks
-- PATCH /tasks/:id (valida ownership antes de alterar)
-- DELETE /tasks/:id (valida ownership antes de remover)
+## Etapa 3 — Rota HTTP
+- src/adapters/http/routes/usuarios.py — POST /usuarios
+- schemas Pydantic v2 para request/response
+- mapeamento de exceções de domínio para 422/409
 
-## Etapa 4 — Testes
-- Unitários: hashing, geração/validação de JWT
-- Integração: fluxo completo de cadastro → login → CRUD
-- Casos negativos: token inválido, acesso a tarefa de outro usuário
+## Etapa 4 — Testes (pytest)
+- Unitários: validação de e-mail, normalização
+- Integração: POST /usuarios com sucesso, e-mail inválido, e-mail duplicado
+- Casos negativos: payload malformado, campos ausentes
 
 ## Etapa 5 — Auditoria de segurança
-- Revisão específica do fluxo de auth (ver capítulo 9)
+- Revisão específica do fluxo de cadastro (ver capítulo 9)
 </code></pre>
   <p>
     Note que o plano segue a mesma lógica de divisão em etapas menores discutida no capítulo 10 — cada etapa é um
@@ -169,89 +169,93 @@ listem, atualizem e removam suas próprias tarefas.
   </p>
 
   <h3>3. Implementação e revisão de código</h3>
-  <p>O agente implementador segue o plano etapa por etapa. Um trecho da rota de atualização de tarefa, antes da revisão:</p>
-  <pre><code>// ANTES (rejeitado pelo agente revisor)
-app.patch('/tasks/:id', authMiddleware, async (req, res) => {
-  const task = await db.task.update({
-    where: { id: req.params.id },
-    data: req.body
-  });
-  res.json(task);
-});</code></pre>
+  <p>O <code>dev-back</code> segue o plano etapa por etapa. Um trecho da rota de cadastro, antes da revisão:</p>
+  <pre><code># ANTES (rejeitado pelo agente revisor)
+# src/adapters/http/routes/usuarios.py
+@router.post("/usuarios", status_code=201)
+async def cadastrar_usuario(payload: dict, session: Session = Depends(get_session)):
+    usuario = UsuarioModel(nome=payload["nome"], email=payload["email"])
+    session.add(usuario)
+    session.commit()
+    return usuario</code></pre>
   <p>
-    O agente revisor identifica dois problemas: (1) não valida que a tarefa pertence ao usuário autenticado — qualquer
-    usuário logado poderia editar a tarefa de outro só sabendo o ID; (2) usa <code>req.body</code> diretamente sem
-    validação de schema, permitindo injeção de campos não previstos (ex.: sobrescrever <code>user_id</code>). O
+    O <code>revisor</code> identifica dois problemas: (1) recebe <code>payload: dict</code> sem schema Pydantic,
+    permitindo dados malformados chegarem direto ao banco; (2) não trata e-mail duplicado — a violação da constraint
+    única do banco vaza como um <code>IntegrityError</code> não capturado (erro 500), em vez de um 409 controlado. O
     comentário do revisor:
   </p>
   <pre><code>Revisor: Bloqueando este diff. Dois problemas:
-1. Falta verificação de ownership — isso viola o critério de
-   aceite da spec ("usuário A não acessa tarefa de B").
-2. req.body sem validação de schema é uma superfície de ataque
-   (mass assignment). Use o schema Zod já definido em
-   schemas/task.js e adicione o filtro where: { id, userId }.</code></pre>
+1. payload: dict sem schema Pydantic — isso viola o requisito não
+   funcional da spec (validação de nome e e-mail). Use o schema
+   CriarUsuarioRequest já previsto no plano.
+2. E-mail duplicado não é tratado explicitamente — hoje vaza como
+   500 (IntegrityError do SQLAlchemy). Capture a exceção de domínio
+   EmailDuplicadoError e mapeie para 409.</code></pre>
   <p>Depois da correção:</p>
-  <pre><code>// DEPOIS (aprovado)
-app.patch('/tasks/:id', authMiddleware, async (req, res) => {
-  const data = updateTaskSchema.parse(req.body); // valida e filtra campos
-  const task = await db.task.updateMany({
-    where: { id: req.params.id, userId: req.user.id },
-    data
-  });
-  if (task.count === 0) {
-    return res.status(404).json({ error: 'Tarefa não encontrada' });
-  }
-  res.json({ ok: true });
-});</code></pre>
+  <pre><code># DEPOIS (aprovado)
+# src/adapters/http/routes/usuarios.py
+@router.post("/usuarios", status_code=201, response_model=UsuarioResponse)
+async def cadastrar_usuario(
+    payload: CriarUsuarioRequest,
+    repo: RepositorioUsuario = Depends(get_repositorio_usuario),
+):
+    try:
+        usuario = Usuario(nome=payload.nome, email=payload.email)
+        return repo.salvar(usuario)
+    except EmailDuplicadoError:
+        raise HTTPException(status_code=409, detail="Não foi possível concluir o cadastro")
+    except EmailInvalidoError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))</code></pre>
   <p>
     Esse é exatamente o tipo de bug que "confiança cega" (capítulo 12) deixaria passar — o código antes da correção
-    roda perfeitamente em qualquer teste manual feito pelo próprio usuário autenticado testando suas próprias tarefas.
-    Só um revisor pensando em ownership e em outro usuário mal-intencionado pega o problema.
+    roda perfeitamente em qualquer teste manual feito com um e-mail novo. Só um revisor pensando em entrada não
+    validada e em casos de erro reais (duplicidade) pega o problema.
   </p>
 
   <h3>4. QA e segurança</h3>
   <p>
-    O agente de QA escreve testes que replicam exatamente o cenário que o revisor havia previsto — usuário A tentando
-    editar tarefa de usuário B — e confirma que agora retorna 404 (não vazando nem a existência da tarefa). O agente
-    de segurança, por sua vez, focado especificamente no fluxo de autenticação, identifica que o access token estava
-    configurado com expiração de 24 horas em vez dos 15 minutos definidos na spec — um desvio que passou despercebido
-    na implementação e que o revisor de código (focado em lógica geral) não capturou, mas que é exatamente o tipo de
-    detalhe que um agente especializado em segurança está calibrado para verificar.
+    O <code>qa</code> escreve testes que replicam exatamente o cenário que o revisor havia previsto — cadastrar um
+    e-mail já existente — e confirma que agora retorna 409 em vez de 500. O <code>cyber-sec</code>, por sua vez,
+    focado especificamente no fluxo de cadastro, identifica que a mensagem de erro 409 original incluía o texto
+    "e-mail já cadastrado", o que permite a um atacante enumerar quais e-mails já existem na base testando um a um —
+    um desvio que passou despercebido na implementação e que o revisor de código (focado em lógica geral) não
+    capturou, mas que é exatamente o tipo de detalhe que um agente especializado em segurança está calibrado para
+    verificar.
   </p>
 
   <h2>Fluxo de trabalho recomendado</h2>
   <ol>
     <li>Humano descreve o objetivo de negócio em linguagem natural, sem detalhar implementação.</li>
-    <li>Agente planejador gera spec.md; humano aprova ou ajusta.</li>
-    <li>Agente planejador gera plan.md dividido em etapas; humano aprova.</li>
-    <li>Agente implementador codifica etapa por etapa, com checkpoints.</li>
-    <li>Agente revisor audita cada diff antes de seguir para a próxima etapa.</li>
-    <li>Agente de QA escreve e roda testes cobrindo os critérios de aceite da spec.</li>
-    <li>Agente de segurança audita especificamente as áreas sensíveis (aqui, autenticação).</li>
+    <li>arquiteto-back gera spec.md; humano aprova ou ajusta.</li>
+    <li>arquiteto-back gera plan.md dividido em etapas; humano aprova.</li>
+    <li>dev-back codifica etapa por etapa, com checkpoints.</li>
+    <li>revisor audita cada diff antes de seguir para a próxima etapa.</li>
+    <li>qa escreve e roda testes cobrindo os critérios de aceite da spec.</li>
+    <li>cyber-sec audita especificamente as áreas sensíveis (aqui, o cadastro de usuário).</li>
     <li>Humano faz o merge final e autoriza o deploy — a decisão de "vai para produção" nunca é do agente.</li>
   </ol>
 
   <h2>Dicas e boas práticas</h2>
-  <div class="tip"><strong>Dica:</strong> Escreva os critérios de aceite da spec como testes em potencial — "usuário A não acessa tarefa de B" é diretamente traduzível em um teste automatizado.</div>
-  <div class="tip"><strong>Dica:</strong> Deixe o agente de segurança atuar por último, depois que QA e revisor já aprovaram — ele deve auditar código já estável, não código em fluxo.</div>
-  <div class="tip"><strong>Dica:</strong> Cada "achado" de um agente (revisor, QA, segurança) deve resultar em uma reexecução clara do agente implementador — não em o humano corrigindo manualmente, o que quebraria a rastreabilidade do processo.</div>
+  <div class="tip"><strong>Dica:</strong> Escreva os critérios de aceite da spec como testes em potencial — "e-mail duplicado retorna 409 sem vazar dados" é diretamente traduzível em um teste automatizado.</div>
+  <div class="tip"><strong>Dica:</strong> Deixe o cyber-sec atuar por último, depois que qa e revisor já aprovaram — ele deve auditar código já estável, não código em fluxo.</div>
+  <div class="tip"><strong>Dica:</strong> Cada "achado" de um agente (revisor, qa, cyber-sec) deve resultar em uma reexecução clara do dev-back — não em o humano corrigindo manualmente, o que quebraria a rastreabilidade do processo.</div>
 
   <h2>Erros comuns</h2>
-  <div class="warn"><strong>Erro comum:</strong> Pular a etapa de revisão de código "porque o QA vai pegar os bugs depois" — revisor e QA verificam coisas diferentes (qualidade/lógica vs. comportamento observável), e vulnerabilidades como falta de ownership às vezes não aparecem em nenhum teste óbvio.</div>
-  <div class="warn"><strong>Erro comum:</strong> Deixar o agente de segurança revisar a spec inteira do zero, em vez de focar na área sensível (auth) — desperdiça tempo e dilui a atenção exatamente onde ela mais importa.</div>
+  <div class="warn"><strong>Erro comum:</strong> Pular a etapa de revisão de código "porque o QA vai pegar os bugs depois" — revisor e qa verificam coisas diferentes (qualidade/lógica vs. comportamento observável), e vulnerabilidades como vazamento de informação numa mensagem de erro às vezes não aparecem em nenhum teste óbvio.</div>
+  <div class="warn"><strong>Erro comum:</strong> Deixar o cyber-sec revisar a spec inteira do zero, em vez de focar na área sensível (cadastro de usuário) — desperdiça tempo e dilui a atenção exatamente onde ela mais importa.</div>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> Reproduza este fluxo com um projeto seu (ou um mini-projeto novo). Escreva você mesmo o pedido inicial em uma frase, peça a um agente para gerar spec.md e plan.md, aprove/ajuste, e então implemente com pelo menos dois papéis distintos (implementador + revisor). Observe quantos ajustes o revisor pede — isso é um indicador direto de quanto valor a etapa de revisão está agregando.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> Reproduza este fluxo no seu user-api (ou um mini-projeto novo). Escreva você mesmo o pedido inicial em uma frase, peça ao arquiteto-back para gerar spec.md e plan.md, aprove/ajuste, e então implemente com pelo menos dois papéis distintos (dev-back + revisor). Observe quantos ajustes o revisor pede — isso é um indicador direto de quanto valor a etapa de revisão está agregando.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>
     <p>
       Este estudo de caso mostrou, ponta a ponta, como Spec-Driven Development e agentes especializados se combinam
-      em um projeto real: planejamento gera spec.md e plan.md revisáveis pelo humano; implementação segue o plano em
-      etapas; revisão de código captura falhas de lógica e de segurança básica (como ownership); QA valida
-      comportamento contra os critérios de aceite; e um agente de segurança dedicado audita especificamente a área
-      mais sensível do sistema. O humano permanece no centro das decisões de aprovação em cada etapa — os agentes
-      aceleram execução, mas não substituem julgamento.
+      em um projeto real: o arquiteto-back gera spec.md e plan.md revisáveis pelo humano; o dev-back segue o plano em
+      etapas; o revisor captura falhas de lógica e de segurança básica (como validação de entrada); o qa valida
+      comportamento contra os critérios de aceite; e o cyber-sec audita especificamente a área mais sensível do
+      sistema. O humano permanece no centro das decisões de aprovação em cada etapa — os agentes aceleram execução,
+      mas não substituem julgamento.
     </p>
   </div>
 

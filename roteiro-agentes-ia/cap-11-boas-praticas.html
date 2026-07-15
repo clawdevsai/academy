@@ -75,44 +75,57 @@ graph LR
     Um CLAUDE.md de projeto real não é um "prompt engenhoso" — é um documento de engenharia, versionado no repositório,
     revisado como qualquer outro arquivo:
   </p>
-  <pre><code># CLAUDE.md
+  <pre><code># CLAUDE.md — user-api
 
 ## Stack
-- Backend: Node.js 20 + Express + Prisma + PostgreSQL
-- Frontend: React + Vite + TailwindCSS
-- Testes: Vitest (unitário), Playwright (E2E)
+- Backend: Python 3.11+, FastAPI, SQLAlchemy 2.x, Pydantic v2, PostgreSQL
+- Gerenciador de dependências: uv
+- Testes: pytest | Lint/format: Ruff | Tipagem: MyPy/Pyright
 
 ## Convenções
-- Toda rota de API precisa de validação com Zod antes do handler.
-- Erros de negócio usam a classe AppError (não lançar Error genérico).
-- Nunca commitar migrations sem rodar `npm run test:db` antes.
+- Arquitetura hexagonal: domínio em `src/domain/`, adapters em `src/adapters/`.
+- Toda rota em `src/adapters/http/routes/` precisa de validação com Pydantic
+  antes do handler.
+- Erros de negócio usam exceções de domínio próprias (não lançar Exception genérica).
+- Nunca commitar migrations sem rodar `uv run pytest tests/` antes.
 
 ## Comandos úteis
-- `npm run dev` — sobe o ambiente local
-- `npm run test` — roda toda a suíte
-- `npm run lint:fix` — corrige lint automaticamente
+- `uv sync` — instala dependências
+- `uv run pytest` — roda toda a suíte
+- `uv run ruff check --fix .` — corrige lint automaticamente
 
 ## Decisões arquiteturais
-- Optamos por autenticação via JWT + refresh token em cookie httpOnly
-  (ADR-003, ver docs/adr/003-auth.md) em vez de sessão no servidor,
-  por causa do requisito de múltiplos clientes (web + mobile).
+- Optamos por arquitetura hexagonal (Ports & Adapters) para isolar o domínio
+  de cadastro de usuário (validação de nome/e-mail, persistência) da camada
+  HTTP (ADR-001, ver docs/adr/001-arquitetura-hexagonal.md), permitindo trocar
+  o adapter de banco sem tocar nas regras de negócio.
 </code></pre>
   <p>
     Note o último bloco: "Decisões arquiteturais". Isso é o que evita que um agente (ou um novo desenvolvedor humano)
-    proponha "vamos trocar para sessão no servidor" sem saber que essa opção já foi avaliada e descartada por um
-    motivo concreto.
+    proponha "vamos jogar a validação de e-mail direto na rota" sem saber que essa opção já foi avaliada e descartada
+    por um motivo concreto.
   </p>
   <p>
     Sobre versionar prompts e configs: se você tem agentes customizados (capítulo 6) com instruções específicas do
-    domínio, esses arquivos de definição de agente pertencem ao repositório, não à sua máquina local:
+    domínio, esses arquivos de definição de agente pertencem ao repositório, não à sua máquina local. Na user-api, são
+    sete agentes:
   </p>
-  <pre><code>projeto/
+  <pre><code>user-api/
   .claude/
     agents/
-      revisor-seguranca.md
-      qa-automatizado.md
+      arquiteto-back.md
+      dev-back.md
+      revisor.md
+      qa.md
+      cyber-sec.md
+      devops.md
+      bug-fix.md
     CLAUDE.md
   src/
+    domain/
+    adapters/
+      http/
+      db/
   tests/</code></pre>
   <p>
     Assim, qualquer pessoa do time — ou o próprio agente em uma sessão futura — usa exatamente a mesma configuração,
@@ -155,7 +168,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> Pular direto para orquestração multi-agente complexa em um projeto que ainda nem tem testes automatizados — a complexidade de coordenação sem rede de segurança é uma receita para bugs difíceis de rastrear.</div>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> Pegue um projeto real (ou o projeto do capítulo 13 mais adiante) e escreva um CLAUDE.md do zero com pelo menos quatro seções: Stack, Convenções, Comandos úteis e Decisões arquiteturais. Depois, peça a um agente para executar uma tarefa pequena usando apenas esse arquivo como contexto — sem você repetir nada no prompt — e avalie se o resultado seguiu as convenções descritas.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> Pegue a user-api (ou o projeto do capítulo 13 mais adiante) e escreva um CLAUDE.md do zero com pelo menos quatro seções: Stack, Convenções, Comandos úteis e Decisões arquiteturais. Depois, peça a um agente para executar uma tarefa pequena — como adicionar um novo campo opcional ao cadastro de usuário — usando apenas esse arquivo como contexto, sem você repetir nada no prompt — e avalie se o resultado seguiu as convenções descritas.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

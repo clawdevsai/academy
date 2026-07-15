@@ -85,47 +85,51 @@ flowchart LR
   </div>
 
   <h2>Exemplos práticos</h2>
-  <p>Esqueleto de um documento de especificação, <code>specs/checkout-parcelado/spec.md</code>:</p>
-  <pre><code># Spec: Checkout parcelado
+  <p>No projeto user-api, o Spec Kit organiza cada feature em <code>.specify/</code> e <code>specs/&lt;feature&gt;/</code>.
+  Esqueleto de um documento de especificação, <code>specs/cadastro-usuario/spec.md</code>:</p>
+  <pre><code># Spec: Cadastro de usuário
 
 ## Objetivo
-Permitir que o cliente parcele o pagamento em até 12x no checkout,
-respeitando o valor mínimo de parcela de R$ 20.
+Permitir cadastrar um usuário via POST /usuarios, com validação de
+nome e e-mail.
 
 ## Comportamento esperado
-- O campo de parcelas só aparece quando o valor total ultrapassa R$ 40.
-- O número máximo de parcelas é calculado dinamicamente pelo valor mínimo.
-- Juros: sem juros até 6x; 1,99% a.m. de 7x a 12x.
+- Nome é obrigatório e não pode ser vazio.
+- E-mail deve ter formato válido.
+- E-mail já cadastrado deve retornar erro 409, não 500.
+- Cadastro bem-sucedido retorna 201 com o usuário criado (sem senha).
 
 ## Fora de escopo
-- Parcelamento no boleto (fica para outra iteração).
+- Envio de e-mail de confirmação (fica para outra iteração).
 
 ## Perguntas em aberto
-- O limite de 12x vale para todos os métodos de pagamento ou só cartão?
+- E-mail duplicado deve ser case-insensitive?
 </code></pre>
 
-  <p>Esqueleto do plano gerado a partir da spec aprovada, <code>specs/checkout-parcelado/plan.md</code>:</p>
-  <pre><code># Plano: Checkout parcelado
+  <p>Esqueleto do plano gerado a partir da spec aprovada, <code>specs/cadastro-usuario/plan.md</code>:</p>
+  <pre><code># Plano: Cadastro de usuário
 
 ## Definição de pronto
-- Testes cobrindo cálculo de parcelas e regra de valor mínimo
-- UI atualizada com seletor de parcelas
-- Sem regressão no fluxo de pagamento à vista
+- Testes cobrindo nome vazio, e-mail inválido e e-mail duplicado
+- Endpoint POST /usuarios implementado em src/adapters/http/
+- Persistência via repositório em src/adapters/db/
+- Sem regressão nos demais endpoints de usuários
 
 ## Arquivos afetados
-- src/checkout/PaymentForm.tsx
-- src/checkout/calculateInstallments.ts (novo)
-- src/checkout/PaymentForm.test.tsx
+- src/domain/usuarios/cadastrar_usuario.py (novo)
+- src/adapters/http/usuarios_router.py
+- src/adapters/db/usuario_repository.py
+- tests/domain/usuarios/test_cadastrar_usuario.py
 
 ## Tarefas
-1. Criar função calculateInstallments com testes unitários
-2. Integrar seletor de parcelas na UI condicionalmente
-3. Atualizar testes de integração do checkout
-4. Validar manualmente os cenários de 1x, 6x e 12x
+1. Criar caso de uso cadastrar_usuario com testes unitários
+2. Implementar repositório de usuários (adapter de banco)
+3. Expor rota POST /usuarios delegando ao caso de uso
+4. Validar manualmente os cenários de sucesso e dos três erros
 </code></pre>
 
   <p>Com o GitHub Spec Kit instalado, o fluxo vira comandos dentro do Claude Code:</p>
-  <pre><code>/specify Quero permitir parcelamento no checkout em até 12x
+  <pre><code>/specify Quero cadastrar usuários via POST /usuarios, validando nome e e-mail
 /plan
 /tasks
 </code></pre>
@@ -160,14 +164,14 @@ sequenceDiagram
 
   <div class="tip"><strong>Dica:</strong> guarde spec e plano como arquivos versionados junto do código (não só na conversa) — eles viram documentação viva da decisão tomada.</div>
   <div class="tip"><strong>Dica:</strong> use SDD para features médias e grandes; para um ajuste de uma linha, o overhead de escrever spec e plano não compensa.</div>
-  <div class="tip"><strong>Dica:</strong> combine SDD com os agentes especializados do capítulo 7 — por exemplo, um agente "arquiteto" pode ser o responsável por gerar o plano a partir da spec.</div>
+  <div class="tip"><strong>Dica:</strong> combine SDD com os agentes especializados do user-api — o <code>arquiteto-back</code> é o responsável natural por gerar o plano a partir da spec, e o <code>dev-back</code> implementa tarefa por tarefa.</div>
 
   <h2>Erros comuns</h2>
   <div class="warn"><strong>Erro comum:</strong> escrever a spec já pensando em implementação ("usar Redis para cache") em vez de comportamento ("a resposta deve ser servida em menos de 200ms mesmo sob carga"). Isso trava decisões técnicas cedo demais, antes do plano avaliar as opções.</div>
   <div class="warn"><strong>Erro comum:</strong> aprovar a spec sem responder às perguntas de esclarecimento, só para "andar mais rápido". A ambiguidade não desaparece — ela só reaparece mais tarde, dentro do código já escrito.</div>
   <div class="warn"><strong>Erro comum:</strong> revisar apenas no final da implementação, tratando as "tarefas" do plano como uma lista para o agente rodar sem parar. Isso recria o mesmo problema que o SDD tenta resolver — revisão tardia e cara.</div>
 
-  <div class="exercise"><strong>Mão na massa:</strong> escolha uma feature média do seu backlog. Peça ao Claude Code para gerar uma spec com uma fase de perguntas de esclarecimento; responda às perguntas; aprove a spec; peça o plano; revise arquivos afetados e tarefas; só então autorize a implementação tarefa por tarefa. Ao final, compare quantas vezes você precisou intervir comparado a fazer a mesma feature em um prompt único.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> no projeto user-api, use o Spec Kit para a feature de cadastro de usuário. Peça ao Claude Code para gerar a spec com uma fase de perguntas de esclarecimento; responda às perguntas; aprove a spec; peça o plano; revise arquivos afetados e tarefas; só então autorize a implementação tarefa por tarefa. Ao final, compare quantas vezes você precisou intervir comparado a fazer a mesma feature em um prompt único.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

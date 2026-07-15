@@ -82,24 +82,33 @@ flowchart LR
     O arquivo <code>CLAUDE.md</code> na raiz do projeto é lido automaticamente pelo Claude Code no início de cada sessão.
     Ele funciona como a "memória de longo prazo" do projeto — convenções, comandos de build, arquitetura, coisas a evitar.
   </p>
-  <pre><code># CLAUDE.md
+  <pre><code># CLAUDE.md — user-api
 
 ## Stack
-- Next.js 14 (App Router) + TypeScript + Prisma + PostgreSQL
+- Python 3.11+, FastAPI, SQLAlchemy 2.x, Pydantic v2, PostgreSQL
+- Gerenciador de dependências: uv
+
+## Arquitetura
+- Hexagonal (Ports & Adapters)
+- Domínio em `src/domain/` (entidades, value objects, casos de uso, ports)
+- Adapters em `src/adapters/` (ex: `src/adapters/http/`, `src/adapters/db/`)
+- Testes em `tests/`
 
 ## Comandos úteis
-- `npm run dev` — sobe o ambiente local
-- `npm run test` — roda a suíte de testes (Vitest)
-- `npm run lint` — ESLint + Prettier
+- `uv run uvicorn src.main:app --reload` — sobe o ambiente local
+- `uv run pytest` — roda a suíte de testes
+- `uv run ruff check .` — lint
+- `uv run mypy src` — checagem de tipos
 
 ## Convenções
-- Componentes em `src/components`, sempre com testes ao lado (`Componente.test.tsx`)
-- Nunca alterar arquivos em `src/generated/**` (gerados pelo Prisma)
+- Casos de uso do domínio não importam nada de `src/adapters/`
+- Toda rota HTTP em `src/adapters/http/` delega para um caso de uso do domínio
 - Commits seguem Conventional Commits (feat:, fix:, chore:...)
 
 ## O que NÃO fazer
 - Não fazer `git push --force` na branch main
 - Não instalar dependências novas sem perguntar antes
+- Não misturar lógica de negócio em `src/adapters/http/`
 </code></pre>
 
   <p>
@@ -108,6 +117,7 @@ flowchart LR
   <pre><code># .claude/commands/revisar-pr.md
 Revise o diff atual como um engenheiro sênior faria em um PR review.
 Aponte: bugs, problemas de segurança, código duplicado e testes faltando.
+Exemplo de foco: validação do endpoint POST /usuarios (e-mail inválido, e-mail duplicado).
 Não corrija nada ainda — apenas liste os pontos encontrados.
 </code></pre>
 
@@ -117,7 +127,7 @@ Não corrija nada ainda — apenas liste os pontos encontrados.
   </p>
   <pre><code>{
   "permissions": {
-    "allow": ["Bash(npm run test:*)", "Bash(npm run lint:*)"],
+    "allow": ["Bash(uv run pytest:*)", "Bash(uv run ruff check:*)"],
     "deny": ["Bash(git push --force:*)", "Bash(rm -rf:*)"]
   }
 }
@@ -157,7 +167,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> aprovar permissões amplas demais (ex: liberar todo comando <code>Bash</code>) só para parar de ser interrompido. Isso remove a rede de segurança justamente quando ela é mais necessária — prefira listas específicas de allow/deny.</div>
   <div class="warn"><strong>Erro comum:</strong> tratar o commit gerado pelo agente como definitivo sem ler o diff. Mesmo com um bom workflow, revisão humana final continua sendo sua responsabilidade.</div>
 
-  <div class="exercise"><strong>Mão na massa:</strong> escolha um projeto real (ou crie um pequeno). Crie um <code>CLAUDE.md</code> com stack, comandos e convenções. Depois peça ao Claude Code uma tarefa pequena seguindo explicitamente as quatro fases: "explore o projeto", "monte um plano", "implemente conforme o plano" e "prepare o commit". Compare o resultado com o que aconteceria se você tivesse pedido tudo em um único prompt.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> no projeto user-api, crie o <code>CLAUDE.md</code> acima. Depois peça ao Claude Code a feature de cadastro de usuário (endpoint <code>POST /usuarios</code>, com validação de nome e e-mail e tratamento de e-mail duplicado) seguindo explicitamente as quatro fases: "explore o domínio de usuários", "monte um plano de implementação", "implemente conforme o plano" e "prepare o commit". Compare o resultado com o que aconteceria se você tivesse pedido tudo em um único prompt.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>
@@ -165,7 +175,9 @@ sequenceDiagram
     O padrão Explore → Plan → Code → Commit cria checkpoints de revisão humana antes que erros fiquem caros.
     O <code>CLAUDE.md</code> funciona como memória persistente do projeto, enquanto comandos customizados e permissões em
     <code>settings.json</code> reduzem fricção sem abrir mão de segurança. Esse workflow é a base para os próximos capítulos,
-    que tratam de dividir esse processo entre múltiplos agentes especializados.</p>
+    que tratam de dividir esse processo entre múltiplos agentes especializados — no projeto user-api, esse papel é
+    cumprido por <code>arquiteto-back</code>, <code>dev-back</code>, <code>revisor</code>, <code>qa</code>, <code>cyber-sec</code>,
+    <code>devops</code> e <code>bug-fix</code>.</p>
   </div>
 
   <h2>Referências oficiais</h2>

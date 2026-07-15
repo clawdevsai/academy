@@ -37,21 +37,23 @@
     Este capítulo fecha o bloco intermediário juntando tudo: workflow estruturado (capítulo 5), múltiplos agentes
     especializados (capítulo 6), a mecânica de criar cada um (capítulo 7) e o rigor de especificar antes de implementar
     (capítulo 8). Agora aplicamos isso a um cenário muito comum em times profissionais: um pipeline de qualidade em
-    torno de um PR (pull request), com papéis específicos e reforço automático de regras via hooks.
+    torno de um PR (pull request) da <strong>user-api</strong> — nosso projeto FastAPI/SQLAlchemy de exemplo —, com
+    papéis específicos e reforço automático de regras via hooks.
   </p>
   <p>
-    Um pipeline maduro normalmente separa sete papéis. Cada um deles pode ser um subagente com tools e prompt restritos
-    ao seu escopo, exatamente como você aprendeu no capítulo 7:
+    Um pipeline maduro normalmente separa sete papéis. Na user-api, cada um deles já é um subagente real em
+    <code>.claude/agents/</code>, com tools e prompt restritos ao seu escopo, exatamente como você aprendeu no
+    capítulo 7:
   </p>
   <table>
-    <tr><th>Papel</th><th>Responsabilidade</th><th>Tools/MCP típicos</th></tr>
-    <tr><td>Arquitetura</td><td>Avalia impacto estrutural da mudança, aponta acoplamentos e riscos de design</td><td>Read, Grep, Glob</td></tr>
-    <tr><td>Implementação</td><td>Escreve o código a partir de um plano aprovado</td><td>Read, Write, Edit, Bash</td></tr>
-    <tr><td>Revisão de código</td><td>Aponta bugs, más práticas, código duplicado</td><td>Read, Grep, Glob (sem Write)</td></tr>
-    <tr><td>QA / testes</td><td>Escreve e roda testes, valida cenários de borda</td><td>Read, Write, Bash</td></tr>
-    <tr><td>Bug-fix</td><td>Diagnostica causa raiz a partir de logs/testes falhando e aplica a menor correção possível</td><td>Read, Write, Edit, Grep, Glob, Bash</td></tr>
-    <tr><td>Segurança</td><td>Audita vulnerabilidades, segredos expostos, dependências inseguras</td><td>Read, Grep, Bash (scanners)</td></tr>
-    <tr><td>DevOps / infra</td><td>CI/CD, configuração de deploy, observabilidade</td><td>Bash, MCP de CI/infra</td></tr>
+    <tr><th>Papel</th><th>Agente</th><th>Responsabilidade</th><th>Tools/MCP típicos</th></tr>
+    <tr><td>Arquitetura</td><td><code>arquiteto-back</code></td><td>Avalia impacto estrutural da mudança na arquitetura hexagonal, aponta acoplamentos entre domínio e adapters</td><td>Read, Grep, Glob</td></tr>
+    <tr><td>Implementação</td><td><code>dev-back</code></td><td>Implementa a partir de um plano aprovado (ex: endpoint <code>POST /usuarios</code>)</td><td>Read, Write, Edit, Bash</td></tr>
+    <tr><td>Revisão de código</td><td><code>revisor</code></td><td>Aponta bugs, más práticas, código duplicado</td><td>Read, Grep, Glob (sem Write/Edit)</td></tr>
+    <tr><td>QA / testes</td><td><code>qa</code></td><td>Escreve e roda testes pytest, valida cenários de borda (e-mail inválido, duplicado)</td><td>Read, Write, Bash</td></tr>
+    <tr><td>Bug-fix</td><td><code>bug-fix</code></td><td>Diagnostica causa raiz a partir de logs/testes falhando e aplica a menor correção possível</td><td>Read, Write, Edit, Grep, Glob, Bash</td></tr>
+    <tr><td>Segurança</td><td><code>cyber-sec</code></td><td>Audita vulnerabilidades, segredos expostos, dependências inseguras, falta de checagem de ownership</td><td>Read, Grep, Bash (scanners)</td></tr>
+    <tr><td>DevOps / infra</td><td><code>devops</code></td><td>CI/CD (GitHub Actions), build da imagem Docker, observabilidade</td><td>Bash, MCP de CI/infra</td></tr>
   </table>
   <p>
     O papel de <strong>bug-fix</strong> é o elo que fecha o ciclo: quando revisão, QA ou segurança encontram algo que
@@ -73,10 +75,11 @@
     disciplina do agente naquele momento.
   </p>
   <p>
-    O <strong>MCP</strong> conecta esses agentes a sistemas reais de DevOps e QA: um agente pode abrir e comentar em
-    Pull Requests no GitHub, criar ou atualizar issues no Jira ou Linear, consultar um banco de dados de staging para
-    validar uma migração, ou disparar um pipeline de CI e ler o resultado. Isso tira o pipeline do "só dentro do
-    editor" e o coloca dentro do ciclo real de entrega do time.
+    O <strong>MCP</strong> conecta esses agentes a sistemas reais de DevOps e QA: na user-api, o agente <code>revisor</code>
+    pode comentar diretamente no Pull Request do GitHub que altera <code>src/adapters/http/routes/usuarios.py</code>,
+    o <code>devops</code> pode consultar o status do workflow no GitHub Actions, e o <code>cyber-sec</code> pode abrir
+    uma issue no Jira/Linear apontando a falta de checagem de ownership encontrada em rotas de tasks. Isso tira o
+    pipeline do "só dentro do editor" e o coloca dentro do ciclo real de entrega do time.
   </p>
 
   <div class="mermaid">
@@ -97,7 +100,7 @@ flowchart TD
   </div>
 
   <h2>Exemplos práticos</h2>
-  <p>Hook simples de guardrail em <code>.claude/settings.json</code>, bloqueando comandos destrutivos antes da execução:</p>
+  <p>Hook simples de guardrail em <code>.claude/settings.json</code> da user-api, bloqueando comandos destrutivos antes da execução (o mesmo hook que orquestra a skill <code>/pre-push-review</code>):</p>
   <pre><code>{
   "hooks": {
     "PreToolUse": [
@@ -106,7 +109,7 @@ flowchart TD
         "hooks": [
           {
             "type": "command",
-            "command": "scripts/bloquear-comandos-perigosos.sh"
+            "command": ".claude/scripts/bloquear-push-direto.sh"
           }
         ]
       }
@@ -116,48 +119,54 @@ flowchart TD
 </code></pre>
   <p>O script pode simplesmente recusar padrões conhecidos de risco:</p>
   <pre><code>#!/bin/bash
-# scripts/bloquear-comandos-perigosos.sh
-if echo "$CLAUDE_TOOL_INPUT" | grep -qE "rm -rf|push --force|DROP TABLE"; then
-  echo "Comando bloqueado por política de segurança." >&2
+# .claude/scripts/bloquear-push-direto.sh
+if echo "$CLAUDE_TOOL_INPUT" | grep -qE "rm -rf|push --force|push origin main|DROP TABLE"; then
+  echo "Comando bloqueado por política de segurança da user-api." >&2
   exit 2   # crítico: só o código 2 bloqueia de fato a ação. exit 1 apenas registra um aviso e deixa passar.
 fi
 </code></pre>
 
-  <p>Agente de segurança dedicado, <code>.claude/agents/seguranca.md</code>:</p>
+  <p>Agente de segurança dedicado do projeto <strong>user-api</strong>, <code>.claude/agents/cyber-sec.md</code>:</p>
   <pre><code>---
-name: seguranca
+name: cyber-sec
 description: >
-  Use este agente antes de qualquer merge para auditar segredos expostos,
-  dependências vulneráveis e padrões inseguros (ex: SQL sem parametrização,
-  eval de input do usuário).
+  Use este agente antes de qualquer merge na user-api para auditar segredos
+  expostos, dependências vulneráveis e padrões inseguros (ex: SQL sem
+  parametrização via SQLAlchemy, falta de checagem de ownership em rotas).
 tools: Read, Grep, Bash
 ---
 
-Você é um engenheiro de segurança aplicativa (AppSec).
+Você é o engenheiro de segurança aplicativa (AppSec) da user-api.
 
 Ao revisar um diff ou repositório:
-1. Procure por segredos hardcoded (chaves, tokens, senhas).
-2. Rode e interprete o scanner de dependências (`npm audit` ou equivalente).
-3. Aponte padrões inseguros: SQL sem parametrização, deserialização insegura,
-   uso de `eval`/`exec` com entrada de usuário.
+1. Procure por segredos hardcoded (chaves, tokens, senhas, DATABASE_URL).
+2. Rode e interprete `uv run pip-audit` (ou scanner equivalente) sobre as
+   dependências do `pyproject.toml`.
+3. Aponte padrões inseguros: queries SQLAlchemy montadas por concatenação de
+   string, falta de validação Pydantic em `src/adapters/http/routes/`, e
+   endpoints que não checam se o recurso pertence ao usuário autenticado
+   (ex: `GET /tasks/{id}` sem checagem de ownership).
 4. Classifique cada achado por severidade (crítico, alto, médio, baixo).
 5. Nunca corrija o código diretamente — apenas reporte, com sugestão de fix.
+   A correção fica a cargo do agente <code>bug-fix</code>, quando autorizado.
 </code></pre>
 
-  <p>Agente de DevOps conectado a um MCP de CI, delegando deploy só após aprovação:</p>
+  <p>Agente de DevOps conectado a um MCP de CI, delegando deploy só após aprovação, <code>.claude/agents/devops.md</code>:</p>
   <pre><code>---
 name: devops
 description: >
-  Use este agente para preparar pipelines de CI/CD, configurar deploy e
-  investigar falhas de build. Só deve disparar deploy em produção mediante
-  confirmação explícita do humano.
+  Use este agente para preparar pipelines de CI/CD da user-api (GitHub
+  Actions), configurar build da imagem Docker e investigar falhas de
+  build. Só deve disparar deploy em produção mediante confirmação
+  explícita do humano.
 tools: Bash, Read
 ---
 
-Você cuida da esteira de CI/CD do projeto.
+Você cuida da esteira de CI/CD da user-api: uv sync, ruff, mypy, pytest e
+build da imagem Docker.
 
-- Ao investigar falha de build, leia os logs e aponte a causa raiz antes de
-  sugerir qualquer mudança.
+- Ao investigar falha de build, leia os logs do GitHub Actions e aponte a
+  causa raiz antes de sugerir qualquer mudança.
 - Nunca dispare deploy em produção sem confirmação explícita na conversa.
 - Prefira sempre rodar em ambiente de staging primeiro.
 </code></pre>
@@ -200,12 +209,14 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> confiar só nos hooks e achar que dispensa os agentes de revisão e segurança. Hooks pegam padrões conhecidos e simples (comandos perigosos, segredos óbvios); não substituem uma análise de lógica de negócio ou de vulnerabilidades mais sutis.</div>
   <div class="warn"><strong>Erro comum:</strong> dar ao mesmo agente permissão de implementar e de aprovar a própria revisão de segurança/QA. Isso reintroduz o viés que a separação de papéis existe para evitar.</div>
 
-  <div class="exercise"><strong>Mão na massa:</strong> em um repositório real (ou de teste), configure um hook <code>PreToolUse</code> que bloqueie <code>git push --force</code>. Depois crie os agentes <code>revisor-codigo</code>, <code>qa-tester</code> e <code>seguranca</code> (você já viu exemplos nos capítulos 7 e 9). Abra um PR de teste com um problema proposital (ex: uma chave de API hardcoded) e peça para os três agentes revisarem em paralelo. Confira se o agente de segurança pega o problema e se o hook bloquearia o push mesmo que ele passasse despercebido.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> na user-api (ou um repositório de teste equivalente), configure um hook <code>PreToolUse</code> que bloqueie <code>git push --force</code>. Depois crie os agentes <code>revisor</code>, <code>qa</code> e <code>cyber-sec</code> (você já viu exemplos nos capítulos 7 e 9). Abra um PR de teste no endpoint <code>POST /usuarios</code> com um problema proposital (ex: uma <code>DATABASE_URL</code> hardcoded em <code>src/adapters/db/</code>) e peça para os três agentes revisarem em paralelo. Confira se o <code>cyber-sec</code> pega o problema e se o hook bloquearia o push mesmo que ele passasse despercebido.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>
     <p>Um pipeline de qualidade profissional separa arquitetura, implementação, revisão, QA, segurança e DevOps em
-    agentes especializados, cada um com tools restritas ao seu papel. Hooks funcionam como guardrails automáticos —
+    agentes especializados (na user-api: <code>arquiteto-back</code>, <code>dev-back</code>, <code>revisor</code>,
+    <code>qa</code>, <code>cyber-sec</code> e <code>devops</code>, com <code>bug-fix</code> fechando o ciclo de
+    correção), cada um com tools restritas ao seu papel. Hooks funcionam como guardrails automáticos —
     a última linha de defesa contra comandos perigosos ou segredos expostos, independente do julgamento do agente
     naquele momento. MCP conecta esses agentes a sistemas reais (GitHub, Jira/Linear, CI, bancos de dados), permitindo
     que o pipeline opere dentro do ciclo real de entrega do time. Mesmo com todo esse automatismo, decisões de merge

@@ -64,20 +64,22 @@ graph TD
   <h2>Exemplos práticos</h2>
   <p><strong>Prompt vago vs. prompt específico.</strong> Compare:</p>
   <pre><code>Vago:      "Melhora a performance dessa API"
-Específico: "O endpoint GET /reports está levando mais de 3s com
-             10 mil registros. Suspeito de N+1 query no Prisma.
-             Investigue com um profiler, identifique a causa raiz
-             e proponha uma correção que mantenha os testes
-             existentes passando. Meta: menos de 500ms."</code></pre>
+Específico: "O endpoint GET /usuarios está levando mais de 3s com
+             10 mil registros. Suspeito de N+1 query no SQLAlchemy
+             (falta de joinedload no repositório). Investigue com
+             um profiler, identifique a causa raiz e proponha uma
+             correção que mantenha os testes pytest existentes
+             passando. Meta: menos de 500ms."</code></pre>
   <p>
     O segundo prompt dá objetivo mensurável, hipótese, restrição (não quebrar testes) e critério de aceite. Isso não
     é "escrever mais" por escrever — é eliminar ambiguidade que o agente teria que adivinhar, e adivinhação é onde
     erros nascem.
   </p>
   <p><strong>Um agente genérico para tudo.</strong> Um erro sutil é usar o mesmo agente sem nenhuma especialização
-  para escrever código, revisar segurança e rodar testes. Cada uma dessas tarefas se beneficia de um "modo de pensar"
-  diferente — o revisor de segurança deve ser cético e procurar falhas, o implementador deve ser produtivo e seguir o
-  plano. Misturar os dois papéis no mesmo prompt tende a produzir um meio-termo mediano nas duas frentes.</p>
+  para escrever código, revisar segurança e rodar testes na user-api. Cada uma dessas tarefas se beneficia de um "modo
+  de pensar" diferente — o <code>cyber-sec</code> deve ser cético e procurar falhas (como a falta de checagem de
+  ownership em <code>GET /tasks/{id}</code>), o <code>dev-back</code> deve ser produtivo e seguir o plano. Misturar os
+  dois papéis no mesmo prompt tende a produzir um meio-termo mediano nas duas frentes.</p>
   <p><strong>Spec-Driven Development como burocracia.</strong> É comum o iniciante aplicar SDD (specs, plan.md) em
   tudo, cansar, e depois abandonar completamente, voltando a pedir mudanças grandes direto no código sem spec nenhuma.
   O equilíbrio certo é <em>escalar</em> o processo:</p>
@@ -85,7 +87,7 @@ Específico: "O endpoint GET /reports está levando mais de 3s com
     <tr><th>Tamanho/risco da tarefa</th><th>Processo recomendado</th></tr>
     <tr><td>Correção pontual, baixo risco (typo, ajuste de estilo)</td><td>Prompt direto, sem spec formal</td></tr>
     <tr><td>Feature média (novo endpoint, novo componente)</td><td>Spec curta + plano de implementação</td></tr>
-    <tr><td>Mudança grande ou de alto risco (autenticação, pagamento, migração de dados)</td><td>SDD completo: spec.md, plan.md, revisão antes de codificar</td></tr>
+    <tr><td>Mudança grande ou de alto risco (autenticação, pagamento, migração de dados — ex: adicionar checagem de ownership em <code>/tasks</code>)</td><td>SDD completo: spec.md, plan.md, revisão antes de codificar</td></tr>
   </table>
 
   <h2>Fluxo de trabalho recomendado</h2>
@@ -125,7 +127,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> Achar que, por já ter concluído o curso, todo projeto pequeno "não precisa" de nenhum processo — o processo certo é o mínimo necessário para o risco da tarefa, não zero por padrão.</div>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> Pegue os últimos três prompts que você deu a um agente de IA (neste curso ou em uso real). Reescreva cada um adicionando objetivo mensurável, restrições e critério de aceite explícito. Compare mentalmente (ou na prática, se possível) se o resultado teria sido mais previsível com a versão reescrita.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> Pegue os últimos três prompts que você deu a um agente de IA (neste curso, na user-api, ou em uso real). Reescreva cada um adicionando objetivo mensurável, restrições e critério de aceite explícito. Compare mentalmente (ou na prática, se possível) se o resultado teria sido mais previsível com a versão reescrita.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

@@ -77,7 +77,7 @@ flowchart TD
   <p><strong>Tool</strong> em ação (nível mais granular, geralmente invisível para você — o agente decide sozinho usá-la):</p>
   <pre><code>[Claude decide internamente]
 Tool: Read
-Input: { "file_path": "src/api/pagamentos.ts" }</code></pre>
+Input: { "file_path": "src/domain/use_cases/cadastrar_usuario.py" }</code></pre>
 
   <p><strong>Skill / comando</strong> — um arquivo <code>SKILL.md</code> que vira o comando <code>/gerar-changelog</code>:</p>
   <pre><code>---
@@ -109,7 +109,7 @@ if echo "$COMANDO" | grep -qE 'rm -rf|DROP TABLE'; then
   # Só exit 2 impede a execução da ferramenta. É um erro comum usar exit 1 achando que é seguro.
 fi
 exit 0</code></pre>
-  <p>Esse hook roda automaticamente, sem depender do agente "lembrar" de ser cuidadoso — é uma camada de segurança determinística, fora do controle do modelo de linguagem.</p>
+  <p>Esse hook roda automaticamente, sem depender do agente "lembrar" de ser cuidadoso — é uma camada de segurança determinística, fora do controle do modelo de linguagem. No user-api, por exemplo, ele protege o banco PostgreSQL contra um <code>DROP TABLE</code> acidental disparado por um comando de migração mal formado.</p>
 
   <h2>Fluxo de trabalho recomendado</h2>
   <ol>
@@ -147,7 +147,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> depender só de instruções em linguagem natural ("por favor nunca rode comandos destrutivos") para segurança crítica. Modelos de linguagem podem falhar em seguir instruções em casos extremos; hooks são a camada que garante isso de forma mecânica.</div>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> escolha uma tarefa que você repetiria com frequência no seu projeto (ex.: gerar um resumo de pull request, ou rodar um checklist antes de commitar). Escreva-a como uma skill simples (arquivo <code>SKILL.md</code> com <code>name</code>, <code>description</code> e os passos), salve na pasta apropriada do projeto, e teste invocando com <code>/nome-da-skill</code> no Claude Code. Depois, identifique uma regra de segurança do seu projeto que você gostaria de garantir sempre — e escreva, ao menos em pseudocódigo, como seria um hook para isso.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> no projeto user-api, escolha uma tarefa que se repetiria com frequência (ex.: rodar <code>ruff check</code> + <code>mypy</code> + <code>uv run pytest</code> antes de commitar, ou gerar um resumo das mudanças no endpoint <code>POST /usuarios</code>). Escreva-a como uma skill simples (arquivo <code>SKILL.md</code> com <code>name</code>, <code>description</code> e os passos), salve em <code>.claude/skills/</code>, e teste invocando com <code>/nome-da-skill</code> no Claude Code. Depois, identifique uma regra de segurança do projeto que você gostaria de garantir sempre (ex.: nunca rodar uma migração que faça <code>DROP TABLE</code> em produção) — e escreva, ao menos em pseudocódigo, como seria um hook para isso.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

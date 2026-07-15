@@ -81,27 +81,32 @@ graph TD
 
   <h2>Exemplos práticos</h2>
   <p>
-    Imagine que você precisa investigar por que um endpoint de API está retornando erro 500 intermitente em produção.
-    Os logs têm milhares de linhas. Trazer esse arquivo inteiro para o contexto principal seria desperdício — a maior
-    parte das linhas é ruído. O jeito certo é delegar a um subagente:
+    Imagine que você precisa investigar por que o endpoint <code>POST /usuarios</code> da <strong>user-api</strong>
+    está retornando erro 500 intermitente em produção. Os logs do Uvicorn têm milhares de linhas. Trazer esse arquivo
+    inteiro para o contexto principal seria desperdício — a maior parte das linhas é ruído. O jeito certo é delegar a
+    um subagente:
   </p>
-  <pre><code>Você: Tenho um arquivo de log de 40MB em /var/log/api/error.log.
-Preciso saber por que o endpoint POST /orders está retornando 500
+  <pre><code>Você: Tenho um arquivo de log de 40MB em /var/log/user-api/error.log.
+Preciso saber por que o endpoint POST /usuarios está retornando 500
 de forma intermitente nas últimas 24h. Use um subagente para
 vasculhar o log e me traga só um resumo com: padrão do erro,
 horários, e stack trace relevante (se houver repetição).</code></pre>
   <p>
     O subagente lê o arquivo inteiro, filtra, cruza informações — e tudo isso acontece na janela de contexto <em>dele</em>,
-    não na sua. O que volta para a conversa principal é um resumo de algumas linhas. Essa é a diferença entre gastar
-    40MB de tokens e gastar algumas centenas.
+    não na sua. O que volta para a conversa principal é um resumo de algumas linhas (nesse caso: um <code>IntegrityError</code>
+    do SQLAlchemy por e-mail duplicado, sem tratamento na rota). Essa é a diferença entre gastar 40MB de tokens e
+    gastar algumas centenas.
   </p>
   <p>
     Outro exemplo comum: em vez de colar um arquivo de 800 linhas para pedir uma alteração em uma função específica,
     peça ao agente para localizar e ler apenas o trecho relevante:
   </p>
-  <pre><code>Ruim:  "Aqui está o arquivo inteiro [cola 800 linhas], corrija a função calcularFrete"
-Melhor: "No arquivo src/services/frete.js, revise a função calcularFrete.
-         Leia o arquivo você mesmo e aplique a correção X."</code></pre>
+  <pre><code>Ruim:  "Aqui está o arquivo inteiro [cola 800 linhas], corrija a
+        função de cadastro de usuário"
+Melhor: "No arquivo src/adapters/http/routes/usuarios.py, revise a
+         função de criação de usuário (POST /usuarios) e trate o
+         IntegrityError de e-mail duplicado retornando 409.
+         Leia o arquivo você mesmo e aplique a correção."</code></pre>
   <p>
     O agente tem ferramentas de leitura de arquivo — deixe-o buscar exatamente o que precisa, em vez de você
     pré-carregar tudo "por garantia".
@@ -140,7 +145,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> Não usar subagentes para exploração e deixar o agente principal "ler tudo" diretamente — poluindo o contexto que deveria ficar reservado para a decisão e a implementação.</div>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> Escolha um projeto real seu com pelo menos um arquivo de log ou um diretório com muitos arquivos de código. Peça ao Claude Code para investigar algo usando explicitamente um subagente (ex.: "use um subagente para mapear todos os lugares onde a função X é chamada e me traga só a lista de arquivos e linhas"). Compare o tamanho da resposta final com o volume de dados que foi processado — essa é a economia de contexto na prática.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> Na user-api (ou projeto real equivalente), peça ao Claude Code para investigar algo usando explicitamente um subagente (ex.: "use um subagente para mapear todos os lugares em <code>src/</code> e <code>tests/</code> onde o repositório de usuário é chamado e me traga só a lista de arquivos e linhas"). Compare o tamanho da resposta final com o volume de dados que foi processado — essa é a economia de contexto na prática.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

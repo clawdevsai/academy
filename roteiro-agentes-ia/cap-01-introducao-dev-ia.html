@@ -63,15 +63,19 @@ flowchart LR
   <h2>Exemplos práticos</h2>
   <p>Para deixar concreto, veja a mesma tarefa — "adicionar validação de e-mail num formulário" — resolvida nas três gerações:</p>
 
-  <p><strong>Geração 1 (autocomplete):</strong> você começa a digitar <code>function validateEmail(</code> e o editor sugere o corpo da função. Você aceita, mas ainda precisa descobrir sozinho onde chamar essa função, adicionar mensagens de erro na tela e testar.</p>
+  <p>Imagine que você está no projeto <strong>user-api</strong> (uma API em Python/FastAPI) e precisa validar o e-mail no endpoint de cadastro de usuário. Veja a mesma tarefa — "validar e-mail no cadastro de usuário" — resolvida nas três gerações:</p>
 
-  <p><strong>Geração 2 (chat):</strong> você abre o ChatGPT ou Claude.ai, cola o código do formulário e pergunta "como adiciono validação de e-mail aqui?". Recebe uma resposta com código, mas precisa copiar manualmente, colar no lugar certo, adaptar nomes de variáveis e testar.</p>
+  <p><strong>Geração 1 (autocomplete):</strong> você começa a digitar <code>def validar_email(</code> em <code>src/domain/use_cases/cadastrar_usuario.py</code> e o editor sugere o corpo da função. Você aceita, mas ainda precisa descobrir sozinho onde chamar essa função, tratar o erro na camada HTTP e testar.</p>
 
-  <p><strong>Geração 3 (agentic, com Claude Code):</strong> você escreve um prompt assim, no terminal do seu projeto:</p>
-  <pre><code>Adicione validação de e-mail no formulário de cadastro em src/components/SignupForm.tsx.
-Mostre uma mensagem de erro abaixo do campo se o e-mail for inválido.
-Rode os testes existentes depois para garantir que nada quebrou.</code></pre>
-  <p>O agente localiza o arquivo sozinho, lê o código ao redor para entender o padrão usado no projeto, escreve a validação, edita o arquivo diretamente, roda a suíte de testes e te mostra o resultado — tudo sem você precisar copiar e colar nada.</p>
+  <p><strong>Geração 2 (chat):</strong> você abre o Claude.ai, cola o código do endpoint <code>POST /usuarios</code> e pergunta "como valido o e-mail aqui?". Recebe uma resposta com código, mas precisa copiar manualmente, colar no lugar certo, adaptar nomes de variáveis e testar.</p>
+
+  <p><strong>Geração 3 (agentic, com Claude Code):</strong> você escreve um prompt assim, no terminal do projeto user-api:</p>
+  <pre><code>Adicione validação de e-mail no caso de uso de cadastro de usuário,
+em src/domain/use_cases/cadastrar_usuario.py.
+Se o e-mail for inválido, o endpoint POST /usuarios deve retornar 422
+com uma mensagem clara.
+Rode "uv run pytest" depois para garantir que nada quebrou.</code></pre>
+  <p>O agente localiza o arquivo sozinho, lê o código ao redor para entender o padrão usado no projeto (arquitetura hexagonal, com domínio separado dos adapters HTTP), escreve a validação, edita o arquivo diretamente, roda a suíte de testes com <code>uv run pytest</code> e te mostra o resultado — tudo sem você precisar copiar e colar nada.</p>
 
   <h2>Fluxo de trabalho recomendado</h2>
   <p>Antes de instalar qualquer ferramenta, vale internalizar o papel que você vai ter neste novo modelo de trabalho. Você deixa de ser quem digita cada linha e passa a ser quem define objetivos, dá contexto e revisa o resultado.</p>
@@ -109,7 +113,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> dar instruções vagas ("melhore esse código") e se frustrar com o resultado. Sem critério de sucesso claro, o agente vai adivinhar o que você quer — e pode adivinhar errado.</div>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> pegue uma tarefa de programação simples que você já resolveu antes (ex.: validar um formulário, ordenar uma lista, formatar uma data). Escreva três versões do mesmo pedido: uma como se fosse para o autocomplete (uma linha de código incompleta), uma como se fosse para um chat (uma pergunta), e uma como se fosse para um agente (um objetivo completo, com contexto e critério de sucesso). Compare as três e observe como a forma de pedir muda o nível de detalhe necessário.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> pegue uma tarefa simples do projeto user-api (ex.: validar o nome do usuário no cadastro, impedir e-mail duplicado, formatar a resposta de erro do endpoint <code>POST /usuarios</code>). Escreva três versões do mesmo pedido: uma como se fosse para o autocomplete (uma linha de código incompleta, tipo <code>def validar_nome(</code>), uma como se fosse para um chat (uma pergunta sobre o código do endpoint), e uma como se fosse para um agente (um objetivo completo, com o caminho do arquivo, contexto e critério de sucesso, como "rodar <code>uv run pytest</code> ao final"). Compare as três e observe como a forma de pedir muda o nível de detalhe necessário.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

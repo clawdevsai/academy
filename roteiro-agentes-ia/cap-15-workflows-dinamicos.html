@@ -258,23 +258,25 @@ src/ em paralelo, e sintetize um único relatório consolidado por severidade.</
   <h3>3. Adversarial Verification (verificação adversarial)</h3>
   <p>Para cada resultado que um agente produz, um segundo agente é acionado só para desafiar esse resultado contra critérios objetivos — contrapondo a tendência do modelo de confiar demais no próprio trabalho.</p>
   <p><strong>Cenário no projeto:</strong> confirmar que uma correção de segurança realmente resolve o problema, não só esconde o sintoma.</p>
-  <pre><code>Depois que o bug-fix corrigir a vulnerabilidade em auth.py, rode um
-workflow onde o cyber-sec verifica adversarialmente se a correção
-realmente elimina o risco, antes de aceitar como resolvido.</code></pre>
+  <pre><code>Depois que o bug-fix corrigir a vulnerabilidade em
+src/adapters/http/routes/usuarios.py, rode um workflow onde o
+cyber-sec verifica adversarialmente se a correção realmente
+elimina o risco, antes de aceitar como resolvido.</code></pre>
 
   <h3>4. Generate-and-Filter (gerar e filtrar)</h3>
   <p>Gera muitos candidatos, filtra por um critério ou verificação, remove quase-duplicados e devolve só os sobreviventes de maior qualidade.</p>
   <p><strong>Cenário no projeto:</strong> explorar várias alternativas de design antes de se comprometer com uma.</p>
   <pre><code>Rode um workflow onde o arquiteto-back gera 5 alternativas de design para
-o módulo de pagamentos, e filtre por segurança e simplicidade até sobrar só as
-2 melhores.</code></pre>
+o repositório de usuários (src/adapters/db/), e filtre por segurança e
+simplicidade até sobrar só as 2 melhores.</code></pre>
 
   <h3>5. Tournament (torneio)</h3>
   <p>Em vez de dividir o trabalho, os agentes competem nele: cada um tenta a mesma tarefa com uma abordagem diferente, e um agente juiz avalia os confrontos par a par até restar um vencedor.</p>
-  <p><strong>Cenário no projeto:</strong> comparar implementações candidatas de uma função sensível a performance.</p>
-  <pre><code>Rode um workflow onde três implementações candidatas da função de cache competem
-em um torneio, com o qa e o arquiteto-back julgando cada
-confronto par a par por corretude e performance.</code></pre>
+  <p><strong>Cenário no projeto:</strong> comparar implementações candidatas de uma consulta sensível a performance.</p>
+  <pre><code>Rode um workflow onde três implementações candidatas da consulta de
+listagem de usuários no repositório competem em um torneio, com o qa
+e o arquiteto-back julgando cada confronto par a par por
+corretude e performance.</code></pre>
 
   <h3>6. Loop Until Done (repetir até terminar)</h3>
   <p>Para tarefas com quantidade de trabalho desconhecida, o workflow repete a geração de agentes até uma condição real de parada ser atingida (sem novos achados, sem mais erros), em vez de um número fixo de passagens.</p>
@@ -287,9 +289,10 @@ até todos os testes passarem.</code></pre>
   <p>Para rodar o workflow embutido de pesquisa profunda:</p>
   <pre><code>/deep-research O que mudou no modelo de permissões do Node.js entre v20 e v22?</code></pre>
   <p>Para pedir um workflow sob medida, basta incluir a palavra <code>workflow</code> no prompt — o Claude Code destaca a palavra e escreve um script em vez de trabalhar turno por turno:</p>
-  <pre><code>Rode um workflow para auditar todos os endpoints em src/routes/
-procurando checagens de autorização ausentes, usando o cyber-sec
-por módulo e um passo de verificação adversarial em cada achado antes de reportar.</code></pre>
+  <pre><code>Rode um workflow para auditar todos os endpoints em
+src/adapters/http/routes/ procurando checagens de validação e
+autorização ausentes, usando o cyber-sec por módulo e um passo de
+verificação adversarial em cada achado antes de reportar.</code></pre>
   <p>Antes de a execução começar, o Claude Code mostra as fases planejadas e pergunta: <strong>Sim, execute</strong> / <strong>Ver script bruto</strong> (ou <code>Ctrl+G</code> para abrir no editor) / <strong>Não</strong>. Acompanhe o progresso a qualquer momento com:</p>
   <pre><code>/workflows</code></pre>
   <p>Se a execução fizer o que você queria, selecione-a em <code>/workflows</code> e aperte <code>s</code> para salvar como comando reutilizável — em <code>.claude/workflows/</code> (compartilhado com o time) ou <code>~/.claude/workflows/</code> (só seu). A partir daí ele vira um <code>/nome-do-workflow</code> disponível em qualquer sessão.</p>
@@ -332,7 +335,7 @@ sequenceDiagram
   <p>A própria Anthropic documenta workflows aplicados bem além de código: o <strong>Bun</strong> foi reescrito de Zig para Rust usando workflows (um agente por ponto de falha, revisão adversarial, merge); times usam workflows para minerar canais de incidentes no Slack em busca de causas-raiz recorrentes sem ticket aberto; para rankear grandes listas (ex: 80 currículos, milhares de tickets) por comparação par-a-par em vez de nota absoluta — muito mais confiável do que pedir para o modelo pontuar 1000+ itens de uma vez; e até para investigação de causa-raiz fora de código, gerando hipóteses a partir de evidências desconexas (logs, dados, arquivos) e as confrontando com um painel de verificadores.</p>
 
   <h2>Exercício prático</h2>
-  <div class="exercise"><strong>Mão na massa:</strong> no seu projeto Python, peça um workflow usando o padrão Fan-Out/Synthesize: "Rode um workflow para revisar, com o revisor, cada módulo dentro de src/ em paralelo, e sintetize um único relatório consolidado por severidade." Depois, abra <code>/workflows</code> e observe as fases, os agentes e o consumo de tokens de cada um.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> no seu user-api, peça um workflow usando o padrão Fan-Out/Synthesize: "Rode um workflow para revisar, com o revisor, cada módulo dentro de src/ em paralelo, e sintetize um único relatório consolidado por severidade." Depois, abra <code>/workflows</code> e observe as fases, os agentes e o consumo de tokens de cada um.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>

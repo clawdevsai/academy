@@ -91,13 +91,16 @@ flowchart TD
     com base na <code>description</code> de cada subagente disponível em <code>.claude/agents/</code>. Exemplo de prompt
     para o agente principal:
   </p>
-  <pre><code>Preciso migrar todos os componentes de src/components/legacy para o novo
-padrão de hooks. São 12 componentes independentes entre si.
-Use subagentes em paralelo, um por componente, e depois consolide um
+  <pre><code>Preciso migrar todos os endpoints de src/adapters/http/legacy para o novo
+padrão de routers do FastAPI. São 12 endpoints independentes entre si.
+Use subagentes em paralelo, um por endpoint, e depois consolide um
 resumo do que foi alterado em cada um.
 </code></pre>
   <p>
-    Estrutura típica de projeto com múltiplos agentes especializados (cada um será detalhado mecanicamente no capítulo 7):
+    Estrutura típica de projeto com múltiplos agentes especializados (cada um será detalhado mecanicamente no capítulo 7).
+    No projeto user-api do curso, esses papéis existem de verdade em <code>.claude/agents/</code> com os nomes
+    <code>arquiteto-back</code>, <code>dev-back</code>, <code>revisor</code>, <code>qa</code>, <code>cyber-sec</code>,
+    <code>devops</code> e <code>bug-fix</code> — abaixo, uma versão didática com nomes genéricos para focar na mecânica:
   </p>
   <pre><code>.claude/
   agents/
@@ -144,7 +147,7 @@ sequenceDiagram
   <div class="warn"><strong>Erro comum:</strong> paralelizar tarefas que têm dependência real entre si (ex: implementar a API antes do frontend que a consome). O resultado é retrabalho, porque um subagente termina antes de saber a interface que o outro definiu.</div>
   <div class="warn"><strong>Erro comum:</strong> ultrapassar os 5 níveis de spawning hierárquico "porque dá para fazer". O overhead de coordenação cresce mais rápido que o ganho — geralmente 1-2 níveis já resolvem a maioria dos casos reais.</div>
 
-  <div class="exercise"><strong>Mão na massa:</strong> pegue uma tarefa do seu backlog que toque pelo menos 3 arquivos não relacionados entre si (ex: 3 componentes de UI independentes). Peça ao Claude Code para usar subagentes em paralelo, um por arquivo, e depois consolidar um resumo. Compare o tempo e a qualidade do resultado com fazer a mesma tarefa em uma única conversa sequencial.</div>
+  <div class="exercise"><strong>Mão na massa:</strong> no projeto user-api, pegue 3 casos de uso independentes do domínio de usuários (ex: cadastrar usuário, buscar usuário por e-mail, listar usuários). Peça ao Claude Code para usar subagentes em paralelo, um por caso de uso, e depois consolidar um resumo. Compare o tempo e a qualidade do resultado com fazer a mesma tarefa em uma única conversa sequencial.</div>
 
   <div class="summary">
     <h3>Resumo do capítulo</h3>
