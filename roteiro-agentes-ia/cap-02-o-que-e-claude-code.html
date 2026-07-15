@@ -64,15 +64,49 @@ flowchart TD
 
   <p>Outro ponto importante: o Claude Code é <strong>autônomo, mas não descontrolado</strong>. Ele pede confirmação antes de ações potencialmente arriscadas (como rodar um comando que apaga arquivos) e você pode configurar o nível de autonomia — desde "pergunte antes de cada ação" até "execute a tarefa inteira e só me avise no final". Essa configuração de permissões é essencial para usar a ferramenta com segurança, especialmente em projetos de produção.</p>
 
-  <h2>Exemplos práticos</h2>
-  <p>Instalar o Claude Code e rodar o primeiro comando dentro de um projeto:</p>
+  <h2>Pré-requisitos do curso</h2>
+  <p>Antes de seguir para os próximos capítulos, deixe seu ambiente pronto. Alguns itens são obrigatórios (sem eles o curso não funciona), outros são opcionais — ferramentas complementares usadas ao longo do material, mas que você pode pular sem travar o aprendizado.</p>
+
+  <div class="card">
+    <table>
+      <tr><th>#</th><th>Item</th><th>Status</th></tr>
+      <tr><td>1</td><td>Instalar o Claude Code</td><td><strong>Obrigatório</strong></td></tr>
+      <tr><td>2</td><td>Fazer login no Claude Code</td><td><strong>Obrigatório</strong></td></tr>
+      <tr><td>3</td><td><a href="https://github.com/mksglu/context-mode" target="_blank" rel="noopener">context-mode</a></td><td>Opcional</td></tr>
+      <tr><td>4</td><td><a href="https://github.com/DietrichGebert/ponytail" target="_blank" rel="noopener">ponytail</a></td><td>Opcional</td></tr>
+      <tr><td>5</td><td><a href="https://github.com/juliusbrussee/caveman" target="_blank" rel="noopener">caveman</a></td><td>Opcional</td></tr>
+      <tr><td>6</td><td><a href="https://github.com/multica-ai/andrej-karpathy-skills" target="_blank" rel="noopener">karpathy-guidelines</a></td><td>Opcional</td></tr>
+      <tr><td>7</td><td><a href="https://github.com/github/spec-kit" target="_blank" rel="noopener">Spec Kit</a></td><td><strong>Obrigatório</strong></td></tr>
+    </table>
+  </div>
+
+  <h3>1 e 2 — Instalar e logar no Claude Code (obrigatório)</h3>
   <pre><code># instala o Claude Code globalmente (requer Node.js instalado)
 npm install -g @anthropic-ai/claude-code
 
 # entra na pasta do seu projeto
 cd meu-projeto
 
-# inicia o Claude Code
+# inicia o Claude Code — na primeira execução ele pede login
+# (abre o navegador para autenticar com sua conta Anthropic/Claude)
+claude</code></pre>
+  <p>Sem login concluído, o Claude Code não executa nenhuma tarefa — é o único passo verdadeiramente bloqueante antes de começar.</p>
+
+  <h3>3 a 6 — Plugins opcionais de produtividade</h3>
+  <p><code>context-mode</code>, <code>ponytail</code>, <code>caveman</code> e <code>karpathy-guidelines</code> são plugins/skills de terceiros que mudam como o Claude Code processa contexto, estilo de resposta e disciplina de engenharia (vamos usá-los ao longo do curso, mas eles não são exigidos para acompanhar o conteúdo). Cada repositório documenta seu próprio método de instalação, mas o padrão do Claude Code para plugins de marketplace é:</p>
+  <pre><code>&gt; /plugin marketplace add &lt;owner&gt;/&lt;repo&gt;
+&gt; /plugin install &lt;nome-do-plugin&gt;</code></pre>
+  <div class="tip"><strong>Dica:</strong> antes de instalar, confira o README de cada repositório — o nome exato do plugin no marketplace e eventuais passos extras (variáveis de ambiente, dependências) podem mudar entre versões.</div>
+
+  <h3>7 — Spec Kit (obrigatório)</h3>
+  <p>Usado a partir do Capítulo 8 (Spec-Driven Development) e por vários dos agentes personalizados do curso. Instale a CLI <code>specify</code> conforme o README do repositório e inicialize a integração com Claude Code dentro do seu projeto:</p>
+  <pre><code>cd meu-projeto
+specify init . --integration claude</code></pre>
+  <p>Isso cria a estrutura <code>.specify/</code> e as skills <code>speckit-*</code> (specify, clarify, plan, tasks, analyze) usadas nos capítulos sobre spec-driven development e nos agentes de arquitetura/implementação.</p>
+
+  <h2>Exemplos práticos</h2>
+  <p>Com o Claude Code instalado, logado e o Spec Kit inicializado, rodar o primeiro comando dentro de um projeto:</p>
+  <pre><code>cd meu-projeto
 claude</code></pre>
 
   <p>Depois de iniciado, você conversa com ele em linguagem natural, no próprio terminal:</p>
