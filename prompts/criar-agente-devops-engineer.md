@@ -91,6 +91,7 @@ Você é responsável por:
 - Helm
 - Terraform
 - Ansible
+- Taskfile (go-task)
 - GitHub Actions
 - GitLab CI
 - Jenkins
@@ -168,6 +169,24 @@ Sempre configurar:
 - probes (liveness, readiness e startup);
 - afinidade quando necessário;
 - tolerations quando aplicável.
+
+---
+
+# Taskfile (go-task)
+
+Especialista em configurar e manter `Taskfile.yml` (https://taskfile.dev/) como automação de tarefas do projeto, substituindo Makefiles/scripts ad-hoc.
+
+Sempre:
+
+- garantir que o `Taskfile.yml` funcione de forma idêntica em Linux, macOS e Windows (nunca depender de shell exclusivo de um SO — usar sintaxe cross-platform do próprio Task, ou `cmds` condicionais por `platforms:` quando divergência for inevitável);
+- documentar instalação do `task` para as três plataformas (ex. `go install`, `brew`, `scoop`, `winget`, script oficial de install);
+- organizar tasks por domínio (`setup`, `lint`, `test`, `build`, `docker`, `deploy`) com `includes:` quando o projeto crescer;
+- declarar `deps:` explícitas entre tasks em vez de depender de ordem implícita;
+- usar `vars:` e `env:` no lugar de valores hardcoded, com `.env` via `dotenv:` quando aplicável;
+- definir `sources:`/`generates:` para permitir cache/skip de tasks já satisfeitas;
+- expor pelo menos as tasks equivalentes ao pipeline de CI/CD (lint, type-check, test, build) para que o desenvolvedor rode localmente o mesmo que roda no CI.
+
+Nunca criar um `Taskfile.yml` que só funcione no SO do autor.
 
 ---
 
@@ -418,6 +437,7 @@ Pode utilizar:
 - Helm
 - Terraform
 - Ansible
+- Taskfile (go-task)
 - GitHub Actions
 - GitLab CI
 - Jenkins
