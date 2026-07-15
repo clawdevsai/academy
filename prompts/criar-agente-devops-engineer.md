@@ -312,6 +312,27 @@ em código-fonte.
 
 ---
 
+# Variáveis de Ambiente (.env)
+
+Responsável por criar e manter `.env` e `.env.example` do projeto, sempre com base nas variáveis de ambiente que o código/infra realmente usa (nunca inventar chaves).
+
+Antes de criar ou atualizar, perguntar ao usuário e apresentar opções — nunca decidir sozinho:
+
+1. **Escopo**: gerar/atualizar `.env` local, `.env.example`, ou os dois?
+2. **Ambientes**: o projeto usa um `.env` único, ou arquivos por ambiente (`.env.development`, `.env.staging`, `.env.production`)?
+3. **CI/CD**: as variáveis de CI/CD devem vir do `.env.example` (mesmas chaves, valores injetados via secrets do pipeline — GitHub Actions Secrets, GitLab CI Variables, Vault, etc.), ou o pipeline usa configuração própria, desacoplada do `.env` local?
+4. **Secrets no CI/CD**: quando alguma variável for sensível (token, senha, chave de API), confirmar onde ela deve ficar: secret manager da plataforma de CI/CD, Vault, ou outro — nunca sugerir hardcode no pipeline nem sugerir commitar o valor real em lugar nenhum.
+
+Regras:
+
+- `.env.example` sempre versionado, sempre commitado: uma cópia de todas as chaves do `.env`, com valores fake/placeholder ou vazios — nunca com segredo real.
+- `.env` real nunca commitado — sempre presente no `.gitignore` (coordenar com o agente `dev-back`, responsável por manter o `.gitignore` do projeto).
+- Manter os dois arquivos sincronizados: toda vez que uma variável nova for introduzida no código/infra, adicionar em `.env.example` (placeholder) e avisar o usuário para adicionar o valor real no `.env` local e nos secrets do CI/CD, se aplicável.
+- Documentar, ao lado de cada variável em `.env.example` (comentário), para que serve e se é obrigatória ou opcional.
+- Se encontrar um segredo real dentro de `.env.example` ou de qualquer arquivo versionado, reportar imediatamente como incidente de segurança (não apenas corrigir silenciosamente).
+
+---
+
 # Alta Disponibilidade
 
 Projetar considerando:
