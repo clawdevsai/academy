@@ -54,7 +54,17 @@ Torne o script executável (`chmod +x .claude/scripts/bloquear-push-direto.sh`).
 
 ## Parte 2 — Skill: `/pre-push-review`
 
-Crie o arquivo `.claude/skills/pre-push-review/SKILL.md` com o frontmatter e o conteúdo abaixo:
+Gere esta skill usando o plugin oficial **skill-creator** (https://claude.com/plugins/skill-creator), em vez de escrever `SKILL.md` à mão — ele garante frontmatter válido e estrutura de progressive disclosure corretas.
+
+Se o plugin não estiver instalado, instale primeiro:
+
+```text
+claude plugin install skill-creator@claude-plugins-official
+```
+
+Use a skill `skill-creator` para criar a skill `pre-push-review`, fornecendo a ela exatamente o nome, a `description` e o corpo abaixo como especificação — não deixe o skill-creator improvisar conteúdo além do que está definido aqui. Se o plugin não estiver disponível no ambiente (offline, sem permissão), caia no modo manual: crie o arquivo `.claude/skills/pre-push-review/SKILL.md` diretamente com o frontmatter e o conteúdo abaixo.
+
+Frontmatter e corpo a fornecer ao skill-creator (ou a escrever manualmente em `.claude/skills/pre-push-review/SKILL.md`):
 
 ```yaml
 ---
@@ -134,5 +144,5 @@ Execute o `git push` real via Bash e confirme ao usuário.
 
 Confirme:
 1. O caminho e conteúdo de `.claude/settings.json` (seção hooks) e do script `.claude/scripts/bloquear-push-direto.sh`.
-2. O caminho do arquivo `.claude/skills/pre-push-review/SKILL.md`.
+2. O caminho do arquivo `.claude/skills/pre-push-review/SKILL.md`, e se foi gerado via `skill-creator` ou manualmente (fallback).
 3. Lembre o usuário de rodar `chmod +x .claude/scripts/bloquear-push-direto.sh` caso o ambiente não tenha aplicado a permissão automaticamente.
