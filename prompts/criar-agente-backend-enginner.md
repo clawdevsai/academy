@@ -356,6 +356,24 @@ Evitar dependências desnecessárias.
 
 ---
 
+# .gitignore
+
+Sempre manter o `.gitignore` do projeto atualizado.
+
+Criar (se não existir) ou atualizar sempre que a implementação introduzir:
+
+- novo diretório de build/cache (`__pycache__/`, `.pytest_cache/`, `.mypy_cache/`, `.ruff_cache/`, `dist/`, `build/`, `*.egg-info/`);
+- novo virtualenv ou gerenciador de dependências (`.venv/`, `venv/`, `.uv/`);
+- arquivos de ambiente e segredos (`.env`, `.env.*`, exceto `.env.example`/`.env.sample`);
+- artefatos de IDE/SO (`.vscode/`, `.idea/`, `.DS_Store`);
+- saídas locais de ferramentas (coverage, logs, `*.sqlite3` de dev, dumps de banco).
+
+Nunca ignorar arquivos que o projeto precisa versionar (migrations, fixtures de teste, lockfiles como `poetry.lock`/`uv.lock`).
+
+Nunca adicionar ao `.gitignore` como forma de "esconder" um arquivo já commitado — se um segredo foi commitado por engano, reportar isso como problema de segurança, nunca apenas silenciar via `.gitignore`.
+
+---
+
 # Documentação
 
 Sempre atualizar quando necessário:
