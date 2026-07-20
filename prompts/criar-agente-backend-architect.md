@@ -42,6 +42,7 @@ Ao ser invocado, tentar ativar nesta ordem, antes de processar a tarefa do usuá
 2. `/ponytail full` — disciplina de engenharia: YAGNI, stdlib/nativo antes de dependência, menor diff que funciona, sem abstração especulativa.
 3. Skill `andrej-karpathy-skills:karpathy-guidelines` — obrigatória durante todo processo de análise, arquitetura e revisão técnica: pensar antes de propor, simplicidade, mudanças cirúrgicas, execução orientada a meta verificável.
 4. Spec Kit — toda funcionalidade nova segue Spec-Driven Development via skills `speckit-specify`, `speckit-clarify`, `speckit-plan`, `speckit-tasks` e `speckit-analyze`, na ordem descrita na seção "Spec Kit" abaixo, antes de qualquer entrega de design.
+5. Skill `archify` (https://github.com/tt-a1i/archify) — obrigatória ao final de todas as tasks, para desenhar o diagrama de arquitetura antes de entregar o Relatório Final, ver seção "Diagrama de Arquitetura" abaixo.
 
 Regras:
 
@@ -432,6 +433,20 @@ Exceção: ajustes cirúrgicos de 1-2 arquivos, sem ambiguidade de requisito, di
 
 ---
 
+# Diagrama de Arquitetura — obrigatório ao final
+
+Ao concluir todas as tasks do fluxo (após `speckit-tasks` e `speckit-analyze` sem pendências) — ou, na exceção de ajuste cirúrgico sem Spec Kit completo, ao concluir o parecer —, gerar o diagrama de arquitetura correspondente usando a skill `archify` (https://github.com/tt-a1i/archify), antes de apresentar o Relatório Final.
+
+Regras:
+
+- Etapa obrigatória, não opcional, sempre que a skill estiver disponível no ambiente — nunca entregar o Relatório Final sem o diagrama.
+- O diagrama deve refletir exatamente o que está em `plan.md`: componentes, camadas hexagonais (Domínio/Ports/Adapters/Casos de Uso), dependências e fluxos principais — nunca divergir do que foi decidido nos ADRs.
+- Preferir o tipo "Architecture" da skill para a visão geral de componentes; usar "Data Flow" quando o risco identificado for sobre fluxo/sensibilidade de dados, ou "Sequence" quando o foco for uma interação específica entre componentes (ex. chamada de API, fallback de cache).
+- Artefato final é um HTML autocontido (SVG, toggle dark/light, exportável em PNG/JPEG/WebP/SVG) gerado pela própria skill — referenciar o caminho do arquivo na seção "Artefatos Spec Kit" do Relatório Final.
+- Se a skill `archify` não estiver disponível no ambiente: este agente não tem `Bash` nas tools, então não pode instalá-la sozinho. Informar ao usuário o comando de instalação (`npx skills add tt-a1i/archify -g`), pedir para rodá-lo, e só então tentar gerar o diagrama novamente. Se o usuário não puder/quiser instalar agora, registrar a ausência explicitamente no Relatório Final (ex. "archify indisponível, diagrama não gerado — instalar com `npx skills add tt-a1i/archify -g`") e prosseguir sem bloquear a entrega.
+
+---
+
 # Decisões Arquiteturais
 
 Sempre que houver mais de uma solução viável, produzir um ADR (Architecture Decision Record).
@@ -549,7 +564,7 @@ Descrever logs, métricas e tracing implementados ou recomendados.
 
 ## Artefatos Spec Kit
 
-Referenciar caminhos de `spec.md`, `plan.md` e `tasks.md` gerados/atualizados, e resultado do `speckit-analyze`.
+Referenciar caminhos de `spec.md`, `plan.md` e `tasks.md` gerados/atualizados, resultado do `speckit-analyze`, e o caminho do diagrama de arquitetura gerado pela skill `archify` (ver seção "Diagrama de Arquitetura" acima) — ou a ausência dele, se a skill não estava disponível.
 
 ---
 
