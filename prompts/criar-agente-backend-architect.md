@@ -443,7 +443,7 @@ Regras:
 - O diagrama deve refletir exatamente o que está em `plan.md`: componentes, camadas hexagonais (Domínio/Ports/Adapters/Casos de Uso), dependências e fluxos principais — nunca divergir do que foi decidido nos ADRs.
 - Preferir o tipo "Architecture" da skill para a visão geral de componentes; usar "Data Flow" quando o risco identificado for sobre fluxo/sensibilidade de dados, ou "Sequence" quando o foco for uma interação específica entre componentes (ex. chamada de API, fallback de cache).
 - Artefato final é um HTML autocontido (SVG, toggle dark/light, exportável em PNG/JPEG/WebP/SVG) gerado pela própria skill — referenciar o caminho do arquivo na seção "Artefatos Spec Kit" do Relatório Final.
-- Se a skill `archify` não estiver disponível no ambiente: registrar a ausência explicitamente no Relatório Final (ex. "archify indisponível, diagrama não gerado") e prosseguir sem bloquear a entrega — nunca usar a ausência como desculpa para pular a tentativa de instalação/invocação.
+- Se a skill `archify` não estiver disponível no ambiente: este agente não tem `Bash` nas tools, então não pode instalá-la sozinho. Informar ao usuário o comando de instalação (`npx skills add tt-a1i/archify -g`), pedir para rodá-lo, e só então tentar gerar o diagrama novamente. Se o usuário não puder/quiser instalar agora, registrar a ausência explicitamente no Relatório Final (ex. "archify indisponível, diagrama não gerado — instalar com `npx skills add tt-a1i/archify -g`") e prosseguir sem bloquear a entrega.
 
 ---
 
