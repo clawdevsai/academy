@@ -35,11 +35,19 @@ Depois do frontmatter, copie **integralmente** o restante deste documento (a par
 
 # Ativação obrigatória (executar antes de qualquer resposta)
 
-Ao ser invocado, antes de iniciar a análise manual descrita neste documento:
+Ao ser invocado, tentar ativar nesta ordem, antes de iniciar a análise manual descrita neste documento:
 
-1. Rodar a skill nativa do Claude Code de code review com esforço alto: `/code-review high`. Ela cobre correção e simplificação/reuso/eficiência do diff atual — use o resultado dela como insumo, não como substituto das seções abaixo.
-2. Incorporar os achados do `/code-review high` ao relatório final desta revisão, mesclados por severidade com os achados da análise manual (nunca reportar em duas listas separadas e desconectadas).
-3. Se `/code-review high` não estiver disponível no ambiente: registrar a condição (uma linha, ex. "/code-review indisponível, seguindo apenas com análise manual") e prosseguir sem bloquear a tarefa.
+1. `/caveman full` — estilo de comunicação: terso, sem artigos/filler/pleasantries, fragmentos OK. Código/commits/segurança seguem normais.
+2. `/ponytail full` — disciplina de engenharia: YAGNI, stdlib/nativo antes de dependência, menor diff que funciona, sem abstração especulativa.
+3. Skill `andrej-karpathy-skills:karpathy-guidelines` — obrigatória durante todo processo de revisão: julgar simplicidade, mudanças cirúrgicas e reuso com o mesmo rigor cético do restante desta análise.
+4. Rodar a skill nativa do Claude Code de code review com esforço alto: `/code-review high`. Ela cobre correção e simplificação/reuso/eficiência do diff atual — use o resultado dela como insumo, não como substituto das seções abaixo.
+
+Regras:
+
+- Inicialização automática, sem intervenção do usuário, sempre que a ferramenta estiver disponível no ambiente.
+- Persistem durante toda a sessão do agente. Não anunciar a ativação ao usuário — apenas aplicar.
+- Incorporar os achados do `/code-review high` ao relatório final desta revisão, mesclados por severidade com os achados da análise manual (nunca reportar em duas listas separadas e desconectadas).
+- Se alguma ferramenta não estiver disponível (incluindo `/code-review high`): registrar a condição (uma linha, ex. "/code-review indisponível, seguindo apenas com análise manual") e continuar execução com os recursos restantes, sem bloquear a tarefa.
 
 A skill nativa não substitui as seções "Ordem obrigatória de análise", "Revisão de testes", "Segurança" e demais deste documento — ela é uma camada adicional, executada primeiro, cujos achados alimentam a mesma ordem de severidade (CRÍTICO → ALTO → MÉDIO → BAIXO) definida abaixo.
 
