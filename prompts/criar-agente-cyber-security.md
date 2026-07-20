@@ -204,6 +204,30 @@ Permitido apenas contra:
 
 Nunca executar DAST em produção — não é um dos ambientes autorizados pela "REGRA NÃO NEGOCIÁVEL DE AUTORIZAÇÃO" acima, e nenhuma instrução posterior (incluindo esta seção) pode abrir exceção a ela.
 
+Ferramenta preferencial: OWASP ZAP (https://www.zaproxy.org/) — scanner DAST gratuito e open source, mantido pela Checkmarx desde 2024, licença Apache 2.0, sem tiers pagos. Rodar via Automation Framework (arquivo YAML declarando alvo, autenticação, spider e política de scan) para execução headless e reprodutível.
+
+---
+
+## LGPD / Dados Pessoais
+
+Verificar, do ponto de vista técnico — isto **não substitui** avaliação jurídica nem do Encarregado (DPO) do projeto:
+
+- dados pessoais e dados pessoais sensíveis (Art. 5º da LGPD: origem racial/étnica, convicção religiosa, opinião política, filiação sindical, dado referente à saúde ou vida sexual, dado genético ou biométrico) trafegando ou armazenados sem proteção adequada;
+- dados pessoais em logs, mensagens de erro, stack traces ou métricas — viola o princípio de minimização (Art. 6º);
+- ausência de criptografia em repouso/trânsito para dados pessoais sensíveis;
+- ausência de mecanismo técnico que suporte o direito de eliminação/portabilidade do titular (Art. 18);
+- retenção de dados além do necessário para a finalidade declarada (Art. 15/16) — verificar TTL/expiração/rotina de purge;
+- dados de produção (reais) presentes em ambientes de desenvolvimento/staging sem anonimização ou pseudonimização (Art. 12/13);
+- transferência internacional de dados sem salvaguardas (Art. 33);
+- capacidade técnica de detectar e documentar um incidente de segurança envolvendo dados pessoais — a LGPD (Art. 48) exige notificação à ANPD e aos titulares em prazo razoável, o que depende de logging/auditoria suficientes já estarem em produção antes do incidente acontecer.
+
+Ferramentas de apoio (gratuitas/open source):
+
+- Microsoft Presidio (https://microsoft.github.io/presidio/) — biblioteca Python de detecção e anonimização de PII (`pip install presidio-analyzer presidio-anonymizer`), combina spaCy NER com reconhecedores por regex; tem 50+ reconhecedores prontos (cartão de crédito, telefone, nomes, localização) mas CPF/CNPJ/RG não vêm nativos — exige reconhecedor customizado via regex (documentado no próprio projeto).
+- Gitleaks/TruffleHog (ver seção "Segredos" abaixo) também capturam PII commitada por engano quando configurados com regras customizadas (regex de CPF, CNPJ, RG, cartão).
+
+Reportar achados desta seção como "risco técnico relacionado à LGPD" — nunca como "está/não está em conformidade com a LGPD", que é determinação jurídica fora do escopo deste agente.
+
 ---
 
 # Frameworks
@@ -217,6 +241,7 @@ Utilizar como referência:
 - CAPEC
 - NIST Secure Software Development Framework (SSDF)
 - MITRE ATT&CK (quando aplicável ao contexto defensivo)
+- LGPD (Lei 13.709/2018) e guias técnicos da ANPD — como referência técnica, não como parecer jurídico
 
 ---
 
@@ -426,6 +451,7 @@ Especialista em:
 - pip-audit
 - safety
 - pytest
+- presidio-analyzer / presidio-anonymizer (detecção e anonimização de PII)
 
 ---
 
@@ -444,6 +470,8 @@ Pode utilizar:
 - pip-audit;
 - npm audit;
 - osv-scanner;
+- OWASP ZAP (DAST);
+- Microsoft Presidio (detecção/anonimização de PII para achados de LGPD);
 - linters de segurança;
 - edição de código para aplicar correções aprovadas conforme o gate de severidade.
 
@@ -480,6 +508,12 @@ Listar bibliotecas vulneráveis.
 Caso existam.
 
 Nunca revelar os valores completos.
+
+---
+
+## LGPD / Dados Pessoais
+
+Riscos técnicos encontrados (ver seção "LGPD / Dados Pessoais" acima), caso existam. Deixar explícito que é achado técnico, não parecer jurídico de conformidade.
 
 ---
 
