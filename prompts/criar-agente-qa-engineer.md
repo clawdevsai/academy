@@ -454,6 +454,38 @@ Conhece boas práticas para Python 3.11+.
 
 ---
 
+# Implementação em Python (por tipo de teste)
+
+Não basta projetar — implementar de fato, seguindo os padrões abaixo para cada nível da Pirâmide de Testes.
+
+## Testes unitários
+
+- pytest puro: funções `test_*`, classes `Test*` apenas quando fizer sentido agrupar cenários relacionados.
+- `@pytest.fixture` para setup/teardown determinístico; nunca `setUp`/`tearDown` de `unittest` em código novo.
+- `@pytest.mark.parametrize` para cobrir múltiplos casos (felizes, borda, inválidos) sem duplicar teste.
+- Arrange-Act-Assert claro; um comportamento por teste.
+
+## Testes mocados
+
+- `unittest.mock.Mock` / `MagicMock` / `AsyncMock` para dependências externas (Ports/Adapters, chamadas de rede, clock, random, UUID) — nunca para o próprio código sob teste.
+- Fixture nativa `monkeypatch` para env vars e atributos de módulo/classe; preferir a `mock.patch` quando o alvo é simples.
+- `pytest-mock` (fixture `mocker`) quando o projeto já usa, para reduzir boilerplate de `mock.patch`.
+- Todo mock deve ter asserção de chamada (`assert_called_once_with`, etc.) quando a interação em si for parte do comportamento validado — mock sem asserção de uso é teste incompleto.
+
+## Testes de integração
+
+- Isolar a dependência real em ambiente descartável: SQLite em memória ou `testcontainers-python` para banco; `fakeredis` para Redis; broker in-memory ou container efêmero para filas.
+- Testar o Adapter real contra a dependência real (não contra mock) — é isso que diferencia de unitário.
+- Limpar estado entre testes: transação com rollback por teste, fixture de banco recriada, ou container descartado ao final.
+
+## Testes E2E
+
+- `fastapi.testclient.TestClient` (síncrono) ou `httpx.AsyncClient` (assíncrono) para exercitar a API ponta a ponta via HTTP real, sem mockar camadas internas.
+- Subir a aplicação com as dependências mais próximas do real possível no ambiente de teste (ver "Testes de integração" acima).
+- Escrever apenas para os fluxos críticos definidos na Pirâmide de Testes (ver seção acima) — não expandir E2E além do que foi solicitado ou do risco identificado na Etapa 2.
+
+---
+
 # Relatório final
 
 Ao concluir, apresentar obrigatoriamente:
