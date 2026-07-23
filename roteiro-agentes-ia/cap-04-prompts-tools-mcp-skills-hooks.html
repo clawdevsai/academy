@@ -111,6 +111,78 @@ fi
 exit 0</code></pre>
   <p>Esse hook roda automaticamente, sem depender do agente "lembrar" de ser cuidadoso — é uma camada de segurança determinística, fora do controle do modelo de linguagem. No user-api, por exemplo, ele protege o banco PostgreSQL contra um <code>DROP TABLE</code> acidental disparado por um comando de migração mal formado.</p>
 
+  <h2>Hooks em detalhe: os pontos do ciclo de vida</h2>
+  <p>O exemplo acima mostrou um hook <code>PreToolUse</code>, mas esse é só um dos pontos em que o Claude Code permite interceptar o ciclo de vida do agente. Diferente de <code>CLAUDE.md</code>, skills e agentes — que são <em>sugestões</em> que o modelo pode seguir com maior ou menor fidelidade —, hooks são <strong>execução obrigatória</strong>: um script roda sempre, sem exceção, no ponto configurado.</p>
+
+  <p>Hooks são configurados em arquivo JSON, em três escopos possíveis:</p>
+  <table>
+    <tr><th>Arquivo</th><th>Escopo</th></tr>
+    <tr><td><code>~/.claude/settings.json</code></td><td>Todos os projetos do usuário</td></tr>
+    <tr><td><code>.claude/settings.json</code></td><td>Projeto atual (versionado com o time)</td></tr>
+    <tr><td><code>.claude/settings.local.json</code></td><td>Projeto atual, local (normalmente no <code>.gitignore</code>)</td></tr>
+  </table>
+
+  <p>Estrutura básica de configuração:</p>
+  <pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "npm run lint" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+
+  <p>Os principais pontos de interceptação disponíveis:</p>
+  <table>
+    <tr><th>Hook</th><th>Quando dispara</th><th>Uso típico</th></tr>
+    <tr><td><code>SessionStart</code></td><td>Ao iniciar ou retomar uma sessão</td><td>Carregar contexto, exibir convenções do projeto, ler documentação de arquitetura</td></tr>
+    <tr><td><code>UserPromptSubmit</code></td><td>Antes de processar o prompt do usuário</td><td>Auditar prompts, bloquear comandos perigosos, injetar contexto adicional</td></tr>
+    <tr><td><code>PreToolUse</code></td><td>Antes de qualquer uso de tool</td><td>Validar código, bloquear arquivos sensíveis, proteger produção, restringir comandos de shell</td></tr>
+    <tr><td><code>PermissionRequest</code></td><td>Quando o agente pede permissão para uma ação</td><td>Aprovação automática de comandos seguros, evitar prompts repetitivos de permissão</td></tr>
+    <tr><td><code>PostToolUse</code></td><td>Depois que a tool termina com sucesso</td><td>Formatar código (ex.: Prettier, <code>go fmt</code>), rodar testes, atualizar documentação</td></tr>
+    <tr><td><code>PostToolUseFailure</code></td><td>Quando uma tool falha</td><td>Logging, alertas (ex.: Slack), reexecução automática</td></tr>
+    <tr><td><code>PostToolBatch</code></td><td>Após um lote de tools</td><td>Rodar lint/testes consolidados, agregar logs</td></tr>
+    <tr><td><code>Notification</code></td><td>Quando o agente precisa de atenção do usuário</td><td>Notificação desktop, Slack, Discord, Teams</td></tr>
+    <tr><td><code>Stop</code></td><td>Quando o agente finaliza uma tarefa</td><td>Rodar testes finais, validar cobertura, gerar relatório — muito usado em fluxos de QA</td></tr>
+    <tr><td><code>SessionEnd</code></td><td>Quando a sessão termina</td><td>Salvar logs, backup, métricas de uso</td></tr>
+  </table>
+
+  <p>Exemplo de <code>PostToolUse</code> formatando código automaticamente após cada edição:</p>
+  <pre><code>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "npx prettier --write" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+
+  <p>Exemplo de <code>Stop</code> garantindo que a tarefa só é considerada concluída se os testes passarem:</p>
+  <pre><code>{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "npm run test" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+
+  <p>Na prática, um projeto maduro combina vários hooks com papéis diferentes: um <code>PreToolUse</code> bloqueando arquivos como <code>.env</code>, <code>*.pem</code> e <code>terraform.tfvars</code>; um <code>PostToolUse</code> rodando lint + testes + build a cada edição; e um <code>Stop</code> impedindo que a tarefa termine se lint, testes ou build estiverem quebrados. É a combinação de Agent (que decide e executa) + Skill (que documenta o procedimento) + Hook (que garante a regra, aconteça o que acontecer) que dá previsibilidade a um agente autônomo.</p>
+
+  <div class="tip"><strong>Dica:</strong> hooks recebem o input da tool via stdin (JSON) e comunicam a decisão pelo código de saída — <code>exit 0</code> libera, <code>exit 2</code> bloqueia. <code>exit 1</code> apenas registra aviso e deixa a ação seguir; é um erro comum confundir os dois.</div>
+
   <h2>Fluxo de trabalho recomendado</h2>
   <ol>
     <li>Comece só com prompts diretos — é o jeito mais simples de aprender a "conversar" com o agente (Capítulos 1 e 2).</li>
